@@ -1,0 +1,12 @@
+{
+  "modListVersion": 2,
+  "modList": [{
+    "description": "3D Digging particles! YAY!",
+    "mcversion": "1.10.2",
+    "url": "https://minecraft.curseforge.com/projects/fancy-block-particles",
+    "authorList": [ "TominoCZ" ],
+    "credits": "Authored by TominoCZ, based on an original idea by craftland.org creators",
+    "requiredMods": [ "Forge" ],
+    "useDependencyInformation": true
+  }]
+}
