@@ -40,7 +40,7 @@ public class FBPGuiMenu extends GuiScreen {
 		Done = new GuiButton(-1, this.width / 2 - 100, (int) b12.yPosition + b12.height + 10, "Done");
 
 		Reload = new GuiButton(13, this.width / 2 - 100, (int) Done.yPosition + Done.height + 5, "Reload Config");
-
+		
 		Defaults.setWidth(96);
 		Done.setWidth(96);
 		Reload.setWidth(96 * 2 + 8);
@@ -72,6 +72,7 @@ public class FBPGuiMenu extends GuiScreen {
 		this.buttonList.add(b10);
 		this.buttonList.add(b11);
 		this.buttonList.add(b12);
+
 		this.buttonList.add(Defaults);
 		this.buttonList.add(Done);
 		this.buttonList.add(Reload);
@@ -135,6 +136,7 @@ public class FBPGuiMenu extends GuiScreen {
 			break;
 		case 13:
 			FBPConfigHandler.init();
+			break;
 		}
 
 		FBPConfigHandler.check();
@@ -149,10 +151,11 @@ public class FBPGuiMenu extends GuiScreen {
 		this.drawDefaultBackground();
 		this.drawCenteredString(fontRendererObj, "Fancy Block Particles", this.width / 2, b1.yPosition - 25,
 				Integer.parseInt("FFAA00", 16));
-		this.drawCenteredString(fontRendererObj, "Min. Scale [" + FBPMathHelper.round(FBP.minScale) + "]", this.width / 2,
-				b1.yPosition + 6, fontRendererObj.getColorCode('A'));
-		this.drawCenteredString(fontRendererObj, "Max. Scale [" + FBPMathHelper.round(FBP.maxScale) + "]", this.width / 2,
-				b3.yPosition + 6, fontRendererObj.getColorCode('A'));
+
+		this.drawCenteredString(fontRendererObj, "Min. Scale [" + FBPMathHelper.round(FBP.minScale) + "]",
+				this.width / 2, b1.yPosition + 6, fontRendererObj.getColorCode('A'));
+		this.drawCenteredString(fontRendererObj, "Max. Scale [" + FBPMathHelper.round(FBP.maxScale) + "]",
+				this.width / 2, b3.yPosition + 6, fontRendererObj.getColorCode('A'));
 		this.drawCenteredString(fontRendererObj, "Min. Age [" + FBP.minAge + "]", this.width / 2, b5.yPosition + 6,
 				fontRendererObj.getColorCode('A'));
 		this.drawCenteredString(fontRendererObj, "Max. Age [" + FBP.maxAge + "]", this.width / 2, b7.yPosition + 6,
@@ -161,8 +164,9 @@ public class FBPGuiMenu extends GuiScreen {
 				this.width / 2, b9.yPosition + 6, fontRendererObj.getColorCode('A'));
 
 		if (FBP.rotationMult != 0)
-			this.drawCenteredString(fontRendererObj, "Rotation Speed Mult. [" + FBPMathHelper.round(FBP.rotationMult) + "]",
-					this.width / 2, b11.yPosition + 7, fontRendererObj.getColorCode('A'));
+			this.drawCenteredString(fontRendererObj,
+					"Rotation Speed Mult. [" + FBPMathHelper.round(FBP.rotationMult) + "]", this.width / 2,
+					b11.yPosition + 7, fontRendererObj.getColorCode('A'));
 		else
 			this.drawCenteredString(fontRendererObj, "Rotation Speed Mult. [OFF]", this.width / 2, b11.yPosition + 7,
 					fontRendererObj.getColorCode('A'));

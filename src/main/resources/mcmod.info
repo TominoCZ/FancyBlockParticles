@@ -1,12 +1,16 @@
-{
-  "modListVersion": 2,
-  "modList": [{
+[
+  {
+    "modid": "fbp",
+    "name": "Fancy Block Particles",
     "description": "3D Digging particles! YAY!",
-    "mcversion": "1.10.2",
+    "version": "1.7.3",
+    "mcversion": "1.11",
     "url": "https://minecraft.curseforge.com/projects/fancy-block-particles",
-    "authorList": [ "TominoCZ" ],
+    "updateUrl": "",
+    "authorList": ["TominoCZ"],
     "credits": "Authored by TominoCZ, based on an original idea by craftland.org creators",
-    "requiredMods": [ "Forge" ],
-    "useDependencyInformation": true
-  }]
-}
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

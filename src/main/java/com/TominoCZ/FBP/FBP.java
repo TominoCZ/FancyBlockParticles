@@ -1,7 +1,6 @@
 package com.TominoCZ.FBP;
 
 import java.io.File;
-import java.util.Random;
 
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPEventHandler;
@@ -20,16 +19,12 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = FBP.MODID, version = FBP.VERSION, clientSideOnly = true, name = FBP.NAME)
+@Mod(clientSideOnly = true, modid = FBP.MODID)
 public class FBP {
 	@Instance(FBP.MODID)
 	public static FBP instance;
-
-	protected final static String NAME = "Fancy Block Particles";
+	
 	protected final static String MODID = "fbp";
-	protected final static String VERSION = "1.6.1";
-
-	public static Random r = new Random();
 
 	public static File config;
 

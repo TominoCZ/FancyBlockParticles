@@ -17,10 +17,15 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public class FBPParticleDigging extends Particle {
 	private final IBlockState sourceState;
+	
+	private int j2, k2, vecIndex;
+	
 	long thisTime, lastTime;
 
 	double aplhaMult = 0.85;
@@ -38,7 +43,7 @@ public class FBPParticleDigging extends Particle {
 
 	public FBPParticleDigging(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
 			double ySpeedIn, double zSpeedIn, IBlockState state) {
-		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
+		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn / 2, ySpeedIn / 2, zSpeedIn / 2);
 		this.sourceState = state;
 		this.particleGravity = (float) (state.getBlock().blockParticleGravity * FBP.gravityMult);
 		this.particleScale = (float) ThreadLocalRandom.current().nextDouble(FBP.minScale, FBP.maxScale + 0.5);
@@ -67,9 +72,10 @@ public class FBPParticleDigging extends Particle {
 
 			x1 = (x1 >= 0 ? x1 : -x1);
 			z1 = (z1 >= 0 ? z1 : -z1);
-			
-			double mX = motionX >= 0.0D ? motionX : -motionX, mY = motionY >= 0.0D ? motionY : -motionY, mZ = motionZ >= 0.0D ? motionZ : -motionZ;
-			
+
+			double mX = motionX >= 0.0D ? motionX : -motionX, mY = motionY >= 0.0D ? motionY : -motionY,
+					mZ = motionZ >= 0.0D ? motionZ : -motionZ;
+
 			if (blockHeight != 1) {
 				if (state.getBlock() != Blocks.CARPET) {
 					if (posY - ((int) posY) - 0.1F == blockHeight) {
@@ -245,13 +251,12 @@ public class FBPParticleDigging extends Particle {
 		float f5 = (float) (this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks - interpPosX);
 		float f6 = (float) (this.prevPosY + (this.posY - this.prevPosY) * (double) partialTicks - interpPosY) + 0.0125F;
 		float f7 = (float) (this.prevPosZ + (this.posZ - this.prevPosZ) * (double) partialTicks - interpPosZ);
-
+		
 		int i = this.getBrightnessForRender(partialTicks);
-		int j = i >> 16 & 65535;
-		int k = i & 65535;
 
 		if (!spawned) {
 			spawned = true;
+			
 			par = new double[][] { { f1, f3 }, { f1, f2 }, { f, f2 }, { f, f3 },
 
 					{ f, f2 }, { f, f3 }, { f1, f3 }, { f1, f2 },
@@ -264,6 +269,9 @@ public class FBPParticleDigging extends Particle {
 
 					{ f, f2 }, { f, f3 }, { f1, f3 }, { f1, f2 } };
 		}
+		
+		int j = i >> 16 & 65535;
+		int k = i & 65535;
 		// ROTATION CALCULATION PER 20ms
 		thisTime = System.currentTimeMillis();
 
@@ -320,20 +328,32 @@ public class FBPParticleDigging extends Particle {
 
 		return i == 0 ? j : i;
 	}
-
-	void renderQuads(VertexBuffer buf, double[][] vec, double[][] pars, int j, int k) {
-		int j2 = (int) (j / 1.1);
-		int k2 = (int) (k / 1.1);
-
-		for (int index = 0; index < vec.length; index++) {
-			if (index > 0) {
-				j2 /= 1.0045;
-				k2 /= 1.0045;
-			}
+	
+	void renderQuads(VertexBuffer buf, List<double[]> vec, double[][] pars, int j, int k) {
+		j2 = (int) ((j / 1.1) * 1.0045);
+		k2 = (int) ((k / 1.1) * 1.0045);
+		
+		vec.forEach(vector -> {
+			j2 /= 1.0045;
+			k2 /= 1.0045;
+			
+			vecIndex = vec.indexOf(vector);
+			
+			buf.pos(vector[0], vector[1], vector[2]).tex(pars[vecIndex][0], pars[vecIndex][1])
+					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j2, k2)
+					.endVertex();
+		});
+		
+		vecIndex = 0;
+		/*
+		for (int index = 0; index < vec.size(); index++) {
+			j2 /= 1.0045;
+			k2 /= 1.0045;
 
 			buf.pos(vec[index][0], vec[index][1], vec[index][2]).tex(pars[index][0], pars[index][1])
 					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j2, k2)
 					.endVertex();
 		}
+		*/
 	}
 }

@@ -32,6 +32,8 @@ public class FBPParticleEmitter extends ParticleEmitter {
 
 	IBlockState prevSourceState;
 
+	ArrayList<FBPParticleDigging> newParticles = new ArrayList<FBPParticleDigging>();
+
 	public FBPParticleEmitter(World w, Queue<Particle> q) {
 		super(w, new EntityItem(w), EnumParticleTypes.BLOCK_CRACK);
 		queue = q;
@@ -51,79 +53,72 @@ public class FBPParticleEmitter extends ParticleEmitter {
 
 	@Override
 	public void onUpdate() {
-		if (!Minecraft.getMinecraft().isGamePaused() && queue != null && !queue.isEmpty() && FBP.isEnabled()) {
-			ArrayList<FBPParticleDigging> newParticles = new ArrayList<FBPParticleDigging>();
-
-			Iterator it = queue.iterator();
-
-			while (it.hasNext()) {
-				Object c = it.next();
-
-				if (c instanceof ParticleDigging) {
+		if (!Minecraft.getMinecraft().isGamePaused() && queue != null && FBP.isEnabled()) {
+			queue.stream().filter(particle -> particle instanceof ParticleDigging).forEach(particle -> {
+				try {
 					Class c1 = Particle.class;
 
-					try {
-						if (FBP.isDev()) {
-							PosX = c1.getDeclaredField("posX");
-							PosY = c1.getDeclaredField("posY");
-							PosZ = c1.getDeclaredField("posZ");
+					if (FBP.isDev()) {
+						PosX = c1.getDeclaredField("posX");
+						PosY = c1.getDeclaredField("posY");
+						PosZ = c1.getDeclaredField("posZ");
 
-							MotionX = c1.getDeclaredField("motionX");
-							MotionY = c1.getDeclaredField("motionY");
-							MotionZ = c1.getDeclaredField("motionZ");
+						MotionX = c1.getDeclaredField("motionX");
+						MotionY = c1.getDeclaredField("motionY");
+						MotionZ = c1.getDeclaredField("motionZ");
 
-							SourceState = ParticleDigging.class.getDeclaredField("sourceState");
-						} else {
-							PosX = c1.getDeclaredField("field_187126_f");
-							PosY = c1.getDeclaredField("field_187127_g");
-							PosZ = c1.getDeclaredField("field_187128_h");
+						SourceState = ParticleDigging.class.getDeclaredField("sourceState");
+					} else {
+						PosX = c1.getDeclaredField("field_187126_f");
+						PosY = c1.getDeclaredField("field_187127_g");
+						PosZ = c1.getDeclaredField("field_187128_h");
 
-							MotionX = c1.getDeclaredField("field_187129_i");
-							MotionY = c1.getDeclaredField("field_187130_j");
-							MotionZ = c1.getDeclaredField("field_187131_k");
+						MotionX = c1.getDeclaredField("field_187129_i");
+						MotionY = c1.getDeclaredField("field_187130_j");
+						MotionZ = c1.getDeclaredField("field_187131_k");
 
-							SourceState = ParticleDigging.class.getDeclaredField("field_174847_a");
-						}
-
-						PosX.setAccessible(true);
-						PosY.setAccessible(true);
-						PosZ.setAccessible(true);
-
-						MotionX.setAccessible(true);
-						MotionY.setAccessible(true);
-						MotionZ.setAccessible(true);
-
-						SourceState.setAccessible(true);
-
-						prevSourceState = (IBlockState) SourceState.get(c);
-
-						mX = MotionX.getDouble(c);
-						mY = MotionY.getDouble(c);
-						mZ = MotionZ.getDouble(c);
-
-						X = PosX.getDouble(c);
-						Y = PosY.getDouble(c);
-						Z = PosZ.getDouble(c);
-					} catch (Exception e) {
-						prevSourceState = worldObj
-								.getBlockState(new BlockPos(this.interpPosX, this.interpPosY, this.interpPosZ));
+						SourceState = ParticleDigging.class.getDeclaredField("field_174847_a");
 					}
 
-					if (!(prevSourceState.getBlock() instanceof BlockLiquid)) {
-						if (FBP.frozen) {
-							if (FBP.spawnWhileFrozen) {
-								newParticles
-										.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
-							}
-						} else {
+					PosX.setAccessible(true);
+					PosY.setAccessible(true);
+					PosZ.setAccessible(true);
+
+					MotionX.setAccessible(true);
+					MotionY.setAccessible(true);
+					MotionZ.setAccessible(true);
+
+					SourceState.setAccessible(true);
+
+					prevSourceState = (IBlockState) SourceState.get(particle);
+
+					mX = MotionX.getDouble(particle);
+					mY = MotionY.getDouble(particle);
+					mZ = MotionZ.getDouble(particle);
+
+					X = PosX.getDouble(particle);
+					Y = PosY.getDouble(particle);
+					Z = PosZ.getDouble(particle);
+				} catch (Exception e) {
+					prevSourceState = worldObj
+							.getBlockState(new BlockPos(this.interpPosX, this.interpPosY, this.interpPosZ));
+				}
+
+				if (!(prevSourceState.getBlock() instanceof BlockLiquid)) {
+					if (FBP.frozen) {
+						if (FBP.spawnWhileFrozen) {
 							newParticles.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
 						}
+					} else {
+						newParticles.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
 					}
-					it.remove();
 				}
+				queue.remove(particle);
+			});
+			if (!newParticles.isEmpty()) {
+				queue.addAll(newParticles);
+				newParticles.clear();
 			}
-			queue.addAll(newParticles);
-			newParticles.clear();
 		}
 	}
 

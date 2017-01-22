@@ -15,9 +15,9 @@ group= "com.TominoCZ.FBP" // http://maven.apache.org/guides/mini/guide-naming-co
 version = "1.10.2"
 archivesBaseName = "FancyBlockParticles"
 
-sourceCompatibility = targetCompatibility = "1.6" // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
 compileJava {
-    sourceCompatibility = targetCompatibility = "1.6"
+    sourceCompatibility = targetCompatibility = "1.8"
 }
 
 minecraft {
