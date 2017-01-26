@@ -1,7 +1,7 @@
 package com.TominoCZ.FBP.handler;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.gui.FBPGuiMenu;
+import com.TominoCZ.FBP.gui.FBPGuiMenuPage1;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
 
 import net.minecraft.client.Minecraft;
@@ -13,7 +13,7 @@ public class FBPKeyInputHandler {
 	@SubscribeEvent
 	public void onKeyInput(KeyInputEvent event) {
 		if (FBPKeyBindings.FBPMenu.isPressed()) {
-			Minecraft.getMinecraft().displayGuiScreen(new FBPGuiMenu());
+			Minecraft.getMinecraft().displayGuiScreen(new FBPGuiMenuPage1());
 		}
 
 		if (FBPKeyBindings.FBPFreeze.isPressed())

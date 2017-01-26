@@ -1,5 +1,6 @@
 package com.TominoCZ.FBP.particle;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -17,33 +18,29 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 
 public class FBPParticleDigging extends Particle {
 	private final IBlockState sourceState;
-	
+
 	private int j2, k2, vecIndex;
-	
-	long thisTime, lastTime;
+
+	long rotationTime, rotationTimeLast, disappearTime, disappearTimeLast;
 
 	double aplhaMult = 0.85;
 
 	double scale;
 
-	double angleX, angleY, angleZ;
+	double angleX, angleY, angleZ, randomXd, randomYd, randomZd;
 
 	double stepXZ = 1;
 
-	double randomXd, randomYd, randomZd;
-
-	private boolean spawned = false, small = false;
+	private boolean spawned = false;
 	private double[][] par;
 
 	public FBPParticleDigging(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
 			double ySpeedIn, double zSpeedIn, IBlockState state) {
-		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn / 2, ySpeedIn / 2, zSpeedIn / 2);
+		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
 		this.sourceState = state;
 		this.particleGravity = (float) (state.getBlock().blockParticleGravity * FBP.gravityMult);
 		this.particleScale = (float) ThreadLocalRandom.current().nextDouble(FBP.minScale, FBP.maxScale + 0.5);
@@ -60,8 +57,8 @@ public class FBPParticleDigging extends Particle {
 		if (posY - ((int) posY) <= 0.105 && posY - ((int) posY) >= 0) {
 			List<BakedQuad> quads = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
 					.getModelForState(state).getQuads(state, EnumFacing.UP, rand.nextLong());
-			if (!(quads = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-					.getModelForState(state).getQuads(state, EnumFacing.UP, rand.nextLong())).isEmpty())
+
+			if (!quads.isEmpty())
 				this.particleTexture = quads.get(0).getSprite();
 		}
 
@@ -183,6 +180,10 @@ public class FBPParticleDigging extends Particle {
 		randomZd = Math.random();
 	}
 
+	private interface IRotationHandle {
+		void handleRotation(Object particle);
+	}
+
 	protected void multiplyColor(@Nullable BlockPos p_187154_1_) {
 		int i = Minecraft.getMinecraft().getBlockColors().colorMultiplier(this.sourceState, this.worldObj, p_187154_1_,
 				0);
@@ -203,15 +204,27 @@ public class FBPParticleDigging extends Particle {
 
 		if (!Minecraft.getMinecraft().isGamePaused() && !FBP.frozen) {
 			if (this.particleAge++ >= this.particleMaxAge) {
-				if (particleScale > scale * 0.5) {
-					particleScale -= 0.07 * scale;
+				disappearTime = System.nanoTime();
+				if ((disappearTime - disappearTimeLast) >= 500 && !this.isCollided) {
+					disappearTimeLast = disappearTime;
 
-					if (particleScale < scale * 0.725F) {
-						particleAlpha *= aplhaMult;
-						aplhaMult *= 0.885;
-					}
-				} else
-					setExpired();
+					if (particleScale > scale * 0.25) {
+
+						// particleScale -= 0.07 * scale;
+						particleScale -= 0.1125 * scale;
+
+						if (particleScale < scale * 0.725F) {
+							particleAlpha *= aplhaMult;
+							aplhaMult *= 0.65;
+						}
+
+						/*
+						 * if (particleScale < scale * 0.725F) { particleAlpha
+						 * *= aplhaMult; aplhaMult *= 0.885; }
+						 */
+					} else
+						setExpired();
+				}
 			}
 
 			this.motionY -= 0.04D * (double) this.particleGravity;
@@ -251,12 +264,12 @@ public class FBPParticleDigging extends Particle {
 		float f5 = (float) (this.prevPosX + (this.posX - this.prevPosX) * (double) partialTicks - interpPosX);
 		float f6 = (float) (this.prevPosY + (this.posY - this.prevPosY) * (double) partialTicks - interpPosY) + 0.0125F;
 		float f7 = (float) (this.prevPosZ + (this.posZ - this.prevPosZ) * (double) partialTicks - interpPosZ);
-		
+
 		int i = this.getBrightnessForRender(partialTicks);
 
 		if (!spawned) {
 			spawned = true;
-			
+
 			par = new double[][] { { f1, f3 }, { f1, f2 }, { f, f2 }, { f, f3 },
 
 					{ f, f2 }, { f, f3 }, { f1, f3 }, { f1, f2 },
@@ -269,27 +282,28 @@ public class FBPParticleDigging extends Particle {
 
 					{ f, f2 }, { f, f3 }, { f1, f3 }, { f1, f2 } };
 		}
-		
+
 		int j = i >> 16 & 65535;
 		int k = i & 65535;
+
 		// ROTATION CALCULATION PER 20ms
-		thisTime = System.currentTimeMillis();
+		rotationTime = System.currentTimeMillis();
 
 		if (!Minecraft.getMinecraft().isGamePaused() && FBP.rotationMult > 0 && !FBP.frozen) {
-			if ((thisTime - lastTime) >= 20 && !this.isCollided) {
-				lastTime = thisTime;
+			if ((rotationTime - rotationTimeLast) >= 20 && !this.isCollided) {
+				rotationTimeLast = rotationTime;
 
 				if (!FBP.oldMode) {
 					if (motionX > 0) {
 						if (motionZ > 0)
-							angleX -= (stepXZ * (FBP.rotationMult * 0.75)); // 1.
+							angleX -= (stepXZ * (FBP.rotationMult * 0.65)); // 1.
 						else if (motionZ < 0)
-							angleX += (stepXZ * (FBP.rotationMult * 0.75)); // 2.
+							angleX += (stepXZ * (FBP.rotationMult * 0.65)); // 2.
 					} else {
 						if (motionZ < 0)
-							angleX += (stepXZ * (FBP.rotationMult * 0.75)); // 3.
+							angleX += (stepXZ * (FBP.rotationMult * 0.65)); // 3.
 						else if (motionZ > 0)
-							angleX -= (stepXZ * (FBP.rotationMult * 0.75)); // 4.
+							angleX -= (stepXZ * (FBP.rotationMult * 0.65)); // 4.
 					}
 				} else {
 					if (randomXd < 0.7)
@@ -309,7 +323,6 @@ public class FBPParticleDigging extends Particle {
 				}
 			}
 		}
-
 		// RENDER
 		worldRendererIn.setTranslation(f5, f6, f7);
 
@@ -328,32 +341,31 @@ public class FBPParticleDigging extends Particle {
 
 		return i == 0 ? j : i;
 	}
-	
-	void renderQuads(VertexBuffer buf, List<double[]> vec, double[][] pars, int j, int k) {
+
+	void renderQuads(VertexBuffer buf, ArrayList<double[]> vec, double[][] pars, int j, int k) {
 		j2 = (int) ((j / 1.1) * 1.0045);
 		k2 = (int) ((k / 1.1) * 1.0045);
-		
+
 		vec.forEach(vector -> {
 			j2 /= 1.0045;
 			k2 /= 1.0045;
-			
+
 			vecIndex = vec.indexOf(vector);
-			
+
 			buf.pos(vector[0], vector[1], vector[2]).tex(pars[vecIndex][0], pars[vecIndex][1])
 					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j2, k2)
 					.endVertex();
 		});
-		
+
 		vecIndex = 0;
 		/*
-		for (int index = 0; index < vec.size(); index++) {
-			j2 /= 1.0045;
-			k2 /= 1.0045;
-
-			buf.pos(vec[index][0], vec[index][1], vec[index][2]).tex(pars[index][0], pars[index][1])
-					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j2, k2)
-					.endVertex();
-		}
-		*/
+		 * for (int index = 0; index < vec.size(); index++) { j2 /= 1.0045; k2
+		 * /= 1.0045;
+		 * 
+		 * buf.pos(vec[index][0], vec[index][1],
+		 * vec[index][2]).tex(pars[index][0], pars[index][1])
+		 * .color(this.particleRed, this.particleGreen, this.particleBlue,
+		 * this.particleAlpha).lightmap(j2, k2) .endVertex(); }
+		 */
 	}
 }

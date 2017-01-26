@@ -33,7 +33,7 @@ public class FBPGuiYesNo extends GuiScreen {
 			FBPConfigHandler.defaults();
 			break;
 		}
-		this.mc.displayGuiScreen(new FBPGuiMenu());
+		this.mc.displayGuiScreen(new FBPGuiMenuPage1());
 
 		FBPConfigHandler.write();
 	}

@@ -1,6 +1,7 @@
 package com.TominoCZ.FBP;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPEventHandler;
@@ -38,12 +39,12 @@ public class FBP {
 
 	public static double gravityMult;
 	public static double rotationMult;
-
+	
 	public static boolean oldMode = false;
 	public static boolean spawnWhileFrozen = true;
 
 	public static FBPEventHandler eventHandler = new FBPEventHandler();
-
+	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");

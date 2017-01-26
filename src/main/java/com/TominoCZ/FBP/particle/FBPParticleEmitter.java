@@ -1,12 +1,12 @@
 package com.TominoCZ.FBP.particle;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Queue;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.math.FBPMathHelper;
 
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
@@ -32,8 +32,8 @@ public class FBPParticleEmitter extends ParticleEmitter {
 
 	IBlockState prevSourceState;
 
-	ArrayList<FBPParticleDigging> newParticles = new ArrayList<FBPParticleDigging>();
-
+	LinkedList newParticles = new LinkedList();
+	
 	public FBPParticleEmitter(World w, Queue<Particle> q) {
 		super(w, new EntityItem(w), EnumParticleTypes.BLOCK_CRACK);
 		queue = q;
@@ -53,7 +53,7 @@ public class FBPParticleEmitter extends ParticleEmitter {
 
 	@Override
 	public void onUpdate() {
-		if (!Minecraft.getMinecraft().isGamePaused() && queue != null && FBP.isEnabled()) {
+		if (queue != null && !Minecraft.getMinecraft().isGamePaused() && FBP.isEnabled()) {
 			queue.stream().filter(particle -> particle instanceof ParticleDigging).forEach(particle -> {
 				try {
 					Class c1 = Particle.class;
@@ -103,16 +103,10 @@ public class FBPParticleEmitter extends ParticleEmitter {
 					prevSourceState = worldObj
 							.getBlockState(new BlockPos(this.interpPosX, this.interpPosY, this.interpPosZ));
 				}
-
-				if (!(prevSourceState.getBlock() instanceof BlockLiquid)) {
-					if (FBP.frozen) {
-						if (FBP.spawnWhileFrozen) {
-							newParticles.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
-						}
-					} else {
-						newParticles.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
-					}
+				if (!(prevSourceState.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen)) {
+					newParticles.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
 				}
+
 				queue.remove(particle);
 			});
 			if (!newParticles.isEmpty()) {

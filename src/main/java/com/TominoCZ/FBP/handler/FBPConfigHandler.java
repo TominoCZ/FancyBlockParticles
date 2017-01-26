@@ -117,6 +117,7 @@ public class FBPConfigHandler {
 				else if (line.contains("rotationMult="))
 					FBP.rotationMult = Double.valueOf(line.replaceAll(" ", "").replace("rotationMult=", ""));
 			}
+			
 			closeStreams();
 
 			check();
@@ -146,7 +147,7 @@ public class FBPConfigHandler {
 		FBP.maxScale = 1.2;
 		FBP.gravityMult = 1.0;
 		FBP.rotationMult = 1.0;
-
+		
 		write();
 	}
 
@@ -157,7 +158,7 @@ public class FBPConfigHandler {
 		FBP.maxAge = Math.abs(FBP.maxAge);
 		FBP.gravityMult = Math.abs(FBP.gravityMult);
 		FBP.rotationMult = Math.abs(FBP.rotationMult);
-
+		
 		if (FBP.minScale < 0.1D)
 			FBP.minScale = 0.1D;
 		if (FBP.maxScale > 2.0D)
@@ -181,7 +182,7 @@ public class FBPConfigHandler {
 			FBP.rotationMult = 1.5D;
 		else if (FBP.rotationMult < 0)
 			FBP.rotationMult = 0;
-
+		
 		// Final check
 		if (FBP.minScale > FBP.maxScale)
 			FBP.minScale = FBP.maxScale;
