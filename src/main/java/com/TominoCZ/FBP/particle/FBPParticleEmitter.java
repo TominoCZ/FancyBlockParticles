@@ -1,10 +1,9 @@
 package com.TominoCZ.FBP.particle;
 
-import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
-
-import org.apache.commons.lang3.time.StopWatch;
 
 import com.TominoCZ.FBP.FBP;
 
@@ -18,22 +17,23 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class FBPParticleEmitter extends ParticleEmitter {
-	Field PosX, PosY, PosZ, MotionX, MotionY, MotionZ, SourceState;
-
 	double X, Y, Z, mX, mY, mZ;
 
 	Queue<Particle> queue;
 
 	IBlockState prevSourceState;
 
-	LinkedList newParticles = new LinkedList();
-	
+	List toAdd = new LinkedList();
+	List toRemove = new ArrayList();
+
 	public FBPParticleEmitter(World w, Queue<Particle> q) {
 		super(w, new EntityItem(w), EnumParticleTypes.BLOCK_CRACK);
 		queue = q;
@@ -56,62 +56,36 @@ public class FBPParticleEmitter extends ParticleEmitter {
 		if (queue != null && !Minecraft.getMinecraft().isGamePaused() && FBP.isEnabled()) {
 			queue.stream().filter(particle -> particle instanceof ParticleDigging).forEach(particle -> {
 				try {
-					Class c1 = Particle.class;
+					Class c = Particle.class;
 
-					if (FBP.isDev()) {
-						PosX = c1.getDeclaredField("posX");
-						PosY = c1.getDeclaredField("posY");
-						PosZ = c1.getDeclaredField("posZ");
+					prevSourceState = (IBlockState) ReflectionHelper
+							.findField(ParticleDigging.class, "sourceState", "field_174847_a").get(particle);
 
-						MotionX = c1.getDeclaredField("motionX");
-						MotionY = c1.getDeclaredField("motionY");
-						MotionZ = c1.getDeclaredField("motionZ");
+					mX = (double) ReflectionHelper.findField(c, "motionX", "field_187129_i").get(particle);
+					mY = (double) ReflectionHelper.findField(c, "motionY", "field_187130_j").get(particle);
+					mZ = (double) ReflectionHelper.findField(c, "motionZ", "field_187131_k").get(particle);
 
-						SourceState = ParticleDigging.class.getDeclaredField("sourceState");
-					} else {
-						PosX = c1.getDeclaredField("field_187126_f");
-						PosY = c1.getDeclaredField("field_187127_g");
-						PosZ = c1.getDeclaredField("field_187128_h");
-
-						MotionX = c1.getDeclaredField("field_187129_i");
-						MotionY = c1.getDeclaredField("field_187130_j");
-						MotionZ = c1.getDeclaredField("field_187131_k");
-
-						SourceState = ParticleDigging.class.getDeclaredField("field_174847_a");
-					}
-
-					PosX.setAccessible(true);
-					PosY.setAccessible(true);
-					PosZ.setAccessible(true);
-
-					MotionX.setAccessible(true);
-					MotionY.setAccessible(true);
-					MotionZ.setAccessible(true);
-
-					SourceState.setAccessible(true);
-
-					prevSourceState = (IBlockState) SourceState.get(particle);
-
-					mX = MotionX.getDouble(particle);
-					mY = MotionY.getDouble(particle);
-					mZ = MotionZ.getDouble(particle);
-
-					X = PosX.getDouble(particle);
-					Y = PosY.getDouble(particle);
-					Z = PosZ.getDouble(particle);
+					X = (double) ReflectionHelper.findField(c, "posX", "field_187126_f").get(particle);
+					Y = (double) ReflectionHelper.findField(c, "posY", "field_187127_g").get(particle);
+					Z = (double) ReflectionHelper.findField(c, "posZ", "field_187128_h").get(particle);
 				} catch (Exception e) {
 					prevSourceState = worldObj
 							.getBlockState(new BlockPos(this.interpPosX, this.interpPosY, this.interpPosZ));
 				}
 				if (!(prevSourceState.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen)) {
-					newParticles.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
+					if (FBP.spawnRedstoneBlockParticles ? true : prevSourceState.getBlock() != Blocks.REDSTONE_BLOCK)
+						toAdd.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
 				}
 
-				queue.remove(particle);
+				toRemove.add(particle);
 			});
-			if (!newParticles.isEmpty()) {
-				queue.addAll(newParticles);
-				newParticles.clear();
+			if (!toRemove.isEmpty()) {
+				queue.removeAll(toRemove);
+				toRemove.clear();
+			}
+			if (!toAdd.isEmpty()) {
+				queue.addAll(toAdd);
+				toAdd.clear();
 			}
 		}
 	}

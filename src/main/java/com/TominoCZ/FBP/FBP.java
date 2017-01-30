@@ -1,7 +1,6 @@
 package com.TominoCZ.FBP;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPEventHandler;
@@ -24,38 +23,28 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class FBP {
 	@Instance(FBP.MODID)
 	public static FBP instance;
-	
+
 	protected final static String MODID = "fbp";
 
 	public static File config;
 
-	public static boolean frozen = false;
+	public static int minAge, maxAge;
 
-	public static double minScale;
-	public static double maxScale;
+	public static double minScale, maxScale, gravityMult, rotationMult;
 
-	public static int minAge;
-	public static int maxAge;
-
-	public static double gravityMult;
-	public static double rotationMult;
-	
-	public static boolean oldMode = false;
-	public static boolean spawnWhileFrozen = true;
+	public static boolean legacyMode = false, spawnWhileFrozen = true, spawnRedstoneBlockParticles = true, frozen = false;
 
 	public static FBPEventHandler eventHandler = new FBPEventHandler();
-	
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-
+		
 		FBPConfigHandler.init();
 
 		MinecraftForge.EVENT_BUS.register(new FBPRenderGuiHandler());
 
 		FMLCommonHandler.instance().bus().register(new FBPKeyInputHandler());
-
-		FBPKeyBindings.init();
 	}
 
 	@EventHandler

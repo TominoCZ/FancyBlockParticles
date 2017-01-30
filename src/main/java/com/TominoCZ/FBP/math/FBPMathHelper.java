@@ -8,18 +8,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
 public class FBPMathHelper {
-	static ArrayList newVec;
+	static ArrayList newVec = new ArrayList();
 
-	static List cube;
+	static List<double[]> cube;
 
-	static float[] XYZ;
+	static float[] radsXYZ;
 
 	static double sinAngleX, sinAngleY, sinAngleZ, cosAngleX, cosAngleY, cosAngleZ;
 
 	public static ArrayList<double[]> rotateCubeXYZ(double AngleX, double AngleY, double AngleZ, double size) {
-		newVec = new ArrayList();
-
-		List<double[]> cube = Arrays.asList(
+		cube = Arrays.asList(
 				new double[][] { { (size / 2), -(size / 2), (size / 2) }, { (size / 2), (size / 2), (size / 2) },
 						{ -(size / 2), (size / 2), (size / 2) }, { -(size / 2), -(size / 2), (size / 2) },
 
@@ -38,18 +36,21 @@ public class FBPMathHelper {
 						{ -(size / 2), -(size / 2), (size / 2) }, { -(size / 2), -(size / 2), -(size / 2) },
 						{ (size / 2), -(size / 2), -(size / 2) }, { (size / 2), -(size / 2), (size / 2) } });
 
-		XYZ = new float[] { (float) Math.toRadians(AngleX), (float) Math.toRadians(AngleY),
+		radsXYZ = new float[] { (float) Math.toRadians(AngleX), (float) Math.toRadians(AngleY),
 				(float) Math.toRadians(AngleZ) };
 
-		sinAngleX = MathHelper.sin(XYZ[0]);
-		sinAngleY = MathHelper.sin(XYZ[1]);
-		sinAngleZ = MathHelper.sin(XYZ[2]);
+		if (radsXYZ[0] + radsXYZ[1] + radsXYZ[2] != 0) {
 
-		cosAngleX = MathHelper.cos(XYZ[0]);
-		cosAngleY = MathHelper.cos(XYZ[1]);
-		cosAngleZ = MathHelper.cos(XYZ[2]);
+			sinAngleX = MathHelper.sin(radsXYZ[0]);
+			sinAngleY = MathHelper.sin(radsXYZ[1]);
+			sinAngleZ = MathHelper.sin(radsXYZ[2]);
 
-		if (sinAngleX + sinAngleY + sinAngleZ != 0) {
+			cosAngleX = MathHelper.cos(radsXYZ[0]);
+			cosAngleY = MathHelper.cos(radsXYZ[1]);
+			cosAngleZ = MathHelper.cos(radsXYZ[2]);
+
+			newVec.clear();
+
 			cube.forEach(vec -> {
 				double[] d = { ((double[]) vec)[0], vec[1] * cosAngleX - vec[2] * sinAngleX,
 						vec[1] * sinAngleX + vec[2] * cosAngleX };

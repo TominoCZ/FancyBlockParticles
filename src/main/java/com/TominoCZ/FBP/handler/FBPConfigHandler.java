@@ -23,6 +23,8 @@ public class FBPConfigHandler {
 		try {
 			f = FBP.config;
 
+			defaults(false);
+			
 			if (!f.exists()) {
 				if (!Directory.apply(f.getParent()).exists())
 					Directory.apply(f.getParent()).createDirectory(true, false);
@@ -34,28 +36,13 @@ public class FBPConfigHandler {
 
 			read();
 
+			write();
+
 			closeStreams();
 		} catch (IOException e) {
-			try {
-				br.close();
-				isr.close();
-				fis.close();
+			closeStreams();
 
-				if (!f.exists()) {
-					if (!Directory.apply(f.getParent()).exists())
-						Directory.apply(f.getParent()).createDirectory(true, false);
-
-					f.createNewFile();
-
-					write();
-				}
-
-				write();
-
-				read();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
+			write();
 		}
 	}
 
@@ -64,8 +51,9 @@ public class FBPConfigHandler {
 			check();
 
 			PrintWriter writer = new PrintWriter(f.getPath(), "UTF-8");
+			writer.println("legacyMode=" + FBP.legacyMode);
+			writer.println("spawnRedstoneBlockParticles=" + FBP.spawnRedstoneBlockParticles);
 			writer.println("spawnWhileFrozen=" + FBP.spawnWhileFrozen);
-			writer.println("oldMode=" + FBP.oldMode);
 			writer.println("minScale=" + FBP.minScale);
 			writer.println("maxScale=" + FBP.maxScale);
 			writer.println("minAge=" + FBP.minAge);
@@ -100,10 +88,13 @@ public class FBPConfigHandler {
 			String line;
 
 			while ((line = br.readLine()) != null) {
-				if (line.contains("spawnWhileFrozen="))
+				if (line.contains("legacyMode="))
+					FBP.legacyMode = Boolean.valueOf(line.replaceAll(" ", "").replace("legacyMode=", ""));
+				else if (line.contains("spawnWhileFrozen="))
 					FBP.spawnWhileFrozen = Boolean.valueOf(line.replaceAll(" ", "").replace("spawnWhileFrozen=", ""));
-				else if (line.contains("oldMode="))
-					FBP.oldMode = Boolean.valueOf(line.replaceAll(" ", "").replace("oldMode=", ""));
+				else if (line.contains("spawnRedstoneBlockParticles="))
+					FBP.spawnRedstoneBlockParticles = Boolean
+							.valueOf(line.replaceAll(" ", "").replace("spawnRedstoneBlockParticles=", ""));
 				else if (line.contains("minScale="))
 					FBP.minScale = Double.valueOf(line.replaceAll(" ", "").replace("minScale=", ""));
 				else if (line.contains("maxScale="))
@@ -117,7 +108,7 @@ public class FBPConfigHandler {
 				else if (line.contains("rotationMult="))
 					FBP.rotationMult = Double.valueOf(line.replaceAll(" ", "").replace("rotationMult=", ""));
 			}
-			
+
 			closeStreams();
 
 			check();
@@ -140,15 +131,19 @@ public class FBPConfigHandler {
 		}
 	}
 
-	public static void defaults() {
+	public static void defaults(boolean write) {
 		FBP.minAge = 10;
 		FBP.maxAge = 25;
 		FBP.minScale = 1.0;
 		FBP.maxScale = 1.2;
 		FBP.gravityMult = 1.0;
 		FBP.rotationMult = 1.0;
+		FBP.legacyMode = false;
+		FBP.spawnRedstoneBlockParticles = true;
+		FBP.spawnWhileFrozen = true;
 		
-		write();
+		if (write)
+			write();
 	}
 
 	public static void check() {
@@ -158,7 +153,7 @@ public class FBPConfigHandler {
 		FBP.maxAge = Math.abs(FBP.maxAge);
 		FBP.gravityMult = Math.abs(FBP.gravityMult);
 		FBP.rotationMult = Math.abs(FBP.rotationMult);
-		
+
 		if (FBP.minScale < 0.1D)
 			FBP.minScale = 0.1D;
 		if (FBP.maxScale > 2.0D)
@@ -182,7 +177,7 @@ public class FBPConfigHandler {
 			FBP.rotationMult = 1.5D;
 		else if (FBP.rotationMult < 0)
 			FBP.rotationMult = 0;
-		
+
 		// Final check
 		if (FBP.minScale > FBP.maxScale)
 			FBP.minScale = FBP.maxScale;

@@ -62,7 +62,7 @@ public class FBPParticleDigging extends Particle {
 				this.particleTexture = quads.get(0).getSprite();
 		}
 
-		if (!FBP.oldMode) {
+		if (!FBP.legacyMode) {
 			// IF PARTICLE IS 1/10 OF A BLOCK ABOVE THE SOURCE BLOCK
 			double x1 = FBPMathHelper.add((int) posX, 0.5), x2 = (posX >= 0 ? posX : -posX);
 			double z1 = FBPMathHelper.add((int) posZ, 0.5), z2 = (posZ >= 0 ? posZ : -posZ);
@@ -175,13 +175,11 @@ public class FBPParticleDigging extends Particle {
 				.getBlockModelShapes().getTexture(state))
 			multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 
-		randomXd = Math.random();
-		randomYd = Math.random();
-		randomZd = Math.random();
-	}
-
-	private interface IRotationHandle {
-		void handleRotation(Object particle);
+		if (FBP.legacyMode) {
+			randomXd = Math.random();
+			randomYd = Math.random();
+			randomZd = Math.random();
+		}
 	}
 
 	protected void multiplyColor(@Nullable BlockPos p_187154_1_) {
@@ -205,11 +203,10 @@ public class FBPParticleDigging extends Particle {
 		if (!Minecraft.getMinecraft().isGamePaused() && !FBP.frozen) {
 			if (this.particleAge++ >= this.particleMaxAge) {
 				disappearTime = System.nanoTime();
-				if ((disappearTime - disappearTimeLast) >= 500 && !this.isCollided) {
+				if ((disappearTime - disappearTimeLast) >= 500) {
 					disappearTimeLast = disappearTime;
 
 					if (particleScale > scale * 0.25) {
-
 						// particleScale -= 0.07 * scale;
 						particleScale -= 0.1125 * scale;
 
@@ -240,9 +237,6 @@ public class FBPParticleDigging extends Particle {
 		}
 	}
 
-	/**
-	 * Renders the particle
-	 */
 	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled())
@@ -293,7 +287,7 @@ public class FBPParticleDigging extends Particle {
 			if ((rotationTime - rotationTimeLast) >= 20 && !this.isCollided) {
 				rotationTimeLast = rotationTime;
 
-				if (!FBP.oldMode) {
+				if (!FBP.legacyMode) {
 					if (motionX > 0) {
 						if (motionZ > 0)
 							angleX -= (stepXZ * (FBP.rotationMult * 0.65)); // 1.
@@ -358,14 +352,5 @@ public class FBPParticleDigging extends Particle {
 		});
 
 		vecIndex = 0;
-		/*
-		 * for (int index = 0; index < vec.size(); index++) { j2 /= 1.0045; k2
-		 * /= 1.0045;
-		 * 
-		 * buf.pos(vec[index][0], vec[index][1],
-		 * vec[index][2]).tex(pars[index][0], pars[index][1])
-		 * .color(this.particleRed, this.particleGreen, this.particleBlue,
-		 * this.particleAlpha).lightmap(j2, k2) .endVertex(); }
-		 */
 	}
 }

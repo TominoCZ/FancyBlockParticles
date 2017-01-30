@@ -1,6 +1,9 @@
 package com.TominoCZ.FBP.gui;
 
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Arrays;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
@@ -13,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class FBPGuiMenuPage1 extends GuiScreen {
-	GuiButton Reload, Done, Defaults, Next, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12;
+	GuiButton Reload, Done, Defaults, Next, ReportBug, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12;
 
 	public void initGui() {
 		this.buttonList.clear();
@@ -36,56 +39,35 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 		b11 = new GuiButton(11, this.width / 2 + 76, (int) b10.yPosition + b10.height + 1, "+");
 		b12 = new GuiButton(12, this.width / 2 - 100, (int) b10.yPosition + b10.height + 1, "-");
 
-		Next = new GuiButton(13, this.width / 2 + 101, (int) b12.yPosition, ">>");
+		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 20, 4, this.fontRendererObj);
 
+		Next = new GuiButton(-3, this.width / 2 + 101, (int) b12.yPosition, ">>");
 		Defaults = new GuiButton(0, this.width / 2 + 4, (int) b12.yPosition + b12.height + 10, "Defaults");
 		Done = new GuiButton(-1, this.width / 2 - 100, (int) b12.yPosition + b12.height + 10, "Done");
 
 		Reload = new GuiButton(-2, this.width / 2 - 100, (int) Done.yPosition + Done.height + 5, "Reload Config");
 
-		Next.visible = FBP.isDev(); //TODO FUTURE
-		
-		Next.setWidth(25);
-		Defaults.setWidth(96);
-		Done.setWidth(96);
-		Reload.setWidth(96 * 2 + 8);
+		Defaults.width = Done.width = 96;
+		Reload.width = Defaults.width * 2 + 8;
 
-		b1.setWidth(25);
-		b2.setWidth(25);
-		b3.setWidth(25);
-		b4.setWidth(25);
-		b5.setWidth(25);
-		b6.setWidth(25);
-		b7.setWidth(25);
-		b8.setWidth(25);
-		b7.setWidth(25);
-		b8.setWidth(25);
-		b9.setWidth(25);
-		b10.setWidth(25);
-		b11.setWidth(25);
-		b12.setWidth(25);
+		b1.width = b2.width = b3.width = b4.width = b5.width = b6.width = b7.width = b8.width = b9.width = b10.width = b11.width = b12.width = Next.width = 25;
 
-		this.buttonList.add(b1);
-		this.buttonList.add(b2);
-		this.buttonList.add(b3);
-		this.buttonList.add(b4);
-		this.buttonList.add(b5);
-		this.buttonList.add(b6);
-		this.buttonList.add(b7);
-		this.buttonList.add(b8);
-		this.buttonList.add(b9);
-		this.buttonList.add(b10);
-		this.buttonList.add(b11);
-		this.buttonList.add(b12);
-
-		this.buttonList.add(Next);
-		this.buttonList.add(Defaults);
-		this.buttonList.add(Done);
-		this.buttonList.add(Reload);
+		this.buttonList.addAll(Arrays.asList(new GuiButton[] { b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12,
+				Defaults, Done, Reload, Next, ReportBug }));
 	}
 
 	protected void actionPerformed(GuiButton button) throws IOException {
 		switch (button.id) {
+		case -4:
+			try {
+				Desktop.getDesktop().browse(new URI("https://github.com/TominoCZ/FancyBlockParticles/issues"));
+			} catch (Exception e) {
+
+			}
+			break;
+		case -3:
+			this.mc.displayGuiScreen(new FBPGuiMenuPage2());
+			break;
 		case -2:
 			FBPConfigHandler.init();
 			break;
@@ -93,7 +75,7 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 			this.mc.displayGuiScreen((GuiScreen) null);
 			break;
 		case 0:
-			this.mc.displayGuiScreen(new FBPGuiYesNo());
+			this.mc.displayGuiScreen(new FBPGuiYesNo(this));
 			break;
 		case 1:
 			if (FBP.minScale < FBP.maxScale)
@@ -143,9 +125,6 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 			if (FBP.rotationMult > 0)
 				FBP.rotationMult = FBPMathHelper.round(FBP.rotationMult -= 0.1D);
 			break;
-		case 13:
-			//TODO FUTURE - this.mc.displayGuiScreen(new FBPGuiMenuPage2());
-			break;
 		}
 
 		FBPConfigHandler.check();
@@ -153,11 +132,14 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 	}
 
 	public boolean doesGuiPauseGame() {
-		return false;
+		return true;
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.drawDefaultBackground();
+		this.drawBackground(0);
+
+		FBPGui.background(b1.yPosition - 6, Done.yPosition - 4, width, height);
+
 		this.drawCenteredString(fontRendererObj, "Fancy Block Particles", this.width / 2, b1.yPosition - 25,
 				Integer.parseInt("FFAA00", 16));
 
@@ -180,6 +162,22 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 			this.drawCenteredString(fontRendererObj, "Rotation Speed Mult. [OFF]", this.width / 2, b11.yPosition + 7,
 					fontRendererObj.getColorCode('A'));
 
+		update();
 		super.drawScreen(mouseX, mouseY, partialTicks);
+	}
+
+	void update() {
+		b1.enabled = FBP.minScale < FBP.maxScale;
+		b2.enabled = FBP.minScale > 0.1D;
+		b3.enabled = FBP.maxScale < 2.0D;
+		b4.enabled = FBP.maxScale > FBP.minScale;
+		b5.enabled = FBP.minAge < FBP.maxAge;
+		b6.enabled = FBP.minAge > 1;
+		b7.enabled = FBP.maxAge < 50;
+		b8.enabled = FBP.maxAge > FBP.minAge;
+		b9.enabled = FBP.gravityMult < 2.0D;
+		b10.enabled = FBP.gravityMult > 0.1D;
+		b11.enabled = FBP.rotationMult < 1.5D;
+		b12.enabled = FBP.rotationMult > 0;
 	}
 }

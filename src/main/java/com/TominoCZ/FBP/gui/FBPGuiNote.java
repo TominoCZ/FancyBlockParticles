@@ -2,6 +2,7 @@ package com.TominoCZ.FBP.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 
 public class FBPGuiNote extends Gui {
