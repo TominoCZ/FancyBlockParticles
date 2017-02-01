@@ -1,66 +1,58 @@
 package com.TominoCZ.FBP.math;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
 public class FBPMathHelper {
-	static ArrayList newVec = new ArrayList();
+	static ArrayList<double[]> newVec = new ArrayList();
 
-	static List<double[]> cube;
+	static double[] cube;
 
-	static float[] radsXYZ;
+	static double sinAngleX;;
+	static double sinAngleY;
+	static double sinAngleZ;
 
-	static double sinAngleX, sinAngleY, sinAngleZ, cosAngleX, cosAngleY, cosAngleZ;
+	static double cosAngleX;
+	static double cosAngleY;
+	static double cosAngleZ;
+
+	static float radsX;
+	static float radsY;
+	static float radsZ;
 
 	public static ArrayList<double[]> rotateCubeXYZ(double AngleX, double AngleY, double AngleZ, double size) {
-		cube = Arrays.asList(
-				new double[][] { { (size / 2), -(size / 2), (size / 2) }, { (size / 2), (size / 2), (size / 2) },
-						{ -(size / 2), (size / 2), (size / 2) }, { -(size / 2), -(size / 2), (size / 2) },
+		double center = (size / 2);
 
-						{ -(size / 2), -(size / 2), -(size / 2) }, { -(size / 2), (size / 2), -(size / 2) },
-						{ (size / 2), (size / 2), -(size / 2) }, { (size / 2), -(size / 2), -(size / 2) },
+		cube = new double[] { center, -center, center, center, center, center, -center, center, center, -center,
+				-center, center, -center, -center, -center, -center, center, -center, center, center, -center, center,
+				-center, -center, -center, -center, center, -center, center, center, -center, center, -center, -center,
+				-center, -center, center, -center, -center, center, center, -center, center, center, center, center,
+				-center, center, -center, center, -center, -center, center, center, center, center, center, center,
+				center, -center, -center, -center, center, -center, -center, -center, center, -center, -center, center,
+				-center, center };
 
-						{ -(size / 2), -(size / 2), (size / 2) }, { -(size / 2), (size / 2), (size / 2) },
-						{ -(size / 2), (size / 2), -(size / 2) }, { -(size / 2), -(size / 2), -(size / 2) },
+		radsX = (float) Math.toRadians(AngleX);
+		radsY = (float) Math.toRadians(AngleY);
+		radsZ = (float) Math.toRadians(AngleZ);
 
-						{ (size / 2), -(size / 2), -(size / 2) }, { (size / 2), (size / 2), -(size / 2) },
-						{ (size / 2), (size / 2), (size / 2) }, { (size / 2), -(size / 2), (size / 2) },
+		sinAngleX = MathHelper.sin(radsX);
+		sinAngleY = MathHelper.sin(radsY);
+		sinAngleZ = MathHelper.sin(radsZ);
 
-						{ -(size / 2), (size / 2), -(size / 2) }, { -(size / 2), (size / 2), (size / 2) },
-						{ (size / 2), (size / 2), (size / 2) }, { (size / 2), (size / 2), -(size / 2) },
+		cosAngleX = MathHelper.cos(radsX);
+		cosAngleY = MathHelper.cos(radsY);
+		cosAngleZ = MathHelper.cos(radsZ);
 
-						{ -(size / 2), -(size / 2), (size / 2) }, { -(size / 2), -(size / 2), -(size / 2) },
-						{ (size / 2), -(size / 2), -(size / 2) }, { (size / 2), -(size / 2), (size / 2) } });
+		newVec.clear();
 
-		radsXYZ = new float[] { (float) Math.toRadians(AngleX), (float) Math.toRadians(AngleY),
-				(float) Math.toRadians(AngleZ) };
+		for (int i = 0; i < cube.length; i += 3) {
+			double[] d = { cube[i], cube[i + 1] * cosAngleX - cube[i + 2] * sinAngleX,
+					cube[i + 1] * sinAngleX + cube[i + 2] * cosAngleX };
+			d = new double[] { d[0] * cosAngleY + d[2] * sinAngleY, d[1], d[0] * sinAngleY - d[2] * cosAngleY };
+			d = new double[] { d[0] * cosAngleZ - d[1] * sinAngleZ, d[0] * sinAngleZ + d[1] * cosAngleZ, d[2] };
 
-		if (radsXYZ[0] + radsXYZ[1] + radsXYZ[2] != 0) {
-
-			sinAngleX = MathHelper.sin(radsXYZ[0]);
-			sinAngleY = MathHelper.sin(radsXYZ[1]);
-			sinAngleZ = MathHelper.sin(radsXYZ[2]);
-
-			cosAngleX = MathHelper.cos(radsXYZ[0]);
-			cosAngleY = MathHelper.cos(radsXYZ[1]);
-			cosAngleZ = MathHelper.cos(radsXYZ[2]);
-
-			newVec.clear();
-
-			cube.forEach(vec -> {
-				double[] d = { ((double[]) vec)[0], vec[1] * cosAngleX - vec[2] * sinAngleX,
-						vec[1] * sinAngleX + vec[2] * cosAngleX };
-
-				d = new double[] { d[0] * cosAngleY + d[2] * sinAngleY, d[1], d[0] * sinAngleY - d[2] * cosAngleY };
-
-				d = new double[] { d[0] * cosAngleZ - d[1] * sinAngleZ, d[0] * sinAngleZ + d[1] * cosAngleZ, d[2] };
-
-				newVec.add(d);
-			});
+			newVec.add(d);
 		}
 
 		return newVec;
@@ -72,15 +64,13 @@ public class FBPMathHelper {
 	}
 
 	public static double add(double d, double add) {
-		return d < 0 ? d - add : d + add;
-	}
+		double _d = d;
 
-	public static boolean isInBlock(BlockPos pos) {
-		return isInBlock(pos.getX(), pos.getY(), pos.getZ());
-	}
+		if (d < 0)
+			_d -= add;
+		else
+			_d += add;
 
-	public static boolean isInBlock(int X, int Y, int Z) {
-
-		return false;
+		return _d;
 	}
 }

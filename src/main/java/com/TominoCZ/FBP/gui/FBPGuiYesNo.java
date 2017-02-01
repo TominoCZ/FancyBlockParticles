@@ -13,14 +13,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class FBPGuiYesNo extends GuiScreen {
 
 	GuiButton yes, no;
-	
+
 	GuiScreen backTo;
 
-	public FBPGuiYesNo(GuiScreen s)
-	{
+	public FBPGuiYesNo(GuiScreen s) {
 		backTo = s;
 	}
-	
+
 	public void initGui() {
 		this.buttonList.clear();
 
@@ -55,7 +54,7 @@ public class FBPGuiYesNo extends GuiScreen {
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.drawBackground(0);
-		
+
 		this.drawCenteredString(fontRendererObj, "Are you sure?", this.width / 2, yes.yPosition - 30,
 				Integer.parseInt("FFAA00", 16));
 		super.drawScreen(mouseX, mouseY, partialTicks);

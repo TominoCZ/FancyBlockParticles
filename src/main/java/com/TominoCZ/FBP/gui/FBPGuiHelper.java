@@ -1,15 +1,25 @@
 package com.TominoCZ.FBP.gui;
 
+import org.lwjgl.opengl.GL11;
+
+import com.TominoCZ.FBP.FBP;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
 
-public class FBPGui {
+public class FBPGuiHelper extends GuiScreen {
+	public static String on = "\u00A7a ON";
+	public static String off = "\u00A7cOFF";
 
-	public static  void background(int top, int bottom, int width, int height) {
+	public static void background(int top, int bottom, int width, int height) {
 		GlStateManager.disableLighting();
 		GlStateManager.disableFog();
 		Tessellator tessellator = Tessellator.getInstance();
@@ -47,13 +57,46 @@ public class FBPGui {
 		GlStateManager.disableBlend();
 	}
 
-	protected static void overlayBackground(int startY, int endY, int startAlpha, int endAlpha, int top, int bottom, int left,
-			int right) {
+	public static void drawRect(double x, double y, double x2, double y2, int red, int green, int blue, int alpha) {
+		Tessellator tessellator = Tessellator.getInstance();
+		VertexBuffer vertexbuffer = tessellator.getBuffer();
+
+		GlStateManager.disableTexture2D();
+		GlStateManager.enableBlend();
+
+		vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+		vertexbuffer.pos((double) x, (double) (y + y2), 0.0D).color(red, green, blue, alpha).endVertex();
+		vertexbuffer.pos((double) (x + x2), (double) (y + y2), 0.0D).color(red, green, blue, alpha).endVertex();
+		vertexbuffer.pos((double) (x + x2), (double) y, 0.0D).color(red, green, blue, alpha).endVertex();
+		vertexbuffer.pos((double) x, (double) y, 0.0D).color(red, green, blue, alpha).endVertex();
+		tessellator.draw();
+
+		GlStateManager.enableTexture2D();
+	}
+
+	public static void drawTitle(int y, int screenWidth, int screenHeight, FontRenderer fr) {
+		if (!FBP.isEnabled())
+			_drawCenteredString(fr, "\u00A7a(\u00A7cdisabled\u00A7a)", screenWidth / 2, y - 32, fr.getColorCode('c'));
+
+		_drawCenteredString(fr, "\u00A7LFancy Block Particles", screenWidth / 2, y - 23, fr.getColorCode('6'));
+		String version = FMLCommonHandler.instance().findContainerFor(FBP.instance).getVersion();
+		
+		fr.drawStringWithShadow("\u00A76Version \u00A7L" + version, 2, screenHeight - 10, fr.getColorCode('6'));
+	}
+
+	protected static void _drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
+		fontRendererIn.drawStringWithShadow(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y,
+				color);
+	}
+
+	protected static void overlayBackground(int startY, int endY, int startAlpha, int endAlpha, int top, int bottom,
+			int left, int right) {
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer vertexbuffer = tessellator.getBuffer();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.OPTIONS_BACKGROUND);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		float f = 32.0F;
+
 		vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 		vertexbuffer.pos((double) left, (double) endY, 0.0D).tex(0.0D, (double) ((float) endY / 32.0F))
 				.color(64, 64, 64, endAlpha).endVertex();
@@ -84,4 +127,5 @@ public class FBPGui {
 				.color(32, 32, 32, 255).endVertex();
 		tessellator.draw();
 	}
+
 }

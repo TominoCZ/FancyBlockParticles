@@ -69,8 +69,12 @@ public class FBPParticleEmitter extends ParticleEmitter {
 					Y = (double) ReflectionHelper.findField(c, "posY", "field_187127_g").get(particle);
 					Z = (double) ReflectionHelper.findField(c, "posZ", "field_187128_h").get(particle);
 				} catch (Exception e) {
-					prevSourceState = worldObj
-							.getBlockState(new BlockPos(this.interpPosX, this.interpPosY, this.interpPosZ));
+					if (Minecraft.getMinecraft().thePlayer.onGround) {
+						if ((prevSourceState = worldObj.getBlockState(
+								new BlockPos(this.interpPosX, this.interpPosY, this.interpPosZ))) == null) {
+							prevSourceState = Blocks.LAVA.getDefaultState();
+						}
+					}
 				}
 				if (!(prevSourceState.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen)) {
 					if (FBP.spawnRedstoneBlockParticles ? true : prevSourceState.getBlock() != Blocks.REDSTONE_BLOCK)

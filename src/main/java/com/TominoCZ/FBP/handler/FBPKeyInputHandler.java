@@ -15,6 +15,9 @@ public class FBPKeyInputHandler {
 		if (FBPKeyBindings.FBPMenu.isPressed())
 			Minecraft.getMinecraft().displayGuiScreen(new FBPGuiMenuPage1());
 
+		if (FBPKeyBindings.FBPToggle.isPressed())
+			FBP.enabled = !FBP.enabled;
+
 		if (FBPKeyBindings.FBPFreeze.isPressed())
 			if (FBP.isEnabled())
 				FBP.frozen = !FBP.frozen;

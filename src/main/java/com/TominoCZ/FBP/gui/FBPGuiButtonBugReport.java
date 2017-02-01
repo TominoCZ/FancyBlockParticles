@@ -1,6 +1,6 @@
 package com.TominoCZ.FBP.gui;
 
-import org.fusesource.jansi.Ansi;
+import java.awt.Dimension;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -15,8 +15,15 @@ public class FBPGuiButtonBugReport extends GuiButton {
 	FontRenderer _fr;
 	String _textOnHover = "Found a bug? Click to report it!";
 
-	public FBPGuiButtonBugReport(int buttonID, int xPos, int yPos, FontRenderer fr) {
-		super(buttonID, xPos, yPos, 16, 16, "");
+	Dimension _screen;
+
+	long lastTime, time;
+
+	int fadeAmmount = 0;
+
+	public FBPGuiButtonBugReport(int buttonID, int xPos, int yPos, Dimension screen, FontRenderer fr) {
+		super(buttonID, xPos, yPos, 25, 25, "");
+		_screen = screen;
 		_fr = fr;
 	}
 
@@ -24,17 +31,50 @@ public class FBPGuiButtonBugReport extends GuiButton {
 		if (this.visible) {
 			mc.getTextureManager().bindTexture(new ResourceLocation("fbp:textures/gui/bug.png"));
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			boolean flag = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width
-					&& mouseY < this.yPosition + this.height;
+
+			int centerX = xPosition + 25 / 2;
+			int centerY = yPosition + 25 / 2;
+
+			double distance = Math
+					.sqrt((mouseX - centerX) * (mouseX - centerX) + (mouseY - centerY) * (mouseY - centerY));
+			double radius = Math.sqrt(2 * Math.pow(16, 2));
+
+			boolean flag = distance <= (radius / 2);
+
 			int i = 0;
 
-			if (flag)
-				i += 15;
+			if (hovered = flag)
+				i += 25;
 
-			this.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, i, 15, 15, 15, 30);
+			int step = 1;
+			time = System.currentTimeMillis();
+
+			if (lastTime > 0)
+				step = (int) (time - lastTime);
+
+			lastTime = time;
+
+			if (fadeAmmount < step)
+				fadeAmmount = step;
+
+			if (fadeAmmount <= 160 && fadeAmmount >= step)
+				fadeAmmount += (flag ? step : -step);
+
+			if (fadeAmmount > 150)
+				if (flag)
+					fadeAmmount = 150;
+				else
+					fadeAmmount = 0;
+
+			if (fadeAmmount > 0)
+				FBPGuiHelper.drawRect(0, 0, _screen.width, _screen.height, 0, 0, 0, (int) fadeAmmount);
+			else
+				fadeAmmount = 0;
+
+			this.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, i, 25, 25, 25, 50);
 
 			if (flag)
-				this.drawString(_fr, _textOnHover, mouseX - _fr.getStringWidth(_textOnHover) - 15, mouseY - 3,
+				this.drawString(_fr, _textOnHover, mouseX - _fr.getStringWidth(_textOnHover) - 25, mouseY - 3,
 						_fr.getColorCode('a'));
 		}
 	}

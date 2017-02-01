@@ -1,6 +1,7 @@
 package com.TominoCZ.FBP;
 
 import java.io.File;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPEventHandler;
@@ -8,7 +9,6 @@ import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
 import com.TominoCZ.FBP.handler.FBPRenderGuiHandler;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -32,17 +32,27 @@ public class FBP {
 
 	public static double minScale, maxScale, gravityMult, rotationMult;
 
-	public static boolean legacyMode = false, spawnWhileFrozen = true, spawnRedstoneBlockParticles = true, frozen = false;
+	public static boolean enabled = true;
+	public static boolean showInMillis = false;
+
+	public static boolean legacyMode = false, cartoonMode = false, spawnWhileFrozen = true,
+			spawnRedstoneBlockParticles = false, inheritBlockTopTexture = true, smoothTransitions = true,
+			randomDisappearSpeed = true, randomFadingSpeed = false, entityCollision = false, bounceOffWalls = false,
+			frozen = false;
+
+	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
 	public static FBPEventHandler eventHandler = new FBPEventHandler();
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-		
+
 		FBPConfigHandler.init();
 
 		MinecraftForge.EVENT_BUS.register(new FBPRenderGuiHandler());
+
+		FBPKeyBindings.init();
 
 		FMLCommonHandler.instance().bus().register(new FBPKeyInputHandler());
 	}
@@ -58,7 +68,7 @@ public class FBP {
 	}
 
 	public static boolean isEnabled() {
-		boolean result = (Minecraft.getMinecraft().gameSettings.particleSetting != 2);
+		boolean result = enabled;
 
 		if (!result)
 			frozen = false;

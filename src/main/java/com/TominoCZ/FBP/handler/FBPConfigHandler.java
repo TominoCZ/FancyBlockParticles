@@ -24,7 +24,7 @@ public class FBPConfigHandler {
 			f = FBP.config;
 
 			defaults(false);
-			
+
 			if (!f.exists()) {
 				if (!Directory.apply(f.getParent()).exists())
 					Directory.apply(f.getParent()).createDirectory(true, false);
@@ -51,7 +51,14 @@ public class FBPConfigHandler {
 			check();
 
 			PrintWriter writer = new PrintWriter(f.getPath(), "UTF-8");
+			writer.println("enabled=" + FBP.enabled);
+			writer.println("bounceOffWalls=" + FBP.bounceOffWalls);
+			writer.println("showInMillis=" + FBP.showInMillis);
 			writer.println("legacyMode=" + FBP.legacyMode);
+			writer.println("cartoonMode=" + FBP.cartoonMode);
+			writer.println("entityCollision=" + FBP.entityCollision);
+			writer.println("smoothTransitions=" + FBP.smoothTransitions);
+			writer.println("randomFadingSpeed=" + FBP.randomFadingSpeed);
 			writer.println("spawnRedstoneBlockParticles=" + FBP.spawnRedstoneBlockParticles);
 			writer.println("spawnWhileFrozen=" + FBP.spawnWhileFrozen);
 			writer.println("minScale=" + FBP.minScale);
@@ -88,8 +95,22 @@ public class FBPConfigHandler {
 			String line;
 
 			while ((line = br.readLine()) != null) {
-				if (line.contains("legacyMode="))
+				if (line.contains("enabled="))
+					FBP.enabled = Boolean.valueOf(line.replaceAll(" ", "").replace("enabled=", ""));
+				else if (line.contains("bounceOffWalls="))
+					FBP.bounceOffWalls = Boolean.valueOf(line.replaceAll(" ", "").replace("bounceOffWalls=", ""));
+				else if (line.contains("showInMillis="))
+					FBP.showInMillis = Boolean.valueOf(line.replaceAll(" ", "").replace("showInMillis=", ""));
+				else if (line.contains("legacyMode="))
 					FBP.legacyMode = Boolean.valueOf(line.replaceAll(" ", "").replace("legacyMode=", ""));
+				else if (line.contains("cartoonMode="))
+					FBP.cartoonMode = Boolean.valueOf(line.replaceAll(" ", "").replace("cartoonMode=", ""));
+				else if (line.contains("entityCollision="))
+					FBP.entityCollision = Boolean.valueOf(line.replaceAll(" ", "").replace("entityCollision=", ""));
+				else if (line.contains("randomFadingSpeed="))
+					FBP.randomFadingSpeed = Boolean.valueOf(line.replaceAll(" ", "").replace("randomFadingSpeed=", ""));
+				else if (line.contains("smoothTransitions="))
+					FBP.smoothTransitions = Boolean.valueOf(line.replaceAll(" ", "").replace("smoothTransitions=", ""));
 				else if (line.contains("spawnWhileFrozen="))
 					FBP.spawnWhileFrozen = Boolean.valueOf(line.replaceAll(" ", "").replace("spawnWhileFrozen=", ""));
 				else if (line.contains("spawnRedstoneBlockParticles="))
@@ -138,10 +159,17 @@ public class FBPConfigHandler {
 		FBP.maxScale = 1.2;
 		FBP.gravityMult = 1.0;
 		FBP.rotationMult = 1.0;
+		// FBP.showInMillis = false;
+		FBP.bounceOffWalls = false;
 		FBP.legacyMode = false;
-		FBP.spawnRedstoneBlockParticles = true;
+		FBP.cartoonMode = false;
+		FBP.entityCollision = false;
+		FBP.smoothTransitions = true;
+		FBP.randomFadingSpeed = true;
+		FBP.spawnRedstoneBlockParticles = false;
+		FBP.inheritBlockTopTexture = true;
 		FBP.spawnWhileFrozen = true;
-		
+
 		if (write)
 			write();
 	}
@@ -154,19 +182,22 @@ public class FBPConfigHandler {
 		FBP.gravityMult = Math.abs(FBP.gravityMult);
 		FBP.rotationMult = Math.abs(FBP.rotationMult);
 
-		if (FBP.minScale < 0.1D)
-			FBP.minScale = 0.1D;
+		if (FBP.minScale < 0.5D)
+			FBP.minScale = 0.5D;
 		if (FBP.maxScale > 2.0D)
 			FBP.maxScale = 2.0D;
-		else if (FBP.maxScale < 0.1D)
-			FBP.maxScale = 0.1D;
+		else if (FBP.maxScale < 0.5D)
+			FBP.maxScale = 0.5D;
 
-		if (FBP.minAge < 1)
-			FBP.minAge = 1;
-		if (FBP.maxAge < 1)
-			FBP.maxAge = 1;
-		else if (FBP.maxAge > 50)
-			FBP.maxAge = 50;
+		if (FBP.minAge < 10)
+			FBP.minAge = 10;
+		if (FBP.maxAge < 10)
+			FBP.maxAge = 10;
+		else if (FBP.maxAge > 100)
+			FBP.maxAge = 100;
+
+		FBP.minAge = fix(FBP.minAge);
+		FBP.maxAge = fix(FBP.maxAge);
 
 		if (FBP.gravityMult > 2.0D)
 			FBP.gravityMult = 2.0D;
@@ -184,5 +215,14 @@ public class FBPConfigHandler {
 
 		if (FBP.minAge > FBP.maxAge)
 			FBP.minAge = FBP.maxAge;
+	}
+
+	private static int fix(int num) {
+		for (int i = num; i > 0; i--) {
+			if (i % 5 == 0)
+				return i;
+		}
+
+		return num;
 	}
 }
