@@ -56,12 +56,12 @@ public class FBPParticleDigging extends Particle {
 					.getModelForState(state).getQuads(state, EnumFacing.UP, rand.nextLong());
 
 			if (!quads.isEmpty()) {
-				particleTexture = quads.get(0).getSprite();
+				this.particleTexture = quads.get(0).getSprite();
 				multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 			}
 		}
 
-		if (particleTexture == null)
+		if (((particleTexture == null) ? true : (particleTexture.getIconName() == "missingno")))
 			particleTexture = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
 					.getTexture(state);
 
@@ -81,9 +81,8 @@ public class FBPParticleDigging extends Particle {
 			calculateYAngle();
 		}
 
-		if (!state.isNormalCube()) {
+		if (!state.isNormalCube())
 			multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
-		}
 
 		if (FBP.randomFadingSpeed)
 			endMult = FBP.random.nextDouble(0.88, 1.025);
