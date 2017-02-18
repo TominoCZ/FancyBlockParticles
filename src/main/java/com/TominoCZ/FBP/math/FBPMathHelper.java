@@ -3,6 +3,7 @@ package com.TominoCZ.FBP.math;
 import java.util.ArrayList;
 
 import net.minecraft.util.math.MathHelper;
+import scala.actors.threadpool.Arrays;
 
 public class FBPMathHelper {
 	static ArrayList<double[]> newVec = new ArrayList();
@@ -21,16 +22,26 @@ public class FBPMathHelper {
 	static float radsY;
 	static float radsZ;
 
-	public static ArrayList<double[]> rotateCubeXYZ(double AngleX, double AngleY, double AngleZ, double size) {
-		double center = (size / 2);
+	public static ArrayList<double[]> rotateCubeXYZ(double AngleX, double AngleY, double AngleZ, double halfSize) {
+		// cube = new double[] { center, -center, center, center, center,
+		// center, -center, center, center, -center,-center, center, -center,
+		// -center, -center, -center, center, -center, center, center, -center,
+		// center,-center, -center, -center, -center, center, -center, center,
+		// center, -center, center, -center, -center,-center, -center, center,
+		// -center, -center, center, center, -center, center, center, center,
+		// center,-center, center, -center, center, -center, -center, center,
+		// center, center, center, center, center,center, -center, -center,
+		// -center, center, -center, -center, -center, center, -center, -center,
+		// center,-center, center };
 
-		cube = new double[] { center, -center, center, center, center, center, -center, center, center, -center,
-				-center, center, -center, -center, -center, -center, center, -center, center, center, -center, center,
-				-center, -center, -center, -center, center, -center, center, center, -center, center, -center, -center,
-				-center, -center, center, -center, -center, center, center, -center, center, center, center, center,
-				-center, center, -center, center, -center, -center, center, center, center, center, center, center,
-				center, -center, -center, -center, center, -center, -center, -center, center, -center, -center, center,
-				-center, center };
+		cube = new double[] { -halfSize, -halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize, halfSize,
+				halfSize, halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize, -halfSize,
+				-halfSize, halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize,
+				-halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize,
+				-halfSize, halfSize, halfSize, halfSize, halfSize, halfSize, halfSize, -halfSize, halfSize, -halfSize,
+				-halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize,
+				-halfSize, halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, halfSize,
+				halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize };
 
 		radsX = (float) Math.toRadians(AngleX);
 		radsY = (float) Math.toRadians(AngleY);
@@ -51,7 +62,7 @@ public class FBPMathHelper {
 					cube[i + 1] * sinAngleX + cube[i + 2] * cosAngleX };
 			d = new double[] { d[0] * cosAngleY + d[2] * sinAngleY, d[1], d[0] * sinAngleY - d[2] * cosAngleY };
 			d = new double[] { d[0] * cosAngleZ - d[1] * sinAngleZ, d[0] * sinAngleZ + d[1] * cosAngleZ, d[2] };
-
+			
 			newVec.add(d);
 		}
 

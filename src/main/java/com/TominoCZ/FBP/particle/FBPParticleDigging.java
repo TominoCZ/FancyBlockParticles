@@ -11,6 +11,7 @@ import com.TominoCZ.FBP.math.FBPMathHelper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.entity.Entity;
@@ -22,7 +23,7 @@ import net.minecraft.world.World;
 public class FBPParticleDigging extends Particle {
 	private final IBlockState sourceState;
 
-	int j2, k2, vecIndex;
+	int vecIndex;// , j2, k2;
 
 	double endScale, scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
 
@@ -39,29 +40,34 @@ public class FBPParticleDigging extends Particle {
 
 	double[] legacySpeed;
 
-	public FBPParticleDigging(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
+	float brightness = 1;
+
+	public FBPParticleDigging(World worldObjIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
 			double ySpeedIn, double zSpeedIn, IBlockState state) {
-		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
+		super(worldObjIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
 		sourceState = state;
 		particleGravity = (float) (state.getBlock().blockParticleGravity * FBP.gravityMult);
 		particleScale = (float) FBP.random.nextDouble(FBP.minScale + 0.399D, FBP.maxScale + 0.4D);
 		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
 
-		endScale = particleScale / 3;
-		scaleAlpha = particleScale / 1.65;
+		this.particleRed = this.particleGreen = this.particleBlue = 0.75F
+				+ (0.2F * Minecraft.getMinecraft().gameSettings.gammaSetting);
+
+		endScale = particleScale / 3.25;
+		scaleAlpha = particleScale / 1.5; // 1.65
 
 		// GET THE TOP TEXTURE OF THE BLOCK
 		if (FBP.inheritBlockTopTexture && posY - ((int) posY) <= 0.105 && posY - ((int) posY) >= 0) {
 			List<BakedQuad> quads = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
 					.getModelForState(state).getQuads(state, EnumFacing.UP, rand.nextLong());
 
-			if (!quads.isEmpty()) {
+			if (quads != null && !quads.isEmpty()) {
 				this.particleTexture = quads.get(0).getSprite();
 				multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 			}
 		}
 
-		if (((particleTexture == null) ? true : (particleTexture.getIconName() == "missingno")))
+		if (particleTexture == null || particleTexture.getIconName() == "missingno")
 			particleTexture = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
 					.getTexture(state);
 
@@ -70,7 +76,7 @@ public class FBPParticleDigging extends Particle {
 
 			double blockHeight;
 
-			if ((blockHeight = state.getBlock().getBoundingBox(state, worldIn,
+			if ((blockHeight = state.getBlock().getBoundingBox(state, worldObjIn,
 					new BlockPos(posX, posY, posZ)).maxY) != 1) {
 				if (posY - ((int) posY) - 0.1F == blockHeight)
 					setMotion();
@@ -206,7 +212,7 @@ public class FBPParticleDigging extends Particle {
 
 				if (particleScale < endScale)
 					setExpired();
-				else if (particleScale < scaleAlpha) {// scale / 1.65) {
+				else if (particleScale < scaleAlpha) {
 					if (FBP.randomFadingSpeed)
 						particleAlpha *= 0.565F * endMult;
 					else
@@ -229,14 +235,14 @@ public class FBPParticleDigging extends Particle {
 
 			// PHYSICS
 			if (FBP.entityCollision) {
-				worldObj.getEntitiesInAABBexcluding(null, this.getEntityBoundingBox(), null).forEach(entityIn -> {
+				worldObj.getEntitiesWithinAABB(Entity.class, this.getEntityBoundingBox()).forEach(entityIn -> {
 					if (!entityIn.noClip) {
 						double d0 = this.posX - entityIn.posX;
 						double d1 = this.posZ - entityIn.posZ;
 						double d2 = MathHelper.abs_max(d0, d1);
 
 						if (d2 >= 0.009999999776482582D) {
-							d2 = (double) MathHelper.sqrt_double(d2);
+							d2 = (double) Math.sqrt(d2);
 							d0 = d0 / d2;
 							d1 = d1 / d2;
 
@@ -250,10 +256,7 @@ public class FBPParticleDigging extends Particle {
 							this.motionZ += d1 * d3 / 20;
 
 							if (!FBP.legacyMode)
-								calculateYAngle(); // ROTATE THE PARTICLE
-													// DEPENDING
-													// ON THE NEW MOTION
-													// DIRECTION
+								calculateYAngle();
 							if (!FBP.frozen)
 								this.isCollided = false;
 						}
@@ -276,7 +279,7 @@ public class FBPParticleDigging extends Particle {
 			modeDebounce = false;
 	}
 
-	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
+	public void renderParticle(VertexBuffer worldObjRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
@@ -328,7 +331,7 @@ public class FBPParticleDigging extends Particle {
 			AngleZ = angleZ;
 
 			// SMOOTH ROTATION
-			if (FBP.smoothTransitions && !FBP.frozen) {
+			if (FBP.smoothTransitions && !this.isCollided && !FBP.frozen) {
 				AngleX = prevAngleX + (angleX - prevAngleX) * partialTicks;
 
 				if (FBP.legacyMode) {
@@ -340,17 +343,18 @@ public class FBPParticleDigging extends Particle {
 		}
 
 		// RENDER
-		worldRendererIn.setTranslation(f5, f6, f7);
+		worldObjRendererIn.setTranslation(f5, f6, f7);
 
-		if (FBP.cartoonMode) {
-			renderCartonQuads(worldRendererIn, FBPMathHelper.rotateCubeXYZ(AngleX, AngleY, AngleZ, f4 / 10),
+		GlStateManager.enableCull();
+
+		if (FBP.cartoonMode)
+			renderCartonQuads(worldObjRendererIn, FBPMathHelper.rotateCubeXYZ(AngleX, AngleY, AngleZ, f4 / 20),
 					i >> 16 & 65535, i & 65535, f1, f3, alpha);
-		} else {
-			renderQuads(worldRendererIn, FBPMathHelper.rotateCubeXYZ(AngleX, AngleY, AngleZ, f4 / 10), i >> 16 & 65535,
-					i & 65535, alpha);
-		}
+		else
+			renderQuads(worldObjRendererIn, FBPMathHelper.rotateCubeXYZ(AngleX, AngleY, AngleZ, f4 / 20),
+					i >> 16 & 65535, i & 65535, alpha);
 
-		worldRendererIn.setTranslation(0, 0, 0);
+		worldObjRendererIn.setTranslation(0, 0, 0);
 	}
 
 	public int getBrightnessForRender(float p_189214_1_) {
@@ -365,19 +369,17 @@ public class FBPParticleDigging extends Particle {
 	}
 
 	void renderCartonQuads(VertexBuffer buf, ArrayList<double[]> vec, int j, int k, float f1, float f2, float alpha) {
-		j2 = (int) (j * 0.9D);
-		k2 = (int) (k * 0.75D);
+		brightness = 1;
 
-		vec.forEach(vector -> {
+		vec.stream().forEach(vector -> {
 			if (vecIndex == 4) {
-				j2 *= 0.965D;
-				k2 *= 0.975D;
-
+				brightness *= 0.95;
 				vecIndex = 0;
 			}
 
-			buf.pos(vector[0], vector[1], vector[2]).tex(f1, f2).color(particleRed, particleGreen, particleBlue, alpha)
-					.lightmap(j2, k2).endVertex();
+			buf.pos(vector[0], vector[1], vector[2]).tex(f1, f2)
+					.color(particleRed * brightness, particleGreen * brightness, particleBlue * brightness, alpha)
+					.lightmap(j, k).endVertex();
 
 			vecIndex++;
 		});
@@ -386,19 +388,17 @@ public class FBPParticleDigging extends Particle {
 	}
 
 	void renderQuads(VertexBuffer buf, ArrayList<double[]> vec, int j, int k, float alpha) {
-		j2 = (int) (j * 0.925D);
-		k2 = (int) (k * 0.65D);
+		brightness = 1;
 
-		vec.forEach(vector -> {
+		vec.stream().forEach(vector -> {
 			if (vecIndex == 4) {
-				j2 *= 0.975D;
-				k2 *= 0.975D;
-
+				brightness *= 0.95;
 				vecIndex = 0;
 			}
 
 			buf.pos(vector[0], vector[1], vector[2]).tex(par[vecIndex][0], par[vecIndex][1])
-					.color(particleRed, particleGreen, particleBlue, alpha).lightmap(j2, k2).endVertex();
+					.color(particleRed * brightness, particleGreen * brightness, particleBlue * brightness, alpha)
+					.lightmap(j, k).endVertex();
 
 			vecIndex++;
 		});
@@ -407,8 +407,8 @@ public class FBPParticleDigging extends Particle {
 	}
 
 	private void calculateYAngle() {
-		double angleSin = Math.toDegrees(
-				Math.asin(motionX / (speedMult = MathHelper.sqrt_double(motionX * motionX + motionZ * motionZ))));
+		double angleSin = Math
+				.toDegrees(Math.asin(motionX / (speedMult = Math.sqrt(motionX * motionX + motionZ * motionZ))));
 
 		speedMult *= 200;
 

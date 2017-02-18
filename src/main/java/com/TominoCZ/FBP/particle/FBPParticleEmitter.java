@@ -1,6 +1,5 @@
 package com.TominoCZ.FBP.particle;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -32,7 +31,6 @@ public class FBPParticleEmitter extends ParticleEmitter {
 	IBlockState prevSourceState;
 
 	List toAdd = new LinkedList();
-	List toRemove = new ArrayList();
 
 	public FBPParticleEmitter(World w, Queue<Particle> q) {
 		super(w, new EntityItem(w), EnumParticleTypes.BLOCK_CRACK);
@@ -58,16 +56,24 @@ public class FBPParticleEmitter extends ParticleEmitter {
 				try {
 					Class c = Particle.class;
 
+					ReflectionHelper.setPrivateValue(c, particle, 0, "field_70544_f", "particleScale");
+
 					prevSourceState = (IBlockState) ReflectionHelper
-							.findField(ParticleDigging.class, "sourceState", "field_174847_a").get(particle);
+							.findField(ParticleDigging.class, "field_174847_a", "sourceState").get(particle);
 
-					mX = (double) ReflectionHelper.findField(c, "motionX", "field_187129_i").get(particle);
-					mY = (double) ReflectionHelper.findField(c, "motionY", "field_187130_j").get(particle);
-					mZ = (double) ReflectionHelper.findField(c, "motionZ", "field_187131_k").get(particle);
+					if (prevSourceState != null
+							&& (!(prevSourceState.getBlock() instanceof BlockLiquid)
+									&& !(FBP.frozen && !FBP.spawnWhileFrozen))
+							&& (FBP.spawnRedstoneBlockParticles
+									|| prevSourceState.getBlock() != Blocks.REDSTONE_BLOCK)) {
+						mX = ReflectionHelper.findField(c, "field_187129_i", "motionX").getDouble(particle);
+						mY = ReflectionHelper.findField(c, "field_187130_j", "motionY").getDouble(particle);
+						mZ = ReflectionHelper.findField(c, "field_187131_k", "motionZ").getDouble(particle);
 
-					X = (double) ReflectionHelper.findField(c, "posX", "field_187126_f").get(particle);
-					Y = (double) ReflectionHelper.findField(c, "posY", "field_187127_g").get(particle);
-					Z = (double) ReflectionHelper.findField(c, "posZ", "field_187128_h").get(particle);
+						X = ReflectionHelper.findField(c, "field_187126_f", "posX").getDouble(particle);
+						Y = ReflectionHelper.findField(c, "field_187127_g", "posY").getDouble(particle);
+						Z = ReflectionHelper.findField(c, "field_187128_h", "posZ").getDouble(particle);
+					}
 				} catch (Exception e) {
 					if (Minecraft.getMinecraft().thePlayer.onGround) {
 						if ((prevSourceState = worldObj.getBlockState(
@@ -76,17 +82,14 @@ public class FBPParticleEmitter extends ParticleEmitter {
 						}
 					}
 				}
-				if (!(prevSourceState.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen)) {
-					if (FBP.spawnRedstoneBlockParticles ? true : prevSourceState.getBlock() != Blocks.REDSTONE_BLOCK)
-						toAdd.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
-				}
+				if (prevSourceState != null
+						&& (!(prevSourceState.getBlock() instanceof BlockLiquid)
+								&& !(FBP.frozen && !FBP.spawnWhileFrozen))
+						&& (FBP.spawnRedstoneBlockParticles || prevSourceState.getBlock() != Blocks.REDSTONE_BLOCK))
+					toAdd.add(new FBPParticleDigging(worldObj, X, Y, Z, mX, mY, mZ, prevSourceState));
 
-				toRemove.add(particle);
+				particle.setExpired();
 			});
-			if (!toRemove.isEmpty()) {
-				queue.removeAll(toRemove);
-				toRemove.clear();
-			}
 			if (!toAdd.isEmpty()) {
 				queue.addAll(toAdd);
 				toAdd.clear();
