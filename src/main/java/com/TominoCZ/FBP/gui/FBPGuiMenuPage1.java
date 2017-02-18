@@ -19,7 +19,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class FBPGuiMenuPage1 extends GuiScreen {
-	GuiButton Reload, Done, Defaults, Next, ReportBug, Enable, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12;
+	GuiButton Reload, Done, Defaults, Next, ReportBug, Enable, MinDurationPlus, MinDurationMinus, MaxDurationPlus,
+			InfiniteDuration, MaxDurationMinus, ScaleMultPlus, ScaleMultMinus, GravitiyForcePlus, GravitiyForceMinus,
+			RotSpeedPlus, RotSpeedMinus;
 
 	boolean mouseOver = false;
 
@@ -38,40 +40,57 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 	public void initGui() {
 		this.buttonList.clear();
 
-		b1 = new GuiButton(1, this.width / 2 + 78, (int) (this.height / 5) - 10, "+");
-		b2 = new GuiButton(2, this.width / 2 - 100, (int) b1.yPosition, "-");
+		int x1 = this.width / 2 + 78 + 2;
+		int x2 = this.width / 2 - 100;
 
-		b3 = new GuiButton(3, b1.xPosition, (int) b2.yPosition + b2.height + 1, "+");
-		b4 = new GuiButton(4, this.width / 2 - 100, (int) b2.yPosition + b2.height + 1, "-");
+		MinDurationPlus = new FBPGuiButton(1, x1, (int) (this.height / 5) - 10, "+", false, false);
+		MinDurationMinus = new FBPGuiButton(2, x2, (int) MinDurationPlus.yPosition, "-", false, false);
 
-		b5 = new GuiButton(5, b3.xPosition, (int) b3.yPosition + b3.height + 6, "+");
-		b6 = new GuiButton(6, this.width / 2 - 100, (int) b3.yPosition + b3.height + 6, "-");
+		MaxDurationPlus = new FBPGuiButton(3, x1, (int) MinDurationMinus.yPosition + MinDurationMinus.height + 1, "+",
+				false, false);
+		MaxDurationMinus = new FBPGuiButton(4, x2, (int) MinDurationMinus.yPosition + MinDurationMinus.height + 1, "-",
+				false, false);
 
-		b7 = new GuiButton(7, b5.xPosition, (int) b5.yPosition + b5.height + 1, "+");
-		b8 = new GuiButton(8, this.width / 2 - 100, (int) b5.yPosition + b5.height + 1, "-");
+		InfiniteDuration = new FBPGuiButton(11, x1 + 25, (int) MinDurationPlus.yPosition + 10,
+				(FBP.infiniteDuration ? "\u00A7a" : "\u00A7c") + "\u221e", false, false);
 
-		b9 = new GuiButton(9, b7.xPosition, (int) b8.yPosition + b8.height + 6, "+");
-		b10 = new GuiButton(10, this.width / 2 - 100, (int) b8.yPosition + b8.height + 6, "-");
+		ScaleMultPlus = new FBPGuiButton(5, x1,
+				(int) MaxDurationPlus.yPosition + MaxDurationPlus.height + 6 + MaxDurationPlus.height / 2, "+", false,
+				false);
+		ScaleMultMinus = new FBPGuiButton(6, x2,
+				(int) MaxDurationPlus.yPosition + MaxDurationPlus.height + 6 + MaxDurationPlus.height / 2, "-", false,
+				false);
+		GravitiyForcePlus = new FBPGuiButton(7, x1,
+				(int) ScaleMultMinus.yPosition + ScaleMultPlus.height / 2 + 1 + ScaleMultMinus.height + 6, "+", false,
+				false);
+		GravitiyForceMinus = new FBPGuiButton(8, x2,
+				(int) ScaleMultMinus.yPosition + ScaleMultPlus.height / 2 + 1 + ScaleMultMinus.height + 6, "-", false,
+				false);
 
-		b11 = new GuiButton(11, b9.xPosition, (int) b10.yPosition + b10.height + 1, "+");
-		b12 = new GuiButton(12, this.width / 2 - 100, (int) b10.yPosition + b10.height + 1, "-");
+		RotSpeedPlus = new FBPGuiButton(9, x1, (int) GravitiyForceMinus.yPosition + GravitiyForceMinus.height + 1, "+",
+				false, false);
+		RotSpeedMinus = new FBPGuiButton(10, x2, (int) GravitiyForceMinus.yPosition + GravitiyForceMinus.height + 1,
+				"-", false, false);
 
-		Defaults = new GuiButton(0, this.width / 2 + 2, b12.yPosition + b12.height + 24, "Defaults");
-		Done = new GuiButton(-1, this.width / 2 - 100, (int) Defaults.yPosition, "Done");
-		Reload = new GuiButton(-2, this.width / 2 - 100, (int) Defaults.yPosition + Defaults.height + 1,
-				"Reload Config");
+		Defaults = new FBPGuiButton(0, this.width / 2 + 2, RotSpeedMinus.yPosition + RotSpeedMinus.height + 24,
+				"Defaults", false, false);
+		Done = new FBPGuiButton(-1, x2, (int) Defaults.yPosition, "Done", false, false);
+		Reload = new FBPGuiButton(-2, x2, (int) Defaults.yPosition + Defaults.height + 1, "Reload Config", false,
+				false);
 		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 27, 2, new Dimension(width, height),
 				this.fontRendererObj);
 		Enable = new FBPGuiButtonEnable(-6, (this.width - 25 - 27) - 4, 2, new Dimension(width, height),
 				this.fontRendererObj);
 		Defaults.width = Done.width = 98;
 		Reload.width = 96 * 2 + 8;
-		Next = new GuiButton(-3, b12.xPosition + b12.width + 3, (int) b12.yPosition, ">>");
+		Next = new FBPGuiButton(-3, RotSpeedMinus.xPosition + RotSpeedMinus.width + 3 + 2,
+				(int) RotSpeedMinus.yPosition, ">>", false, false);
 
-		b1.width = b2.width = b3.width = b4.width = b5.width = b6.width = b7.width = b8.width = b9.width = b10.width = b11.width = b12.width = Next.width = 22;
+		InfiniteDuration.width = MinDurationPlus.width = MinDurationMinus.width = MaxDurationPlus.width = MaxDurationMinus.width = ScaleMultPlus.width = ScaleMultMinus.width = GravitiyForcePlus.width = GravitiyForceMinus.width = RotSpeedPlus.width = RotSpeedMinus.width = Next.width = 20;
 
-		this.buttonList.addAll(Arrays.asList(new GuiButton[] { b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12,
-				Defaults, Done, Reload, Next, Enable, ReportBug }));
+		this.buttonList.addAll(Arrays.asList(new GuiButton[] { MinDurationPlus, MinDurationMinus, MaxDurationPlus,
+				InfiniteDuration, MaxDurationMinus, ScaleMultPlus, ScaleMultMinus, GravitiyForcePlus,
+				GravitiyForceMinus, RotSpeedPlus, RotSpeedMinus, Defaults, Done, Reload, Next, Enable, ReportBug }));
 	}
 
 	protected void actionPerformed(GuiButton button) throws IOException {
@@ -102,51 +121,42 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 			this.mc.displayGuiScreen(new FBPGuiYesNo(this));
 			break;
 		case 1:
-			if (FBP.minScale == FBP.maxScale)
-				FBP.maxScale = FBPMathHelper.round(FBP.maxScale += 0.1D);
-
-			FBP.minScale = FBPMathHelper.round(FBP.minScale += 0.1D);
-			break;
-		case 2:
-			FBP.minScale = FBPMathHelper.round(FBP.minScale -= 0.1D);
-			break;
-		case 3:
-			FBP.maxScale = FBPMathHelper.round(FBP.maxScale += 0.1D);
-			break;
-		case 4:
-			if (FBP.minScale == FBP.maxScale)
-				FBP.minScale = FBPMathHelper.round(FBP.minScale -= 0.1D);
-
-			FBP.maxScale = FBPMathHelper.round(FBP.maxScale -= 0.1D);
-			break;
-		case 5:
 			if (FBP.minAge == FBP.maxAge)
 				FBP.maxAge += 5;
-
 			FBP.minAge += 5;
 			break;
-		case 6:
+		case 2:
 			FBP.minAge -= 5;
 			break;
-		case 7:
+		case 3:
 			FBP.maxAge += 5;
 			break;
-		case 8:
+		case 4:
 			if (FBP.minAge == FBP.maxAge)
 				FBP.minAge -= 5;
 			FBP.maxAge -= 5;
 			break;
+		case 5:
+			FBP.scaleMult = FBPMathHelper.round(FBP.scaleMult += 0.05D, 2);
+			break;
+		case 6:
+			FBP.scaleMult = FBPMathHelper.round(FBP.scaleMult -= 0.05D, 2);
+			break;
+		case 7:
+			FBP.gravityMult = FBPMathHelper.round(FBP.gravityMult += 0.1D, 1);
+			break;
+		case 8:
+			FBP.gravityMult = FBPMathHelper.round(FBP.gravityMult -= 0.1D, 1);
+			break;
 		case 9:
-			FBP.gravityMult = FBPMathHelper.round(FBP.gravityMult += 0.1D);
+			FBP.rotationMult = FBPMathHelper.round(FBP.rotationMult += 0.1D, 1);
 			break;
 		case 10:
-			FBP.gravityMult = FBPMathHelper.round(FBP.gravityMult -= 0.1D);
+			FBP.rotationMult = FBPMathHelper.round(FBP.rotationMult -= 0.1D, 1);
 			break;
 		case 11:
-			FBP.rotationMult = FBPMathHelper.round(FBP.rotationMult += 0.1D);
-			break;
-		case 12:
-			FBP.rotationMult = FBPMathHelper.round(FBP.rotationMult -= 0.1D);
+			InfiniteDuration.displayString = ((FBP.infiniteDuration = !FBP.infiniteDuration) ? "\u00A7a" : "\u00A7c")
+					+ "\u221e";
 			break;
 		}
 
@@ -161,13 +171,13 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.drawBackground(0);
 
-		FBPGuiHelper.background(b1.yPosition - 6, Done.yPosition - 4, width, height);
+		FBPGuiHelper.background(MinDurationPlus.yPosition - 6, Done.yPosition - 4, width, height);
 
 		drawInfo();
 
 		drawMouseOverSelection(mouseX, mouseY, partialTicks);
 
-		FBPGuiHelper.drawTitle(b1.yPosition, width, height, fontRendererObj);
+		FBPGuiHelper.drawTitle(MinDurationPlus.yPosition, width, height, fontRendererObj);
 
 		update();
 
@@ -179,31 +189,34 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 
 		int posY = Done.yPosition - 18;
 
-		if (((mouseX >= b2.xPosition + b2.width) && (mouseX <= b1.xPosition)) && (mouseY >= b2.yPosition)
-				&& (mouseY <= b4.yPosition + b4.height - 2)) {
-			handle.x = b2.xPosition + b2.width;
-			handle.y = b1.yPosition;
-			size.x = b1.xPosition - (b2.xPosition + b2.width);
-			size.y = 39;
-
+		if (((mouseX >= MinDurationMinus.xPosition + MinDurationMinus.width) && (mouseX <= MinDurationPlus.xPosition))
+				&& (mouseY >= MinDurationMinus.yPosition)
+				&& (mouseY <= MaxDurationMinus.yPosition + MaxDurationMinus.height - 2)) {
+			handle.y = MinDurationPlus.yPosition;
+			size = new Vector2d(MinDurationPlus.xPosition - (MinDurationMinus.xPosition + MinDurationMinus.width), 39);
 			selected = 1;
-		} else if (((mouseX >= b6.xPosition + b6.width) && (mouseX <= b7.xPosition)) && (mouseY >= (b5.yPosition + 1))
-				&& (mouseY <= (b7.yPosition + b7.height - 1) - 1)) {
 			mouseOver = true;
-			handle = new Vector2d(b6.xPosition + b6.width, b5.yPosition);
-			size = new Vector2d(b7.xPosition - (b6.xPosition + b6.width), 39);
+		} else if (((mouseX >= ScaleMultMinus.xPosition + ScaleMultMinus.width) && (mouseX <= ScaleMultPlus.xPosition))
+				&& (mouseY >= (ScaleMultMinus.yPosition + 1))
+				&& (mouseY <= (ScaleMultPlus.yPosition + ScaleMultPlus.height - 1) - 1)) {
+			handle.y = ScaleMultPlus.yPosition;
+			size = new Vector2d(ScaleMultPlus.xPosition - (ScaleMultMinus.xPosition + ScaleMultMinus.width), 18);
 			selected = 2;
-		} else if (((mouseX >= b10.xPosition + b10.width) && (mouseX <= b9.xPosition)) && (mouseY >= b10.yPosition + 1)
-				&& (mouseY <= b9.yPosition + b9.height - 1)) {
-			handle = new Vector2d(b10.xPosition + b10.width, b10.yPosition);
-			size = new Vector2d(b9.xPosition - (b10.xPosition + b10.width), 18);
+		} else if (((mouseX >= GravitiyForceMinus.xPosition + GravitiyForceMinus.width)
+				&& (mouseX <= GravitiyForcePlus.xPosition)) && (mouseY >= GravitiyForceMinus.yPosition + 1)
+				&& (mouseY <= GravitiyForcePlus.yPosition + GravitiyForcePlus.height - 1)) {
+			handle.y = GravitiyForceMinus.yPosition;
+			size = new Vector2d(GravitiyForcePlus.xPosition - (GravitiyForceMinus.xPosition + GravitiyForceMinus.width),
+					18);
 			selected = 3;
-		} else if (((mouseX >= b12.xPosition + b12.width) && (mouseX <= b11.xPosition)) && (mouseY >= b12.yPosition + 1)
-				&& (mouseY <= b11.yPosition + b11.height - 1)) {
-			handle = new Vector2d(b12.xPosition + b12.width, b12.yPosition);
-			size = new Vector2d(b11.xPosition - (b12.xPosition + b12.width), 18);
+		} else if (((mouseX >= RotSpeedMinus.xPosition + RotSpeedMinus.width) && (mouseX <= RotSpeedPlus.xPosition))
+				&& (mouseY >= RotSpeedMinus.yPosition + 1)
+				&& (mouseY <= RotSpeedPlus.yPosition + RotSpeedMinus.height - 1)) {
+			handle.y = RotSpeedMinus.yPosition;
+			size = new Vector2d(RotSpeedPlus.xPosition - (RotSpeedMinus.xPosition + RotSpeedMinus.width), 18);
 			selected = 4;
-		}
+		} else if (InfiniteDuration.isMouseOver())
+			selected = 5;
 
 		int step = 1;
 		time = System.currentTimeMillis();
@@ -228,7 +241,7 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 					lastHandle.y += step;
 			}
 
-			lastHandle.x = b2.xPosition + b1.width;
+			lastHandle.x = MinDurationMinus.xPosition + MinDurationPlus.width;
 		}
 
 		if (lastSize != new Vector2d(0, 0)) {
@@ -249,18 +262,13 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 			if (lastSize.x < size.x)
 				lastSize.x += step;
 
-			lastSize.x = b9.xPosition - (b10.xPosition + b10.width);
+			lastSize.x = GravitiyForcePlus.xPosition - (GravitiyForceMinus.xPosition + GravitiyForceMinus.width);
 		}
 
 		String text = "";
 
 		switch (selected) {
 		case 1:
-			text = "Sets the \u00A76particle scale " + (FBP.minScale != FBP.maxScale
-					? ("range\u00A7a to between \u00A76" + FBP.minScale + "\u00A7a and \u00A76" + FBP.maxScale)
-					: "\u00A7ato\u00A76 " + FBP.maxScale) + "\u00A7a.";
-			break;
-		case 2:
 			String _text = (FBP.minAge != FBP.maxAge
 					? ("range\u00A7a to between \u00A76" + (FBP.showInMillis ? FBP.minAge * 50 : FBP.minAge)
 							+ "\u00A7a and \u00A76" + (FBP.showInMillis ? FBP.maxAge * 50 : FBP.maxAge)
@@ -268,29 +276,38 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 					: ("\u00A7ato \u00A76" + (FBP.showInMillis ? FBP.maxAge * 50 : FBP.maxAge)
 							+ (FBP.showInMillis ? "ms" : (FBP.maxAge > 1 ? " ticks" : " tick"))));
 
-			text = "Sets the \u00A76particle life duration " + _text + "\u00A7a.";
+			text = "Sets \u00A76particle life duration " + _text + "\u00A7a.";
+			break;
+		case 2:
+			text = "Sets \u00A76particle scale multiplier \u00A7ato \u00A76" + FBP.scaleMult + "\u00A7a.";
 			break;
 		case 3:
-			text = "Multiplies the \u00A76default particle gravity\u00A7a force by \u00A76" + FBP.gravityMult
-					+ "\u00A7a.";
+			text = "Multiplies \u00A76default particle gravity force\u00A7a by \u00A76" + FBP.gravityMult + "\u00A7a.";
 			break;
 		case 4:
 			text = "Multiplies \u00A76particle rotation\u00A7a by \u00A76" + FBP.rotationMult + "\u00A7a.";
+			break;
+		case 5:
+			text = (FBP.infiniteDuration ? "\u00A7cDisables" : "Enables")
+					+ " \u00A76infinite particle life duration\u00A7a.";
 			break;
 		default:
 			text = "";
 		}
 
-		if ((mouseX >= b2.xPosition + b2.width && mouseX <= b1.xPosition)
-				&& (mouseY < b12.yPosition + b12.height && mouseY >= b2.yPosition)
-				&& (lastSize.y <= 20 || (lastSize.y < 50 && lastSize.y > 20)) && lastHandle.y >= b1.yPosition) {
+		if (((mouseX >= MinDurationMinus.xPosition + MinDurationMinus.width && mouseX <= MinDurationPlus.xPosition)
+				&& (mouseY < RotSpeedMinus.yPosition + RotSpeedMinus.height && mouseY >= MinDurationMinus.yPosition)
+				&& (lastSize.y <= 20 || (lastSize.y < 50 && lastSize.y > 20))
+				&& lastHandle.y >= MinDurationPlus.yPosition) || InfiniteDuration.isMouseOver()) {
 			moveText(text);
 
-			if (selected == 2)
+			if (selected == 1)
 				this.drawCenteredString(fontRendererObj, !FBP.showInMillis ? "show in ms" : "show in ticks",
-						this.width / 2, b6.yPosition + b6.width - 5, fontRendererObj.getColorCode('c'));
+						this.width / 2, MinDurationPlus.yPosition + MinDurationPlus.width - 5,
+						fontRendererObj.getColorCode('c'));
 
-			FBPGuiHelper.drawRect(lastHandle.x, lastHandle.y + 1, lastSize.x, lastSize.y, 200, 200, 200, 35);
+			if (selected != 5)
+				FBPGuiHelper.drawRect(lastHandle.x, lastHandle.y + 1, lastSize.x, lastSize.y, 200, 200, 200, 35);
 
 			this.drawCenteredString(fontRendererObj, text, (int) (this.width / 2 + offsetX), posY,
 					fontRendererObj.getColorCode('a'));
@@ -300,28 +317,34 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 	private void drawInfo() {
 		int posY = Done.yPosition - 18;
 
-		this.drawCenteredString(fontRendererObj, "Min. Scale [\u00A76" + FBPMathHelper.round(FBP.minScale) + "\u00A7f]",
-				this.width / 2, b1.yPosition + 6, fontRendererObj.getColorCode('f'));
-		this.drawCenteredString(fontRendererObj, "Max. Scale [\u00A76" + FBPMathHelper.round(FBP.maxScale) + "\u00A7f]",
-				this.width / 2, b3.yPosition + 6, fontRendererObj.getColorCode('f'));
+		String s;
+
+		if (FBP.infiniteDuration)
+			s = "Min. Duration" + " [\u00A76" + "\u221e" + (FBP.showInMillis ? " ms" : " ticks") + "\u00A7f]";
+		else
+			s = "Min. Duration [\u00A76" + (FBP.showInMillis ? ((FBP.minAge * 50) + "ms")
+					: (FBP.minAge + (FBP.minAge > 1 ? " ticks" : " tick"))) + "\u00A7f]";
+		this.drawCenteredString(fontRendererObj, s, this.width / 2, MinDurationPlus.yPosition + 6,
+				fontRendererObj.getColorCode('f'));
+
+		if (FBP.infiniteDuration)
+			s = "Max. Duration" + " [\u00A76" + "\u221e" + (FBP.showInMillis ? " ms" : " ticks") + "\u00A7f]";
+		else
+			s = "Max. Duration [\u00A76" + (FBP.showInMillis ? ((FBP.maxAge * 50) + "ms")
+					: (FBP.maxAge + (FBP.maxAge > 1 ? " ticks" : " tick"))) + "\u00A7f]";
+		this.drawCenteredString(fontRendererObj, s, this.width / 2, MaxDurationPlus.yPosition + 6,
+				fontRendererObj.getColorCode('f'));
 
 		this.drawCenteredString(fontRendererObj,
-				"Min. Duration [\u00A76" + (FBP.showInMillis ? ((FBP.minAge * 50) + "ms")
-						: (FBP.minAge + (FBP.minAge > 1 ? " ticks" : " tick"))) + "\u00A7f]",
-				this.width / 2, b5.yPosition + 6, fontRendererObj.getColorCode('f'));
-
+				"Scale Mult. [\u00A76" + FBPMathHelper.round(FBP.scaleMult, 2) + "\u00A7f]", this.width / 2,
+				ScaleMultMinus.yPosition + 6, fontRendererObj.getColorCode('f'));
 		this.drawCenteredString(fontRendererObj,
-				"Max. Duration [\u00A76" + (FBP.showInMillis ? ((FBP.maxAge * 50) + "ms")
-						: (FBP.maxAge + (FBP.maxAge > 1 ? " ticks" : " tick"))) + "\u00A7f]",
-				this.width / 2, b7.yPosition + 6, fontRendererObj.getColorCode('f'));
-
-		this.drawCenteredString(fontRendererObj,
-				"Gravity Force Mult. [\u00A76" + FBPMathHelper.round(FBP.gravityMult) + "\u00A7f]", this.width / 2,
-				b9.yPosition + 6, fontRendererObj.getColorCode('f'));
+				"Gravity Force Mult. [\u00A76" + FBPMathHelper.round(FBP.gravityMult, 1) + "\u00A7f]", this.width / 2,
+				GravitiyForcePlus.yPosition + 6, fontRendererObj.getColorCode('f'));
 		this.drawCenteredString(fontRendererObj,
 				"Rotation Speed Mult. [\u00A76" + (FBP.rotationMult != 0
-						? String.valueOf(FBPMathHelper.round(FBP.rotationMult)) : FBPGuiHelper.off) + "\u00A7f]",
-				this.width / 2, b11.yPosition + 6, fontRendererObj.getColorCode('f'));
+						? String.valueOf(FBPMathHelper.round(FBP.rotationMult, 1)) : FBPGuiHelper.off) + "\u00A7f]",
+				this.width / 2, RotSpeedPlus.yPosition + 6, fontRendererObj.getColorCode('f'));
 	}
 
 	private void moveText(String text) {
@@ -368,21 +391,18 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 	}
 
 	void update() {
-		b1.enabled = FBP.minScale < 2.0D;
-		b2.enabled = FBP.minScale > 0.5D;
+		MinDurationPlus.enabled = FBP.minAge < 100 && !FBP.infiniteDuration;
+		MinDurationMinus.enabled = FBP.minAge > 10 && !FBP.infiniteDuration;
 
-		b3.enabled = FBP.maxScale < 2.0D;
-		b4.enabled = FBP.maxScale > 0.5D;
+		MaxDurationPlus.enabled = FBP.maxAge < 100 && !FBP.infiniteDuration;
+		MaxDurationMinus.enabled = FBP.maxAge > 10 && !FBP.infiniteDuration;
 
-		b5.enabled = FBP.minAge < 100;
-		b6.enabled = FBP.minAge > 10;
+		ScaleMultPlus.enabled = FBP.scaleMult < 1.25D;
+		ScaleMultMinus.enabled = FBP.scaleMult > 0.75D;
 
-		b7.enabled = FBP.maxAge < 100;
-		b8.enabled = FBP.maxAge > 10;
-
-		b9.enabled = FBP.gravityMult < 2.0D;
-		b10.enabled = FBP.gravityMult > 0.1D;
-		b11.enabled = FBP.rotationMult < 1.5D;
-		b12.enabled = FBP.rotationMult > 0;
+		GravitiyForcePlus.enabled = FBP.gravityMult < 2.0D;
+		GravitiyForceMinus.enabled = FBP.gravityMult > 0.1D;
+		RotSpeedPlus.enabled = FBP.rotationMult < 1.5D;
+		RotSpeedMinus.enabled = FBP.rotationMult > 0;
 	}
 }

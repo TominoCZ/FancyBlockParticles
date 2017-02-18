@@ -13,18 +13,17 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Mod;
 
 public class FBPGuiHelper extends GuiScreen {
-	public static String on = "\u00A7a ON";
-	public static String off = "\u00A7cOFF";
+	public static final String on = "\u00A7a ON";
+	public static final String off = "\u00A7cOFF";
 
 	public static void background(int top, int bottom, int width, int height) {
 		GlStateManager.disableLighting();
 		GlStateManager.disableFog();
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer vertexbuffer = tessellator.getBuffer();
-		// Forge: background rendering moved into separate method.
+		
 		drawContainerBackground(tessellator, top, bottom, 0, width);
 
 		GlStateManager.disableDepth();
@@ -80,7 +79,7 @@ public class FBPGuiHelper extends GuiScreen {
 
 		_drawCenteredString(fr, "\u00A7LFancy Block Particles", screenWidth / 2, y - 23, fr.getColorCode('6'));
 		String version = FMLCommonHandler.instance().findContainerFor(FBP.instance).getVersion();
-		
+
 		fr.drawStringWithShadow("\u00A76Version \u00A7L" + version, 2, screenHeight - 10, fr.getColorCode('6'));
 	}
 
@@ -115,6 +114,7 @@ public class FBPGuiHelper extends GuiScreen {
 		VertexBuffer buffer = tessellator.getBuffer();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.OPTIONS_BACKGROUND);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
 		float f = 32.0F;
 		buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 		buffer.pos((double) left, (double) bottom, 0.0D).tex((double) ((float) left / f), (double) (bottom / f))
@@ -125,7 +125,7 @@ public class FBPGuiHelper extends GuiScreen {
 				.color(32, 32, 32, 255).endVertex();
 		buffer.pos((double) left, (double) top, 0.0D).tex((double) ((float) left / f), (double) (top / f))
 				.color(32, 32, 32, 255).endVertex();
+
 		tessellator.draw();
 	}
-
 }

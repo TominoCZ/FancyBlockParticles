@@ -18,14 +18,14 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 
 	GuiButton Reload, Done, Defaults, Back, Next, ReportBug, Enable, b1, b2, b3, b4, b5, b6;
 
-	String b1Text = "Legacy Mode                          ";
-	String b2Text = "Cartoon Mode                         ";
+	String b1Text = "Legacy Mode";
+	String b2Text = "Cartoon Mode";
 
-	String b3Text = "Smooth Transitions                   ";
-	String b4Text = "Inherit Block's Top Texture        ";
+	String b3Text = "Smooth Transitions";
+	String b4Text = "Random Fade Speed";
 
-	String b5Text = "Spawn Redstone Block Particles   ";
-	String b6Text = "Spawn Particles in Freeze Mode   ";
+	String b5Text = "Spawn Redstone Block Particles";
+	String b6Text = "Spawn Particles in Freeze Mode";
 
 	String description = "";
 
@@ -38,28 +38,24 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 	public void initGui() {
 		this.buttonList.clear();
 
-		b1 = new GuiButton(1, this.width / 2 - (96 * 2 + 8) / 2, (int) (this.height / 5) - 10,
-				b1Text + (FBP.legacyMode ? FBPGuiHelper.on : FBPGuiHelper.off));
-		b2 = new GuiButton(2, this.width / 2 - (96 * 2 + 8) / 2, (int) b1.yPosition + b1.height + 1,
-				b2Text + (FBP.cartoonMode ? FBPGuiHelper.on : FBPGuiHelper.off));
+		int x = this.width / 2 - (96 * 2 + 8) / 2;
 
-		b3 = new GuiButton(3, this.width / 2 - (96 * 2 + 8) / 2, (int) b2.yPosition + b2.height + 6,
-				b3Text + (FBP.smoothTransitions ? FBPGuiHelper.on : FBPGuiHelper.off));
-		b4 = new GuiButton(4, this.width / 2 - (96 * 2 + 8) / 2, (int) b3.yPosition + b3.height + 1,
-				b4Text + (FBP.inheritBlockTopTexture ? FBPGuiHelper.on : FBPGuiHelper.off));
+		b1 = new FBPGuiButton(1, x, (int) (this.height / 5) - 10, b1Text, FBP.legacyMode, true);
+		b2 = new FBPGuiButton(2, x, (int) b1.yPosition + b1.height + 1, b2Text, FBP.cartoonMode, true);
 
-		b5 = new GuiButton(5, this.width / 2 - (96 * 2 + 8) / 2, (int) b4.yPosition + b4.height + 6,
-				b5Text + (FBP.spawnRedstoneBlockParticles ? FBPGuiHelper.on : FBPGuiHelper.off));
-		b6 = new GuiButton(6, this.width / 2 - (96 * 2 + 8) / 2, (int) b5.yPosition + b5.height + 1,
-				b6Text + (FBP.spawnWhileFrozen ? FBPGuiHelper.on : FBPGuiHelper.off));
+		b3 = new FBPGuiButton(3, x, (int) b2.yPosition + b2.height + 6, b3Text, FBP.smoothTransitions, true);
+		b4 = new FBPGuiButton(4, x, (int) b3.yPosition + b3.height + 1, b4Text, FBP.randomFadingSpeed, true);
 
-		Back = new GuiButton(-3, this.width / 2 - 125, (int) b6.yPosition, "<<");
-		Next = new GuiButton(-5, b6.xPosition + b6.width + 3, (int) b6.yPosition, ">>");
+		b5 = new FBPGuiButton(5, x, (int) b4.yPosition + b4.height + 6, b5Text, FBP.spawnRedstoneBlockParticles, true);
+		b6 = new FBPGuiButton(6, x, (int) b5.yPosition + b5.height + 1, b6Text, FBP.spawnWhileFrozen, true);
 
-		Defaults = new GuiButton(0, this.width / 2 + 2, b6.yPosition + b6.height + 24, "Defaults");
-		Done = new GuiButton(-1, this.width / 2 - 100, (int) Defaults.yPosition, "Done");
-		Reload = new GuiButton(-2, this.width / 2 - 100, (int) Defaults.yPosition + Defaults.height + 1,
-				"Reload Config");
+		Back = new FBPGuiButton(-3, this.width / 2 - 125, (int) b6.yPosition, "<<", false, false);
+		Next = new FBPGuiButton(-5, b6.xPosition + b6.width + 3 + 2, (int) b6.yPosition, ">>", false, false);
+
+		Defaults = new FBPGuiButton(0, this.width / 2 + 2, b6.yPosition + b6.height + 24, "Defaults", false, false);
+		Done = new FBPGuiButton(-1, this.width / 2 - 100, (int) Defaults.yPosition, "Done", false, false);
+		Reload = new FBPGuiButton(-2, this.width / 2 - 100, (int) Defaults.yPosition + Defaults.height + 1,
+				"Reload Config", false, false);
 		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 27, 2, new Dimension(width, height),
 				this.fontRendererObj);
 		Enable = new FBPGuiButtonEnable(-6, (this.width - 25 - 27) - 4, 2, new Dimension(width, height),
@@ -67,7 +63,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		Defaults.width = Done.width = 98;
 		Reload.width = b1.width = b2.width = b3.width = b4.width = b5.width = b6.width = 200;
 
-		Back.width = Next.width = 22;
+		Back.width = Next.width = 20;
 
 		this.buttonList.addAll(java.util.Arrays.asList(
 				new GuiButton[] { b1, b2, b3, b4, b5, b6, Defaults, Done, Reload, Back, Next, Enable, ReportBug }));
@@ -101,26 +97,22 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 			this.mc.displayGuiScreen(new FBPGuiYesNo(this));
 			break;
 		case 1:
-			b1.displayString = b1Text + ((FBP.legacyMode = !FBP.legacyMode) ? FBPGuiHelper.on : FBPGuiHelper.off);
+			FBP.legacyMode = !FBP.legacyMode;
 			break;
 		case 2:
-			b2.displayString = b2Text + ((FBP.cartoonMode = !FBP.cartoonMode) ? FBPGuiHelper.on : FBPGuiHelper.off);
+			FBP.cartoonMode = !FBP.cartoonMode;
 			break;
 		case 3:
-			b3.displayString = b3Text
-					+ ((FBP.smoothTransitions = !FBP.smoothTransitions) ? FBPGuiHelper.on : FBPGuiHelper.off);
+			FBP.smoothTransitions = !FBP.smoothTransitions;
 			break;
 		case 4:
-			b4.displayString = b4Text
-					+ ((FBP.inheritBlockTopTexture = !FBP.inheritBlockTopTexture) ? FBPGuiHelper.on : FBPGuiHelper.off);
+			FBP.randomFadingSpeed = !FBP.randomFadingSpeed;
 			break;
 		case 5:
-			b5.displayString = b5Text + ((FBP.spawnRedstoneBlockParticles = !FBP.spawnRedstoneBlockParticles)
-					? FBPGuiHelper.on : FBPGuiHelper.off);
+			FBP.spawnRedstoneBlockParticles = !FBP.spawnRedstoneBlockParticles;
 			break;
 		case 6:
-			b6.displayString = b6Text
-					+ ((FBP.spawnWhileFrozen = !FBP.spawnWhileFrozen) ? FBPGuiHelper.on : FBPGuiHelper.off);
+			FBP.spawnWhileFrozen = !FBP.spawnWhileFrozen;
 			break;
 		}
 
@@ -183,10 +175,10 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 				description = "Makes the particles look \u00A76cartoon\u00A7a-ish.";
 				break;
 			case 3:
-				description = "Makes the particles \u00A76rotate\u00A7a, \u00A76scale \u00A7aand \u00A76fade \u00A7asmoothly.";
+				description = "Makes the particles \u00A76rotate\u00A7a, \u00A76scale \u00A7aand \u00A76fade away\u00A7a smoothly.";
 				break;
 			case 4:
-				description = "Makes the particles use the \u00A76top texture\u00A7a of the block you hit from the top.";
+				description = "Enables \u00A76random \u00A7aparticle \u00A76fade away\u00A7a-transition speed.";
 				break;
 			case 5:
 				description = "Allows spawning \u00A76redstone block\u00A7a particles.";

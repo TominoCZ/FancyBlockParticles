@@ -1,0 +1,4 @@
+2.1
+-fixed particles not bouncing off of walls when the block is destroyed right next to another block
+-added a new keybind to kill all present particles....
+-added a button for infinite particle life duration to the menu

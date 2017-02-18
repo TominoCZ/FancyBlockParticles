@@ -52,6 +52,7 @@ public class FBPConfigHandler {
 
 			PrintWriter writer = new PrintWriter(f.getPath(), "UTF-8");
 			writer.println("enabled=" + FBP.enabled);
+			writer.println("rollParticles=" + FBP.rollParticles);
 			writer.println("bounceOffWalls=" + FBP.bounceOffWalls);
 			writer.println("showInMillis=" + FBP.showInMillis);
 			writer.println("legacyMode=" + FBP.legacyMode);
@@ -61,10 +62,10 @@ public class FBPConfigHandler {
 			writer.println("randomFadingSpeed=" + FBP.randomFadingSpeed);
 			writer.println("spawnRedstoneBlockParticles=" + FBP.spawnRedstoneBlockParticles);
 			writer.println("spawnWhileFrozen=" + FBP.spawnWhileFrozen);
-			writer.println("minScale=" + FBP.minScale);
-			writer.println("maxScale=" + FBP.maxScale);
+			writer.println("infiniteDuration=" + FBP.infiniteDuration);
 			writer.println("minAge=" + FBP.minAge);
 			writer.println("maxAge=" + FBP.maxAge);
+			writer.println("scaleMult=" + FBP.scaleMult);
 			writer.println("gravityMult=" + FBP.gravityMult);
 			writer.print("rotationMult=" + FBP.rotationMult);
 			writer.close();
@@ -95,7 +96,9 @@ public class FBPConfigHandler {
 			String line;
 
 			while ((line = br.readLine()) != null) {
-				if (line.contains("enabled="))
+				if (line.contains("rollParticles="))
+					FBP.rollParticles = Boolean.valueOf(line.replaceAll(" ", "").replace("rollParticles=", ""));
+				else if (line.contains("enabled="))
 					FBP.enabled = Boolean.valueOf(line.replaceAll(" ", "").replace("enabled=", ""));
 				else if (line.contains("bounceOffWalls="))
 					FBP.bounceOffWalls = Boolean.valueOf(line.replaceAll(" ", "").replace("bounceOffWalls=", ""));
@@ -116,14 +119,15 @@ public class FBPConfigHandler {
 				else if (line.contains("spawnRedstoneBlockParticles="))
 					FBP.spawnRedstoneBlockParticles = Boolean
 							.valueOf(line.replaceAll(" ", "").replace("spawnRedstoneBlockParticles=", ""));
-				else if (line.contains("minScale="))
-					FBP.minScale = Double.valueOf(line.replaceAll(" ", "").replace("minScale=", ""));
-				else if (line.contains("maxScale="))
-					FBP.maxScale = Double.valueOf(line.replaceAll(" ", "").replace("maxScale=", ""));
+				else if (line.contains("infiniteDuration="))
+					FBP.infiniteDuration = Boolean.valueOf(line.replaceAll(" ", "").replace("infiniteDuration=", ""));
 				else if (line.contains("minAge="))
 					FBP.minAge = Integer.valueOf(line.replaceAll(" ", "").replace("minAge=", ""));
 				else if (line.contains("maxAge="))
 					FBP.maxAge = Integer.valueOf(line.replaceAll(" ", "").replace("maxAge=", ""));
+
+				else if (line.contains("scaleMult="))
+					FBP.gravityMult = Double.valueOf(line.replaceAll(" ", "").replace("scaleMult=", ""));
 				else if (line.contains("gravityMult="))
 					FBP.gravityMult = Double.valueOf(line.replaceAll(" ", "").replace("gravityMult=", ""));
 				else if (line.contains("rotationMult="))
@@ -155,11 +159,10 @@ public class FBPConfigHandler {
 	public static void defaults(boolean write) {
 		FBP.minAge = 10;
 		FBP.maxAge = 25;
-		FBP.minScale = 1.0;
-		FBP.maxScale = 1.2;
+		FBP.scaleMult = 1.0;
 		FBP.gravityMult = 1.0;
 		FBP.rotationMult = 1.0;
-		// FBP.showInMillis = false;
+		FBP.rollParticles = false;
 		FBP.bounceOffWalls = false;
 		FBP.legacyMode = false;
 		FBP.cartoonMode = false;
@@ -167,7 +170,7 @@ public class FBPConfigHandler {
 		FBP.smoothTransitions = true;
 		FBP.randomFadingSpeed = true;
 		FBP.spawnRedstoneBlockParticles = false;
-		FBP.inheritBlockTopTexture = true;
+		FBP.infiniteDuration = false;
 		FBP.spawnWhileFrozen = true;
 
 		if (write)
@@ -175,19 +178,11 @@ public class FBPConfigHandler {
 	}
 
 	public static void check() {
-		FBP.minScale = Math.abs(FBP.minScale);
-		FBP.maxScale = Math.abs(FBP.maxScale);
+		FBP.scaleMult = Math.abs(FBP.scaleMult);
 		FBP.minAge = Math.abs(FBP.minAge);
 		FBP.maxAge = Math.abs(FBP.maxAge);
 		FBP.gravityMult = Math.abs(FBP.gravityMult);
 		FBP.rotationMult = Math.abs(FBP.rotationMult);
-
-		if (FBP.minScale < 0.5D)
-			FBP.minScale = 0.5D;
-		if (FBP.maxScale > 2.0D)
-			FBP.maxScale = 2.0D;
-		else if (FBP.maxScale < 0.5D)
-			FBP.maxScale = 0.5D;
 
 		if (FBP.minAge < 10)
 			FBP.minAge = 10;
@@ -199,20 +194,22 @@ public class FBPConfigHandler {
 		FBP.minAge = fix(FBP.minAge);
 		FBP.maxAge = fix(FBP.maxAge);
 
+		if (FBP.scaleMult > 1.25D)
+			FBP.scaleMult = 1.25D;
+		else if (FBP.scaleMult < 0.75D)
+			FBP.scaleMult = 0.75D;
+
 		if (FBP.gravityMult > 2.0D)
 			FBP.gravityMult = 2.0D;
-		else if (FBP.gravityMult < 0.1D)
-			FBP.gravityMult = 0.1D;
+		else if (FBP.gravityMult < 0.5D)
+			FBP.gravityMult = 0.5D;
 
 		if (FBP.rotationMult > 1.5D)
 			FBP.rotationMult = 1.5D;
 		else if (FBP.rotationMult < 0)
 			FBP.rotationMult = 0;
 
-		// Final check
-		if (FBP.minScale > FBP.maxScale)
-			FBP.minScale = FBP.maxScale;
-
+		// FINAL CHECK
 		if (FBP.minAge > FBP.maxAge)
 			FBP.minAge = FBP.maxAge;
 	}

@@ -1,0 +1,291 @@
+package com.TominoCZ.FBP.particle;
+
+import java.util.ArrayDeque;
+import java.util.Map;
+import java.util.Queue;
+
+import javax.annotation.Nullable;
+
+import com.TominoCZ.FBP.FBP;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
+
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.particle.Barrier;
+import net.minecraft.client.particle.IParticleFactory;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleBlockDust;
+import net.minecraft.client.particle.ParticleBreaking;
+import net.minecraft.client.particle.ParticleBubble;
+import net.minecraft.client.particle.ParticleCloud;
+import net.minecraft.client.particle.ParticleCrit;
+import net.minecraft.client.particle.ParticleDigging;
+import net.minecraft.client.particle.ParticleDragonBreath;
+import net.minecraft.client.particle.ParticleDrip;
+import net.minecraft.client.particle.ParticleEmitter;
+import net.minecraft.client.particle.ParticleEnchantmentTable;
+import net.minecraft.client.particle.ParticleEndRod;
+import net.minecraft.client.particle.ParticleExplosion;
+import net.minecraft.client.particle.ParticleExplosionHuge;
+import net.minecraft.client.particle.ParticleExplosionLarge;
+import net.minecraft.client.particle.ParticleFallingDust;
+import net.minecraft.client.particle.ParticleFirework;
+import net.minecraft.client.particle.ParticleFlame;
+import net.minecraft.client.particle.ParticleFootStep;
+import net.minecraft.client.particle.ParticleHeart;
+import net.minecraft.client.particle.ParticleLava;
+import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.particle.ParticleMobAppearance;
+import net.minecraft.client.particle.ParticleNote;
+import net.minecraft.client.particle.ParticlePortal;
+import net.minecraft.client.particle.ParticleRain;
+import net.minecraft.client.particle.ParticleRedstone;
+import net.minecraft.client.particle.ParticleSmokeLarge;
+import net.minecraft.client.particle.ParticleSmokeNormal;
+import net.minecraft.client.particle.ParticleSnowShovel;
+import net.minecraft.client.particle.ParticleSpell;
+import net.minecraft.client.particle.ParticleSplash;
+import net.minecraft.client.particle.ParticleSuspend;
+import net.minecraft.client.particle.ParticleSuspendedTown;
+import net.minecraft.client.particle.ParticleSweepAttack;
+import net.minecraft.client.particle.ParticleWaterWake;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+@SideOnly(Side.CLIENT)
+public class FBPParticleManager extends ParticleManager {
+	private static final ResourceLocation PARTICLE_TEXTURES = new ResourceLocation("textures/particle/particles.png");
+	/** Reference to the World object. */
+
+	private ArrayDeque<Particle>[][] fxLayers = new ArrayDeque[4][];
+	private Queue<ParticleEmitter> particleEmitters = Queues.<ParticleEmitter>newArrayDeque();
+	private TextureManager renderer;
+	/** RNG. */
+	private Map<Integer, IParticleFactory> particleTypes = Maps.<Integer, IParticleFactory>newHashMap();
+	private Queue<Particle> queue = Queues.<Particle>newArrayDeque();
+
+	public FBPParticleManager(World worldIn, TextureManager rendererIn) {
+		super(worldIn, rendererIn);
+
+		try {
+			queue = (Queue<Particle>) ReflectionHelper
+					.findField(ParticleManager.class, "queueEntityFX", "field_187241_h").get(this);
+		} catch (Exception e) {
+
+		}
+		
+		for (int i = 0; i < 4; ++i) {
+			this.fxLayers[i] = new ArrayDeque[2];
+
+			for (int j = 0; j < 2; ++j) {
+				this.fxLayers[i][j] = Queues.newArrayDeque();
+			}
+		}
+
+		this.registerVanillaParticles();
+	}
+
+	private void registerVanillaParticles() {
+		this.registerParticle(EnumParticleTypes.EXPLOSION_NORMAL.getParticleID(), new ParticleExplosion.Factory());
+		this.registerParticle(EnumParticleTypes.WATER_BUBBLE.getParticleID(), new ParticleBubble.Factory());
+		this.registerParticle(EnumParticleTypes.WATER_SPLASH.getParticleID(), new ParticleSplash.Factory());
+		this.registerParticle(EnumParticleTypes.WATER_WAKE.getParticleID(), new ParticleWaterWake.Factory());
+		this.registerParticle(EnumParticleTypes.WATER_DROP.getParticleID(), new ParticleRain.Factory());
+		this.registerParticle(EnumParticleTypes.SUSPENDED.getParticleID(), new ParticleSuspend.Factory());
+		this.registerParticle(EnumParticleTypes.SUSPENDED_DEPTH.getParticleID(), new ParticleSuspendedTown.Factory());
+		this.registerParticle(EnumParticleTypes.CRIT.getParticleID(), new ParticleCrit.Factory());
+		this.registerParticle(EnumParticleTypes.CRIT_MAGIC.getParticleID(), new ParticleCrit.MagicFactory());
+		this.registerParticle(EnumParticleTypes.SMOKE_NORMAL.getParticleID(), new ParticleSmokeNormal.Factory());
+		this.registerParticle(EnumParticleTypes.SMOKE_LARGE.getParticleID(), new ParticleSmokeLarge.Factory());
+		this.registerParticle(EnumParticleTypes.SPELL.getParticleID(), new ParticleSpell.Factory());
+		this.registerParticle(EnumParticleTypes.SPELL_INSTANT.getParticleID(), new ParticleSpell.InstantFactory());
+		this.registerParticle(EnumParticleTypes.SPELL_MOB.getParticleID(), new ParticleSpell.MobFactory());
+		this.registerParticle(EnumParticleTypes.SPELL_MOB_AMBIENT.getParticleID(),
+				new ParticleSpell.AmbientMobFactory());
+		this.registerParticle(EnumParticleTypes.SPELL_WITCH.getParticleID(), new ParticleSpell.WitchFactory());
+		this.registerParticle(EnumParticleTypes.DRIP_WATER.getParticleID(), new ParticleDrip.WaterFactory());
+		this.registerParticle(EnumParticleTypes.DRIP_LAVA.getParticleID(), new ParticleDrip.LavaFactory());
+		this.registerParticle(EnumParticleTypes.VILLAGER_ANGRY.getParticleID(),
+				new ParticleHeart.AngryVillagerFactory());
+		this.registerParticle(EnumParticleTypes.VILLAGER_HAPPY.getParticleID(),
+				new ParticleSuspendedTown.HappyVillagerFactory());
+		this.registerParticle(EnumParticleTypes.TOWN_AURA.getParticleID(), new ParticleSuspendedTown.Factory());
+		this.registerParticle(EnumParticleTypes.NOTE.getParticleID(), new ParticleNote.Factory());
+		this.registerParticle(EnumParticleTypes.PORTAL.getParticleID(), new ParticlePortal.Factory());
+		this.registerParticle(EnumParticleTypes.ENCHANTMENT_TABLE.getParticleID(),
+				new ParticleEnchantmentTable.EnchantmentTable());
+		this.registerParticle(EnumParticleTypes.FLAME.getParticleID(), new ParticleFlame.Factory());
+		this.registerParticle(EnumParticleTypes.LAVA.getParticleID(), new ParticleLava.Factory());
+		this.registerParticle(EnumParticleTypes.FOOTSTEP.getParticleID(), new ParticleFootStep.Factory());
+		this.registerParticle(EnumParticleTypes.CLOUD.getParticleID(), new ParticleCloud.Factory());
+		this.registerParticle(EnumParticleTypes.REDSTONE.getParticleID(), new ParticleRedstone.Factory());
+		this.registerParticle(EnumParticleTypes.FALLING_DUST.getParticleID(), new ParticleFallingDust.Factory());
+		this.registerParticle(EnumParticleTypes.SNOWBALL.getParticleID(), new ParticleBreaking.SnowballFactory());
+		this.registerParticle(EnumParticleTypes.SNOW_SHOVEL.getParticleID(), new ParticleSnowShovel.Factory());
+		this.registerParticle(EnumParticleTypes.SLIME.getParticleID(), new ParticleBreaking.SlimeFactory());
+		this.registerParticle(EnumParticleTypes.HEART.getParticleID(), new ParticleHeart.Factory());
+		this.registerParticle(EnumParticleTypes.BARRIER.getParticleID(), new Barrier.Factory());
+		this.registerParticle(EnumParticleTypes.ITEM_CRACK.getParticleID(), new ParticleBreaking.Factory());
+		this.registerParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), new ParticleDigging.Factory());
+		this.registerParticle(EnumParticleTypes.BLOCK_DUST.getParticleID(), new ParticleBlockDust.Factory());
+		this.registerParticle(EnumParticleTypes.EXPLOSION_HUGE.getParticleID(), new ParticleExplosionHuge.Factory());
+		this.registerParticle(EnumParticleTypes.EXPLOSION_LARGE.getParticleID(), new ParticleExplosionLarge.Factory());
+		this.registerParticle(EnumParticleTypes.FIREWORKS_SPARK.getParticleID(), new ParticleFirework.Factory());
+		this.registerParticle(EnumParticleTypes.MOB_APPEARANCE.getParticleID(), new ParticleMobAppearance.Factory());
+		this.registerParticle(EnumParticleTypes.DRAGON_BREATH.getParticleID(), new ParticleDragonBreath.Factory());
+		this.registerParticle(EnumParticleTypes.END_ROD.getParticleID(), new ParticleEndRod.Factory());
+		this.registerParticle(EnumParticleTypes.DAMAGE_INDICATOR.getParticleID(),
+				new ParticleCrit.DamageIndicatorFactory());
+		this.registerParticle(EnumParticleTypes.SWEEP_ATTACK.getParticleID(), new ParticleSweepAttack.Factory());
+	}
+
+	/**
+	 * Spawns the relevant particle according to the particle id.
+	 */
+	@Nullable
+	@Override
+	public Particle spawnEffectParticle(int particleId, double xCoord, double yCoord, double zCoord, double xSpeed,
+			double ySpeed, double zSpeed, int... parameters) {
+		IParticleFactory iparticlefactory = (IParticleFactory) this.particleTypes.get(Integer.valueOf(particleId));
+
+		if (iparticlefactory != null) {
+			Particle particle = iparticlefactory.createParticle(particleId, this.worldObj, xCoord, yCoord, zCoord,
+					xSpeed, ySpeed, zSpeed, parameters);
+
+			if (particle != null) {
+				if (particle instanceof ParticleDigging)
+					this.addEffect(new FBPParticle.Fatory().createParticle(particleId, this.worldObj, xCoord, yCoord,
+							zCoord, xSpeed, ySpeed, zSpeed, parameters));
+				else
+					this.addEffect(particle);
+				return particle;
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public void addEffect(Particle effect) {
+		if (effect == null)
+			return; // Forge: Prevent modders from being bad and adding nulls
+					// causing untraceable NPEs.
+		this.queueEntityFX.add(effect);
+	}
+
+	@Override
+	public void addBlockDestroyEffects(BlockPos pos, IBlockState state) {
+		if (!state.getBlock().isAir(state, this.worldObj, pos)
+				&& !state.getBlock().addDestroyEffects(worldObj, pos, this)) {
+			state = state.getActualState(this.worldObj, pos);
+			int i = 4;
+
+			for (int j = 0; j < 4; ++j) {
+				for (int k = 0; k < 4; ++k) {
+					for (int l = 0; l < 4; ++l) {
+						double d0 = (double) pos.getX() + ((double) j + 0.5D) / 4.0D;
+						double d1 = (double) pos.getY() + ((double) k + 0.5D) / 4.0D;
+						double d2 = (double) pos.getZ() + ((double) l + 0.5D) / 4.0D;
+
+						try {
+							if (FBP.enabled && state != null
+									&& (!(state.getBlock() instanceof BlockLiquid)
+											&& !(FBP.frozen && !FBP.spawnWhileFrozen))
+									&& (FBP.spawnRedstoneBlockParticles || state.getBlock() != Blocks.REDSTONE_BLOCK))
+								this.addEffect(new FBPParticle(this.worldObj, d0, d1, d2,
+										d0 - (double) pos.getX() - 0.5D, d1 - (double) pos.getY() - 0.5D,
+										d2 - (double) pos.getZ() - 0.5D, state, null).setBlockPos(pos));
+							else
+								this.addEffect(ParticleDigging.class
+										.getConstructor(World.class, double.class, IBlockState.class)
+										.newInstance(this.worldObj, d0, d1, d2, d0 - (double) pos.getX() - 0.5D,
+												d1 - (double) pos.getY() - 0.5D, d2 - (double) pos.getZ() - 0.5D, state)
+										.setBlockPos(pos));
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Adds block hit particles for the specified block
+	 */
+	@Override
+	public void addBlockHitEffects(BlockPos pos, EnumFacing side) {
+		IBlockState iblockstate = this.worldObj.getBlockState(pos);
+
+		if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE) {
+			int i = pos.getX();
+			int j = pos.getY();
+			int k = pos.getZ();
+			float f = 0.1F;
+			AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(this.worldObj, pos);
+			double d0 = (double) i
+					+ this.worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D)
+					+ 0.10000000149011612D + axisalignedbb.minX;
+			double d1 = (double) j
+					+ this.worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D)
+					+ 0.10000000149011612D + axisalignedbb.minY;
+			double d2 = (double) k
+					+ this.worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D)
+					+ 0.10000000149011612D + axisalignedbb.minZ;
+
+			if (side == EnumFacing.DOWN) {
+				d1 = (double) j + axisalignedbb.minY - 0.10000000149011612D;
+			}
+
+			if (side == EnumFacing.UP) {
+				d1 = (double) j + axisalignedbb.maxY + 0.10000000149011612D;
+			}
+
+			if (side == EnumFacing.NORTH) {
+				d2 = (double) k + axisalignedbb.minZ - 0.10000000149011612D;
+			}
+
+			if (side == EnumFacing.SOUTH) {
+				d2 = (double) k + axisalignedbb.maxZ + 0.10000000149011612D;
+			}
+
+			if (side == EnumFacing.WEST) {
+				d0 = (double) i + axisalignedbb.minX - 0.10000000149011612D;
+			}
+
+			if (side == EnumFacing.EAST) {
+				d0 = (double) i + axisalignedbb.maxX + 0.10000000149011612D;
+			}
+
+			try {
+				if (FBP.enabled && iblockstate != null
+						&& (!(iblockstate.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
+						&& (FBP.spawnRedstoneBlockParticles || iblockstate.getBlock() != Blocks.REDSTONE_BLOCK))
+					this.addEffect(new FBPParticle(this.worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side)
+							.setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+				else
+					this.addEffect(ParticleDigging.class.getConstructor(World.class, double.class, IBlockState.class)
+							.newInstance(this.worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate).setBlockPos(pos)
+							.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}/*
+	 * if (FBP.enabled && iblockstate != null && (!(iblockstate.getBlock()
+	 * instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen)) &&
+	 * (FBP.spawnRedstoneBlockParticles || iblockstate.getBlock() !=
+	 * Blocks.REDSTONE_BLOCK))
+	 */

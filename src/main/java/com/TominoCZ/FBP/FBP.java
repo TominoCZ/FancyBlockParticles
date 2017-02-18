@@ -30,20 +30,21 @@ public class FBP {
 
 	public static int minAge, maxAge;
 
-	public static double minScale, maxScale, gravityMult, rotationMult;
+	public static double scaleMult, gravityMult, rotationMult;
 
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
-
+	public static boolean infiniteDuration = false;
 	public static boolean legacyMode = false, cartoonMode = false, spawnWhileFrozen = true,
-			spawnRedstoneBlockParticles = false, inheritBlockTopTexture = true, smoothTransitions = true,
-			randomDisappearSpeed = true, randomFadingSpeed = false, entityCollision = false, bounceOffWalls = false,
-			frozen = false;
+			spawnRedstoneBlockParticles = false, smoothTransitions = true, randomFadingSpeed = false,
+			entityCollision = false, bounceOffWalls = false, rollParticles = false, frozen = false;
 
 	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
 	public static FBPEventHandler eventHandler = new FBPEventHandler();
 
+	public static long DEBUG;
+	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");

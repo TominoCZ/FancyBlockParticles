@@ -1,0 +1,3 @@
+2.1
+-fixed particles not bouncing off of walls when the block is destroyed right next to another block
+....

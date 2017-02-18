@@ -1,0 +1,90 @@
+package com.TominoCZ.FBP.math;
+
+import java.util.ArrayList;
+
+import com.google.common.collect.Lists;
+
+import net.minecraft.util.math.MathHelper;
+
+public class FBPMathHelper {
+	static ArrayList<double[]> newVec = new ArrayList();
+
+	static double[] cube;
+
+	static double sinAngleX;
+	static double sinAngleY;
+	static double sinAngleZ;
+
+	static double cosAngleX;
+	static double cosAngleY;
+	static double cosAngleZ;
+
+	static float radsX;
+	static float radsY;
+	static float radsZ;
+
+	public static double[] rotateCubeXYZ(double AngleX, double AngleY, double AngleZ, double halfSize) {
+		cube = new double[] { -halfSize, -halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize, halfSize,
+				halfSize, halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize, -halfSize,
+				-halfSize, halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize,
+				-halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize,
+				-halfSize, halfSize, halfSize, halfSize, halfSize, halfSize, halfSize, -halfSize, halfSize, -halfSize,
+				-halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize,
+				-halfSize, halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, halfSize,
+				halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize };
+
+		radsX = (float) Math.toRadians(AngleX);
+		radsY = (float) Math.toRadians(AngleY);
+		radsZ = (float) Math.toRadians(AngleZ);
+
+		sinAngleX = MathHelper.sin(radsX);
+		sinAngleY = MathHelper.sin(radsY);
+		sinAngleZ = MathHelper.sin(radsZ);
+
+		cosAngleX = MathHelper.cos(radsX);
+		cosAngleY = MathHelper.cos(radsY);
+		cosAngleZ = MathHelper.cos(radsZ);
+
+		newVec.clear();
+
+		for (int i = 0; i < cube.length; i += 3) {
+			// X
+			//double[] d = new double[] { cube[i], cube[i + 1] * cosAngleX - cube[i + 2] * sinAngleX,
+					//cube[i + 1] * sinAngleX + cube[i + 2] * cosAngleX };
+			// Y
+			//d = new double[] { d[0] * cosAngleY + d[2] * sinAngleY, d[1], d[0] * sinAngleY - d[2] * cosAngleY };
+			// Z
+			//d = new double[] { d[0] * cosAngleZ - d[1] * sinAngleZ, d[0] * sinAngleZ + d[1] * cosAngleZ, d[2] };
+
+			//X
+			cube[i] = cube[i];
+			cube[i + 1] = cube[i + 1] * cosAngleX - cube[i + 2] * sinAngleX;
+			cube[i + 2] = cube[i + 1] * sinAngleX + cube[i + 2] * cosAngleX;
+			//Y
+			cube[i] = cube[i] * cosAngleY + cube[i + 2] * sinAngleY;
+			cube[i + 1] = cube[i + 1];
+			cube[i + 2] = cube[i] * sinAngleY - cube[i + 2] * cosAngleY;
+			//Z
+			cube[i] = cube[i] * cosAngleZ - cube[i + 1] * sinAngleZ;
+			cube[i + 1] = cube[i] * sinAngleZ + cube[i + 1] * cosAngleZ;
+			cube[i + 2] = cube[i + 2];
+			
+			//newVec.add(cube);
+		}
+
+		return cube;
+		//return new ArrayList(Lists.asList(null, cube));
+	}
+
+	public static double round(double d, int decimals) {
+		int i = (int) Math.round(d * Math.pow(10, decimals));
+		return ((double) i) / Math.pow(10, decimals);
+	}
+
+	public static double add(double d, double add) {
+		if (d < 0)
+			return d - add;
+
+		return d + add;
+	}
+}

@@ -10,6 +10,8 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 
 public class FBPKeyInputHandler {
 
+	public static boolean sweep = false;
+
 	@SubscribeEvent
 	public void onKeyInput(KeyInputEvent event) {
 		if (FBPKeyBindings.FBPMenu.isPressed())
@@ -23,5 +25,9 @@ public class FBPKeyInputHandler {
 				FBP.frozen = !FBP.frozen;
 			else
 				FBP.frozen = false;
+
+		if (FBPKeyBindings.FBPSweep.isPressed())
+			FBP.DEBUG = 0; //TODO DEBUG
+		sweep = FBPKeyBindings.FBPSweep.isKeyDown();
 	}
 }
