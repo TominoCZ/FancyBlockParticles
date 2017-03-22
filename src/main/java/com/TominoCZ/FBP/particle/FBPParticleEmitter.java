@@ -1,11 +1,14 @@
 package com.TominoCZ.FBP.particle;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 import com.TominoCZ.FBP.FBP;
 
+import com.google.common.base.Throwables;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -24,6 +27,30 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class FBPParticleEmitter extends ParticleEmitter {
+	private static final MethodHandle setParticleScale;
+	private static final MethodHandle getParticleSourceState;
+	private static final MethodHandle getParticleMotionX;
+	private static final MethodHandle getParticleMotionY;
+	private static final MethodHandle getParticleMotionZ;
+	private static final MethodHandle getParticlePosX;
+	private static final MethodHandle getParticlePosY;
+	private static final MethodHandle getParticlePosZ;
+	static {
+		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+		try {
+			setParticleScale = lookup.unreflectSetter(ReflectionHelper.findField(Particle.class, "field_70544_f", "particleScale"));
+			getParticleSourceState = lookup.unreflectGetter(ReflectionHelper.findField(ParticleDigging.class, "field_174847_a", "sourceState"));
+			getParticleMotionX = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187129_i", "motionX"));
+			getParticleMotionY = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187130_j", "motionY"));
+			getParticleMotionZ = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187131_k", "motionZ"));
+			getParticlePosX = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187126_f", "posX"));
+			getParticlePosY = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187127_g", "posY"));
+			getParticlePosZ = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187128_h", "posZ"));
+		} catch (IllegalAccessException e) {
+			throw Throwables.propagate(e);
+		}
+	}
+
 	double X, Y, Z, mX, mY, mZ;
 
 	Queue<Particle> queue;
@@ -54,25 +81,23 @@ public class FBPParticleEmitter extends ParticleEmitter {
 		if (queue != null && !Minecraft.getMinecraft().isGamePaused() && FBP.isEnabled()) {
 			queue.stream().filter(particle -> particle instanceof ParticleDigging).forEach(particle -> {
 				try {
-					Class c = Particle.class;
 
-					ReflectionHelper.setPrivateValue(c, particle, 0, "field_70544_f", "particleScale");
+					setParticleScale.invokeExact(particle, 0f);
 
-					prevSourceState = (IBlockState) ReflectionHelper
-							.findField(ParticleDigging.class, "field_174847_a", "sourceState").get(particle);
+					prevSourceState = (IBlockState) getParticleSourceState.invokeExact((ParticleDigging)particle);
 
 					if (prevSourceState != null
 							&& (!(prevSourceState.getBlock() instanceof BlockLiquid)
-									&& !(FBP.frozen && !FBP.spawnWhileFrozen))
+							&& !(FBP.frozen && !FBP.spawnWhileFrozen))
 							&& (FBP.spawnRedstoneBlockParticles
-									|| prevSourceState.getBlock() != Blocks.REDSTONE_BLOCK)) {
-						mX = ReflectionHelper.findField(c, "field_187129_i", "motionX").getDouble(particle);
-						mY = ReflectionHelper.findField(c, "field_187130_j", "motionY").getDouble(particle);
-						mZ = ReflectionHelper.findField(c, "field_187131_k", "motionZ").getDouble(particle);
+							|| prevSourceState.getBlock() != Blocks.REDSTONE_BLOCK)) {
+						mX = (double)getParticleMotionX.invokeExact(particle);
+						mY = (double)getParticleMotionY.invokeExact(particle);
+						mZ = (double)getParticleMotionZ.invokeExact(particle);
 
-						X = ReflectionHelper.findField(c, "field_187126_f", "posX").getDouble(particle);
-						Y = ReflectionHelper.findField(c, "field_187127_g", "posY").getDouble(particle);
-						Z = ReflectionHelper.findField(c, "field_187128_h", "posZ").getDouble(particle);
+						X = (double)getParticlePosX.invokeExact(particle);
+						Y = (double)getParticlePosY.invokeExact(particle);
+						Z = (double)getParticlePosZ.invokeExact(particle);
 					}
 				} catch (Exception e) {
 					if (Minecraft.getMinecraft().thePlayer.onGround) {
@@ -81,6 +106,9 @@ public class FBPParticleEmitter extends ParticleEmitter {
 							prevSourceState = Blocks.LAVA.getDefaultState();
 						}
 					}
+				} catch (Throwable throwable) {
+					// invokeExact throws Throwable, so we have to catch it
+					throw Throwables.propagate(throwable);
 				}
 				if (prevSourceState != null
 						&& (!(prevSourceState.getBlock() instanceof BlockLiquid)
