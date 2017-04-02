@@ -17,3 +17,96 @@
 2017-03-30 00:21:08,601 [Worker-4] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
 2017-03-30 19:51:12,419 [Worker-4] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is out-of-date. Trying to update.
 2017-03-30 23:57:32,827 [Worker-6] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2017-03-31 16:04:16,133 [Worker-4] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2017-04-02 18:12:11,656 [Worker-0] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is out-of-date. Trying to update.
+2017-04-02 18:53:53,750 [Worker-2] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2017-04-03 00:53:46,164 [Worker-4] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2017-04-03 18:09:20,950 [Worker-3] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2017-04-03 19:27:25,757 [main] INFO  o.e.r.s.GitSnippetRepository - Failed to parse query
+org.apache.lucene.queryParser.ParseException: Cannot parse '[': Encountered "<EOF>" at line 1, column 1.
+Was expecting one of:
+    <RANGEIN_QUOTED> ...
+    <RANGEIN_GOOP> ...
+    
+	at org.apache.lucene.queryParser.QueryParser.parse(QueryParser.java:211) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
+	at org.eclipse.recommenders.snipmatch.FileSnippetRepository.searchSnippetFiles(FileSnippetRepository.java:348) [org.eclipse.recommenders.snipmatch_2.4.5.v20161130-1427.jar:na]
+	at org.eclipse.recommenders.snipmatch.FileSnippetRepository.doSearch(FileSnippetRepository.java:325) [org.eclipse.recommenders.snipmatch_2.4.5.v20161130-1427.jar:na]
+	at org.eclipse.recommenders.snipmatch.FileSnippetRepository.search(FileSnippetRepository.java:307) [org.eclipse.recommenders.snipmatch_2.4.5.v20161130-1427.jar:na]
+	at org.eclipse.recommenders.internal.snipmatch.rcp.EclipseGitSnippetRepository.search(EclipseGitSnippetRepository.java:283) [org.eclipse.recommenders.snipmatch.rcp_2.4.5.v20161130-1427.jar:na]
+	at org.eclipse.recommenders.internal.snipmatch.rcp.completion.AbstractContentAssistProcessor.computeCompletionProposals(AbstractContentAssistProcessor.java:154) [org.eclipse.recommenders.snipmatch.rcp_2.4.5.v20161130-1427.jar:na]
+	at org.eclipse.jface.text.contentassist.ContentAssistant$3.run(ContentAssistant.java:1931) [org.eclipse.jface.text_3.11.2.v20161113-1700.jar:na]
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42) [org.eclipse.equinox.common_3.8.0.v20160509-1230.jar:na]
+	at org.eclipse.jface.text.contentassist.ContentAssistant.computeCompletionProposals(ContentAssistant.java:1928) [org.eclipse.jface.text_3.11.2.v20161113-1700.jar:na]
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.computeProposals(CompletionProposalPopup.java:565) [org.eclipse.jface.text_3.11.2.v20161113-1700.jar:na]
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.access$16(CompletionProposalPopup.java:560) [org.eclipse.jface.text_3.11.2.v20161113-1700.jar:na]
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup$13.run(CompletionProposalPopup.java:1639) [org.eclipse.jface.text_3.11.2.v20161113-1700.jar:na]
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.incrementalComplete(CompletionProposalPopup.java:1632) [org.eclipse.jface.text_3.11.2.v20161113-1700.jar:na]
+	at org.eclipse.jface.text.contentassist.ContentAssistant.showPossibleCompletions(ContentAssistant.java:1746) [org.eclipse.jface.text_3.11.2.v20161113-1700.jar:na]
+	at org.eclipse.recommenders.internal.snipmatch.rcp.completion.SnipmatchCompletionEngine$6.modifyText(SnipmatchCompletionEngine.java:252) [org.eclipse.recommenders.snipmatch.rcp_2.4.5.v20161130-1427.jar:na]
+	at org.eclipse.swt.widgets.TypedListener.handleEvent(TypedListener.java:180) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:84) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Display.sendEvent(Display.java:4418) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1079) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1103) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1088) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.notifyListeners(Widget.java:802) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.custom.StyledText.modifyContent(StyledText.java:7382) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.custom.StyledText.sendKeyEvent(StyledText.java:8225) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.custom.StyledText.doContent(StyledText.java:2530) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.custom.StyledText.handleKey(StyledText.java:6018) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.custom.StyledText.handleKeyDown(StyledText.java:6049) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.custom.StyledText$7.handleEvent(StyledText.java:5733) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:84) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Display.sendEvent(Display.java:4418) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1079) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1103) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1088) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.sendKeyEvent(Widget.java:1130) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.sendKeyEvent(Widget.java:1126) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Widget.wmChar(Widget.java:1547) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Control.WM_CHAR(Control.java:4918) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Canvas.WM_CHAR(Canvas.java:364) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Control.windowProc(Control.java:4799) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Canvas.windowProc(Canvas.java:359) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Display.windowProc(Display.java:5110) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.internal.win32.OS.DispatchMessageW(Native Method) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.internal.win32.OS.DispatchMessage(OS.java:2552) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3822) [org.eclipse.swt.win32.win32.x86_64_3.105.2.v20161122-0613.jar:na]
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:1121) [org.eclipse.e4.ui.workbench.swt_0.14.1.v20160829-0832.jar:na]
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:336) [org.eclipse.core.databinding.observable_1.6.0.v20160511-1747.jar:na]
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1022) [org.eclipse.e4.ui.workbench.swt_0.14.1.v20160829-0832.jar:na]
+	at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:150) [org.eclipse.e4.ui.workbench_1.4.0.v20160517-1624.jar:na]
+	at org.eclipse.ui.internal.Workbench$5.run(Workbench.java:693) [org.eclipse.ui.workbench_3.108.2.v20161025-2029.jar:na]
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:336) [org.eclipse.core.databinding.observable_1.6.0.v20160511-1747.jar:na]
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:610) [org.eclipse.ui.workbench_3.108.2.v20161025-2029.jar:na]
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:148) [org.eclipse.ui.workbench_3.108.2.v20161025-2029.jar:na]
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:138) [org.eclipse.ui.ide.application_1.1.101.v20160829-0827.jar:na]
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196) [org.eclipse.equinox.app_1.3.400.v20150715-1528.jar:na]
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:134) [org.eclipse.osgi_3.11.2.v20161107-1947.jar:na]
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:104) [org.eclipse.osgi_3.11.2.v20161107-1947.jar:na]
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:388) [org.eclipse.osgi_3.11.2.v20161107-1947.jar:na]
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:243) [org.eclipse.osgi_3.11.2.v20161107-1947.jar:na]
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:1.8.0_121]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source) ~[na:1.8.0_121]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source) ~[na:1.8.0_121]
+	at java.lang.reflect.Method.invoke(Unknown Source) ~[na:1.8.0_121]
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:673) [org.eclipse.equinox.launcher_1.3.201.v20161025-1711.jar:na]
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:610) [org.eclipse.equinox.launcher_1.3.201.v20161025-1711.jar:na]
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1519) [org.eclipse.equinox.launcher_1.3.201.v20161025-1711.jar:na]
+Caused by: org.apache.lucene.queryParser.ParseException: Encountered "<EOF>" at line 1, column 1.
+Was expecting one of:
+    <RANGEIN_QUOTED> ...
+    <RANGEIN_GOOP> ...
+    
+	at org.apache.lucene.queryParser.QueryParser.generateParseException(QueryParser.java:1818) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
+	at org.apache.lucene.queryParser.QueryParser.jj_consume_token(QueryParser.java:1700) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
+	at org.apache.lucene.queryParser.QueryParser.Term(QueryParser.java:1435) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
+	at org.apache.lucene.queryParser.QueryParser.Clause(QueryParser.java:1309) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
+	at org.apache.lucene.queryParser.QueryParser.Query(QueryParser.java:1237) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
+	at org.apache.lucene.queryParser.QueryParser.TopLevelQuery(QueryParser.java:1226) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
+	at org.apache.lucene.queryParser.QueryParser.parse(QueryParser.java:206) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
+	... 65 common frames omitted
+2017-04-03 23:19:38,815 [Worker-2] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is out-of-date. Trying to update.
+2017-04-04 20:40:55,155 [Worker-0] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2017-04-05 16:05:33,225 [Worker-0] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache is out-of-date. Trying to update.

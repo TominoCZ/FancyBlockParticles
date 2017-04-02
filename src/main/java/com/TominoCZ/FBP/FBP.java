@@ -43,8 +43,6 @@ public class FBP {
 
 	public static FBPEventHandler eventHandler = new FBPEventHandler();
 
-	public static long DEBUG;
-	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");

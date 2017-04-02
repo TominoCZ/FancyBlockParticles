@@ -16,6 +16,7 @@ import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumBlockRenderType;
@@ -29,7 +30,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class FBPParticleManager extends ParticleManager {
+	private static MethodHandle getParticleScale;
+	private static MethodHandle getParticleTexture;
 	private static MethodHandle getParticleTypes;
+	private static MethodHandle getSourceState;
+	private static MethodHandle X, Y, Z;
 
 	private static IParticleFactory particleFactory;
 	private static IBlockState blockState;
@@ -44,9 +49,45 @@ public class FBPParticleManager extends ParticleManager {
 		try {
 			getParticleTypes = lookup.unreflectGetter(
 					ReflectionHelper.findField(ParticleManager.class, "field_178932_g", "particleTypes"));
-		} catch (IllegalAccessException e) {
+
+			getSourceState = lookup.unreflectGetter(
+					ReflectionHelper.findField(ParticleDigging.class, "field_174847_a", "sourceState"));
+
+			X = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187126_f", "posX"));
+			Y = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187127_g", "posY"));
+			Z = lookup.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187128_h", "posZ"));
+
+			getParticleScale = lookup
+					.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_70544_f", "particleScale"));
+			getParticleTexture = lookup
+					.unreflectGetter(ReflectionHelper.findField(Particle.class, "field_187119_C", "particleTexture"));
+		} catch (Exception e) {
 			throw Throwables.propagate(e);
 		}
+	}
+
+	@Override
+	public void addEffect(Particle effect) {
+		Particle toAdd = effect;
+
+		if (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticle)) {
+			try {
+				IBlockState s = (IBlockState) getSourceState.invokeExact((ParticleDigging) effect);
+
+				if (FBP.enabled && (!(s.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
+						&& (FBP.spawnRedstoneBlockParticles || s.getBlock() != Blocks.REDSTONE_BLOCK)) {
+					toAdd = new FBPParticle(worldObj, (double) X.invokeExact(effect), (double) Y.invokeExact(effect),
+							(double) Z.invokeExact(effect), 0, 0, 0, s, null,
+							(float) getParticleScale.invokeExact(effect));
+
+					toAdd.setParticleTexture((TextureAtlasSprite) getParticleTexture.invokeExact(effect));
+				}
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		}
+
+		super.addEffect(toAdd);
 	}
 
 	@Nullable
@@ -67,18 +108,18 @@ public class FBPParticleManager extends ParticleManager {
 					xSpeed, ySpeed, zSpeed, parameters), toSpawn = null;
 
 			if (FBP.enabled) {
-				if (particle instanceof ParticleDigging) {
+				if (particle instanceof ParticleDigging && !(particle instanceof FBPParticle)) {
 					blockState = Block.getStateById(parameters[0]);
 					if (blockState != null
 							&& (!(blockState.getBlock() instanceof BlockLiquid)
 									&& !(FBP.frozen && !FBP.spawnWhileFrozen))
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK))
 						toSpawn = new FBPParticle(this.worldObj, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed,
-								blockState, EnumFacing.UP).multipleParticleScaleBy(0.6F);
+								blockState, EnumFacing.UP, -1).multipleParticleScaleBy(0.6F);
 				}
 			} else
 				toSpawn = particle;
-			
+
 			this.addEffect(toSpawn);
 			return toSpawn;
 		}
@@ -88,8 +129,10 @@ public class FBPParticleManager extends ParticleManager {
 
 	@Override
 	public void addBlockDestroyEffects(BlockPos pos, IBlockState state) {
-		if (!state.getBlock().isAir(state, worldObj, pos) && !state.getBlock().addDestroyEffects(worldObj, pos, this)) {
+		Block b = state.getBlock();
+		if (!b.isAir(state, worldObj, pos) && !b.addDestroyEffects(worldObj, pos, this)) {
 			state = state.getActualState(worldObj, pos);
+			b = state.getBlock();
 			int i = 4;
 
 			for (int j = 0; j < 4; ++j) {
@@ -102,13 +145,11 @@ public class FBPParticleManager extends ParticleManager {
 						try {
 							if (FBP.enabled) {
 								if (state != null
-										&& (!(state.getBlock() instanceof BlockLiquid)
-												&& !(FBP.frozen && !FBP.spawnWhileFrozen))
-										&& (FBP.spawnRedstoneBlockParticles
-												|| state.getBlock() != Blocks.REDSTONE_BLOCK))
+										&& (!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
+										&& (FBP.spawnRedstoneBlockParticles || b != Blocks.REDSTONE_BLOCK))
 									addEffect(new FBPParticle(worldObj, d0, d1, d2, d0 - (double) pos.getX() - 0.5D,
 											d1 - (double) pos.getY() - 0.5D, d2 - (double) pos.getZ() - 0.5D, state,
-											null));
+											null, -1));
 							} else
 								addEffect((particleFactory.createParticle(0, this.worldObj, d0, d1, d2,
 										d0 - (double) pos.getX() - 0.5D, d1 - (double) pos.getY() - 0.5D,
@@ -142,28 +183,27 @@ public class FBPParticleManager extends ParticleManager {
 					+ worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D)
 					+ 0.10000000149011612D + axisalignedbb.minZ;
 
-			if (side == EnumFacing.DOWN) {
+			switch (side) {
+			case DOWN:
 				d1 = (double) j + axisalignedbb.minY - 0.10000000149011612D;
-			}
-
-			if (side == EnumFacing.UP) {
-				d1 = (double) j + axisalignedbb.maxY + 0.10000000149011612D;
-			}
-
-			if (side == EnumFacing.NORTH) {
-				d2 = (double) k + axisalignedbb.minZ - 0.10000000149011612D;
-			}
-
-			if (side == EnumFacing.SOUTH) {
-				d2 = (double) k + axisalignedbb.maxZ + 0.10000000149011612D;
-			}
-
-			if (side == EnumFacing.WEST) {
-				d0 = (double) i + axisalignedbb.minX - 0.10000000149011612D;
-			}
-
-			if (side == EnumFacing.EAST) {
+				break;
+			case EAST:
 				d0 = (double) i + axisalignedbb.maxX + 0.10000000149011612D;
+				break;
+			case NORTH:
+				d2 = (double) k + axisalignedbb.minZ - 0.10000000149011612D;
+				break;
+			case SOUTH:
+				d2 = (double) k + axisalignedbb.maxZ + 0.10000000149011612D;
+				break;
+			case UP:
+				d1 = (double) j + axisalignedbb.maxY + 0.10000000149011612D;
+				break;
+			case WEST:
+				d0 = (double) i + axisalignedbb.minX - 0.10000000149011612D;
+				break;
+			default:
+				break;
 			}
 
 			try {
@@ -172,7 +212,7 @@ public class FBPParticleManager extends ParticleManager {
 							&& (!(iblockstate.getBlock() instanceof BlockLiquid)
 									&& !(FBP.frozen && !FBP.spawnWhileFrozen))
 							&& (FBP.spawnRedstoneBlockParticles || iblockstate.getBlock() != Blocks.REDSTONE_BLOCK))
-						addEffect(new FBPParticle(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side)
+						addEffect(new FBPParticle(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side, -1)
 								.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
 				} else
 					addEffect(particleFactory
@@ -183,9 +223,4 @@ public class FBPParticleManager extends ParticleManager {
 			}
 		}
 	}
-}/*
-	 * if (FBP.enabled && iblockstate != null && (!(iblockstate.getBlock()
-	 * instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen)) &&
-	 * (FBP.spawnRedstoneBlockParticles || iblockstate.getBlock() !=
-	 * Blocks.REDSTONE_BLOCK))
-	 */
+}

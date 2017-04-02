@@ -6,47 +6,27 @@ import java.util.List;
 import net.minecraft.util.math.MathHelper;
 
 public class FBPMathHelper {
-	static List<double[]> newVec = new ArrayList();
+	public static List<double[]> rotateCubeXYZ(float AngleX, float AngleY, float AngleZ, double halfSize) {
+		List<double[]> newVec = new ArrayList(24);
 
-	static double[] cube;
+		double[] cube = new double[] { -halfSize, -halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize,
+				halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize,
+				-halfSize, -halfSize, halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize,
+				-halfSize, -halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize,
+				halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize, halfSize, halfSize, halfSize, -halfSize,
+				halfSize, -halfSize, -halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize, -halfSize,
+				halfSize, halfSize, -halfSize, halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize,
+				-halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize };
 
-	static double sinAngleX;
-	static double sinAngleY;
-	static double sinAngleZ;
+		double sinAngleX = MathHelper.sin(AngleX);
+		double sinAngleY = MathHelper.sin(AngleY);
+		double sinAngleZ = MathHelper.sin(AngleZ);
 
-	static double cosAngleX;
-	static double cosAngleY;
-	static double cosAngleZ;
+		double cosAngleX = MathHelper.cos(AngleX);
+		double cosAngleY = MathHelper.cos(AngleY);
+		double cosAngleZ = MathHelper.cos(AngleZ);
 
-	static float radsX;
-	static float radsY;
-	static float radsZ;
-
-	static double[] d = new double[3];
-	
-	public static List<double[]> rotateCubeXYZ(double AngleX, double AngleY, double AngleZ, double halfSize) {
-		cube = new double[] { -halfSize, -halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize, halfSize,
-				halfSize, halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize, -halfSize,
-				-halfSize, halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize,
-				-halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize, halfSize, halfSize,
-				-halfSize, halfSize, halfSize, halfSize, halfSize, halfSize, halfSize, -halfSize, halfSize, -halfSize,
-				-halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize, halfSize, -halfSize, halfSize, halfSize,
-				-halfSize, halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize, halfSize,
-				halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize };
-
-		radsX = (float) Math.toRadians(AngleX);
-		radsY = (float) Math.toRadians(AngleY);
-		radsZ = (float) Math.toRadians(AngleZ);
-
-		sinAngleX = MathHelper.sin(radsX);
-		sinAngleY = MathHelper.sin(radsY);
-		sinAngleZ = MathHelper.sin(radsZ);
-
-		cosAngleX = MathHelper.cos(radsX);
-		cosAngleY = MathHelper.cos(radsY);
-		cosAngleZ = MathHelper.cos(radsZ);
-
-		newVec.clear();
+		double[] d = new double[3];
 
 		for (int i = 0; i < 72; i += 3) {
 			d = new double[] { cube[i], cube[i + 1] * cosAngleX - cube[i + 2] * sinAngleX,
@@ -54,14 +34,27 @@ public class FBPMathHelper {
 
 			d = new double[] { d[0] * cosAngleY + d[2] * sinAngleY, d[1], d[0] * sinAngleY - d[2] * cosAngleY };
 
-			d = new double[] { d[0] * cosAngleZ - d[1] * sinAngleZ, d[0] * sinAngleZ + d[1] * cosAngleZ, d[2] };
-
-			newVec.add(d);
+			newVec.add(new double[] { d[0] * cosAngleZ - d[1] * sinAngleZ, d[0] * sinAngleZ + d[1] * cosAngleZ, d[2] });
 		}
- 
+
 		return newVec;
 	}
 
+	public static double add(double d, double add) {
+		if (d < 0.0D)
+			return d - add;
+
+		return d + add;
+	}
+
+	public static double abs(double d)
+	{
+		if (d < 0.0D)
+			return -d;
+		
+		return d;
+	}
+	
 	public static double round(double d, int decimals) {
 		int i = (int) Math.round(d * Math.pow(10, decimals));
 		return ((double) i) / Math.pow(10, decimals);

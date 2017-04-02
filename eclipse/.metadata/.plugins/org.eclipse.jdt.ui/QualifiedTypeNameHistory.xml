@@ -3,12 +3,9 @@
 <fullyQualifiedTypeName name="org.apache.http.impl.cookie.PublicSuffixListParser"/>
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.particle.FPBParticleManager"/>
 <fullyQualifiedTypeName name="org.apache.logging.log4j.core.net.Facility"/>
-<fullyQualifiedTypeName name="net.minecraftforge.fml.relauncher.ReflectionHelper"/>
 <fullyQualifiedTypeName name="com.google.common.base.Throwables"/>
-<fullyQualifiedTypeName name="net.minecraft.client.particle.Particle"/>
 <fullyQualifiedTypeName name="java.lang.reflect.Constructor"/>
 <fullyQualifiedTypeName name="net.minecraft.util.EnumParticleTypes"/>
-<fullyQualifiedTypeName name="net.minecraft.client.particle.ParticleDigging.Factory"/>
 <fullyQualifiedTypeName name="java.awt.List"/>
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.math.FBPMathHelper"/>
@@ -17,10 +14,8 @@
 <fullyQualifiedTypeName name="javax.vecmath.Vector2d"/>
 <fullyQualifiedTypeName name="net.minecraft.client.renderer.GlStateManager.CullFace"/>
 <fullyQualifiedTypeName name="net.minecraft.client.renderer.GlStateManager"/>
-<fullyQualifiedTypeName name="com.google.common.collect.Lists"/>
 <fullyQualifiedTypeName name="java.util.List"/>
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.particle.FBPParticle.Fatory"/>
-<fullyQualifiedTypeName name="net.minecraft.util.math.BlockPos"/>
 <fullyQualifiedTypeName name="java.util.Random"/>
 <fullyQualifiedTypeName name="net.minecraft.block.Block"/>
 <fullyQualifiedTypeName name="net.minecraft.util.math.Vec3d"/>
@@ -30,4 +25,13 @@
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.particle.FBPParticle"/>
 <fullyQualifiedTypeName name="java.lang.System"/>
 <fullyQualifiedTypeName name="javax.vecmath.Vector3f"/>
+<fullyQualifiedTypeName name="net.minecraft.client.particle.ParticleDigging.Factory"/>
+<fullyQualifiedTypeName name="net.minecraftforge.fml.relauncher.ReflectionHelper"/>
+<fullyQualifiedTypeName name="net.minecraft.client.Minecraft"/>
+<fullyQualifiedTypeName name="net.minecraft.client.renderer.texture.TextureAtlasSprite"/>
+<fullyQualifiedTypeName name="net.minecraft.util.math.BlockPos"/>
+<fullyQualifiedTypeName name="com.TominoCZ.FBP.particle.FBPParticleManager"/>
+<fullyQualifiedTypeName name="java.util.Queue"/>
+<fullyQualifiedTypeName name="net.minecraft.client.particle.Particle"/>
+<fullyQualifiedTypeName name="com.google.common.collect.Lists"/>
 </qualifiedTypeNameHistroy>
