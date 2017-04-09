@@ -1,0 +1,66 @@
+Symbol range map extraction starting
+Processing 18 files
+startProcessing "com\TominoCZ\FBP\FBP.java" md5: 3be9d4cc898e9cc6fcdcfb7f86cc6ab4
+endProcessing "com\TominoCZ\FBP\FBP.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiButton.java" md5: fd09bf9de0a84484428419d849f2984c
+    Compile Error! Pb(881) Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiButton.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiButtonBugReport.java" md5: 91e5e01e1faa00f9ffa589078492b078
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiButtonBugReport.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiButtonEnable.java" md5: 986363625649b2e3019de9d5f9998584
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiButtonEnable.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiHelper.java" md5: c9c921423675d81d22a9fefeb3537bee
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiHelper.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage1.java" md5: a1b0cce48fd2a88261b392d636cbc47e
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage1.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage2.java" md5: f8e4ceefde0936dd4ab159e5e04fe89b
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage2.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage3.java" md5: 45099d1833976c11512cc6d84d22f30a
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage3.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiNote.java" md5: 12a8ea15e56140176ae45078275b8bdd
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiNote.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiYesNo.java" md5: 5ed65e882acec6c3a6342b639a995d00
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiYesNo.java"
+
+startProcessing "com\TominoCZ\FBP\handler\FBPConfigHandler.java" md5: 487b95192b6b8f02afd56dce7e662f5d
+endProcessing "com\TominoCZ\FBP\handler\FBPConfigHandler.java"
+
+startProcessing "com\TominoCZ\FBP\handler\FBPEventHandler.java" md5: d431107fd6e642f59b79e7abc648721e
+endProcessing "com\TominoCZ\FBP\handler\FBPEventHandler.java"
+
+startProcessing "com\TominoCZ\FBP\handler\FBPKeyInputHandler.java" md5: 22c4c305c5f9cabcfb775ffb71e419ff
+endProcessing "com\TominoCZ\FBP\handler\FBPKeyInputHandler.java"
+
+startProcessing "com\TominoCZ\FBP\handler\FBPRenderGuiHandler.java" md5: 0c4749eec01f5cbcb1701716e7282085
+endProcessing "com\TominoCZ\FBP\handler\FBPRenderGuiHandler.java"
+
+startProcessing "com\TominoCZ\FBP\keys\FBPKeyBindings.java" md5: 238cf5d0dca57d3c792e5fea5c6e526f
+endProcessing "com\TominoCZ\FBP\keys\FBPKeyBindings.java"
+
+startProcessing "com\TominoCZ\FBP\math\FBPMathHelper.java" md5: 2151cc70c19bb9024098fada2ce832d8
+endProcessing "com\TominoCZ\FBP\math\FBPMathHelper.java"
+
+startProcessing "com\TominoCZ\FBP\particle\FBPParticle.java" md5: 4f0db80a83b47b60f0a4540ce86c7dac
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+endProcessing "com\TominoCZ\FBP\particle\FBPParticle.java"
+
+startProcessing "com\TominoCZ\FBP\particle\FBPParticleManager.java" md5: 9bb04a36d361365d2c627cedd1b68c26
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+endProcessing "com\TominoCZ\FBP\particle\FBPParticleManager.java"
+
