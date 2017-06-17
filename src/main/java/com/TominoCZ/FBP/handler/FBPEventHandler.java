@@ -7,8 +7,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.particle.ParticleDigging.Factory;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
 public class FBPEventHandler {
 	@SubscribeEvent

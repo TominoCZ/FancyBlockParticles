@@ -401,7 +401,7 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 		ScaleMultMinus.enabled = FBP.scaleMult > 0.75D;
 
 		GravitiyForcePlus.enabled = FBP.gravityMult < 2.0D;
-		GravitiyForceMinus.enabled = FBP.gravityMult > 0.1D;
+		GravitiyForceMinus.enabled = FBP.gravityMult > 0.5D;
 		RotSpeedPlus.enabled = FBP.rotationMult < 1.5D;
 		RotSpeedMinus.enabled = FBP.rotationMult > 0;
 	}

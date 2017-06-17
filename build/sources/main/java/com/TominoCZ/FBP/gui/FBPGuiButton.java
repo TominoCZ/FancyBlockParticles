@@ -5,7 +5,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 
 public class FBPGuiButton extends GuiButton {
 	boolean toggleButton = false;
@@ -58,18 +57,16 @@ public class FBPGuiButton extends GuiButton {
 			double distance2 = Math
 					.sqrt((mouseX - centerX2) * (mouseX - centerX2) + (mouseY - centerY2) * (mouseY - centerY2));
 
-			boolean isOverRectangle = 
-					mouseX >= this.xPosition + this.height/2 - 2 && 
-					mouseY >= this.yPosition + 1 &&
-					mouseX < this.xPosition + this.width - this.height/2 + 3 && 
-					mouseY < this.yPosition + this.height;
+			boolean isOverRectangle = mouseX >= this.xPosition + this.height / 2 - 2 && mouseY >= this.yPosition + 1
+					&& mouseX < this.xPosition + this.width - this.height / 2 + 3
+					&& mouseY < this.yPosition + this.height;
 
 			hovered = (distance1 <= radius || distance2 <= radius) || isOverRectangle;
 
 			FontRenderer fontrenderer = mc.fontRendererObj;
 			mc.getTextureManager().bindTexture(new ResourceLocation("fbp:textures/gui/widgets.png"));
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			
+
 			int i = this.getHoverState(this.hovered);
 
 			GlStateManager.enableBlend();

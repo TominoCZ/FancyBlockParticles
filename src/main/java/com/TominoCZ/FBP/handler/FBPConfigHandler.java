@@ -176,7 +176,7 @@ public class FBPConfigHandler {
 		FBP.infiniteDuration = false;
 		FBP.spawnWhileFrozen = true;
 		FBP.smartBreaking = true;
-		
+
 		if (write)
 			write();
 	}

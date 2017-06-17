@@ -141,7 +141,7 @@ public class FBPParticle extends ParticleDigging {
 			} catch (Exception e) {
 			}
 		}
-		
+
 		if (particleTexture == null || particleTexture.getIconName() == "missingno")
 			this.setParticleTexture(blockModelShapes.getTexture(state));
 

@@ -22,7 +22,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 	String b2Text = "Bounce Off Walls";
 	String b3Text = "Roll Particles";
 	String b4Text = "Smart Breaking";
-	
+
 	String description = "";
 
 	double offsetX = 0;
@@ -36,7 +36,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		b2 = new FBPGuiButton(2, x, b1.yPosition + b1.height + 1, b2Text, FBP.bounceOffWalls, true);
 		b3 = new FBPGuiButton(3, x, b2.yPosition + b1.height + 6, b3Text, FBP.rollParticles, true);
 		b4 = new FBPGuiButton(4, x, b3.yPosition + b1.height + 1, b4Text, FBP.smartBreaking, true);
-		
+
 		Back = new FBPGuiButton(-3, this.width / 2 - 125, (int) 6 * b1.height + b1.yPosition - 5, "<<", false, false);
 		Defaults = new FBPGuiButton(0, this.width / 2 + 2, Back.yPosition + Back.height + 24, "Defaults", false, false);
 		Done = new FBPGuiButton(-1, this.width / 2 - 100, (int) Defaults.yPosition, "Done", false, false);
@@ -149,8 +149,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		int textWidth = this.fontRendererObj.getStringWidth(description);
 		int outsideSizeX = textWidth - this.width;
 
-		if (textWidth > width)
-		{
+		if (textWidth > width) {
 			double speedOfSliding = 2400;
 			long time = System.currentTimeMillis();
 

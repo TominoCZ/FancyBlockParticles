@@ -152,7 +152,7 @@ public class FBPParticleManager extends ParticleManager {
 						double d0 = (double) pos.getX() + ((double) j + 0.5D) / 4.0D;
 						double d1 = (double) pos.getY() + ((double) k + 0.5D) / 4.0D;
 						double d2 = (double) pos.getZ() + ((double) l + 0.5D) / 4.0D;
-						
+
 						try {
 							if (FBP.enabled) {
 								if (state != null
@@ -254,7 +254,8 @@ public class FBPParticleManager extends ParticleManager {
 								Iterator it = mp.entrySet().iterator();
 
 								while (it.hasNext()) {
-									if ((progress = (DestroyBlockProgress) ((Map.Entry) it.next()).getValue()).getPosition() == pos)
+									if ((progress = (DestroyBlockProgress) ((Map.Entry) it.next()).getValue())
+											.getPosition() == pos)
 										break;
 								}
 							}
