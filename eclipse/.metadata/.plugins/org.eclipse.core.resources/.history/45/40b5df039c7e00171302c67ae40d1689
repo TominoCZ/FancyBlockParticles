@@ -1,0 +1,48 @@
+package com.TominoCZ.FBP;
+
+import javax.vecmath.Vector2f;
+
+import org.lwjgl.util.vector.Vector3f;
+
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+
+public class VertexF {
+	public Vector3f pos;
+	public Vector3f normal;
+
+	public Vector2f UV;
+
+	public VertexF(float x, float y, float z, float nX, float nY, float nZ, float U, float V) {
+		pos = new Vector3f(x, y, z);
+		normal = new Vector3f(x, y, z);
+
+		UV = new Vector2f(U, V);
+	}
+
+	public int[] getParsedVertexData(BakedQuad actualQuad, VertexFormat format, int index) {
+		/*
+		int size = format.getIntegerSize();
+		
+		int[] data = new int[size];
+        int uv = format.getUvOffsetById(0) / 4;
+        int n = format.getNormalOffset() / 4;
+
+        int nX = ((int)(normal.x * 127) & 0xFF) << 0;
+        int nY = ((int)(normal.y * 127) & 0xFF) << 8;
+        int nZ = ((int)(normal.y * 127) & 0xFF) << 16;
+        
+		data[0] = Float.floatToRawIntBits(pos.x);
+		data[1] = Float.floatToRawIntBits(pos.y);
+		data[2] = Float.floatToRawIntBits(pos.z);
+		
+		data[n] = Float.floatToRawIntBits(nX);
+		data[n + 1] = Float.floatToRawIntBits(nY);
+		data[n + 2] = Float.floatToRawIntBits(nZ);
+		
+		data[uv] = Float.floatToRawIntBits(UV.x);
+		data[uv + 1] = Float.floatToRawIntBits(UV.y);
+
+		return data;*/
+	}
+}

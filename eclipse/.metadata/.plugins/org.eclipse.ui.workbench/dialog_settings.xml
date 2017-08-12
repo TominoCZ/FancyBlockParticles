@@ -4,6 +4,11 @@
 		<item value="612" key="DIALOG_X_ORIGIN"/>
 		<item value="150" key="DIALOG_Y_ORIGIN"/>
 	</section>
+	<section name="org.eclipse.ui.preferences.keysPreferencePage">
+		<item value="true" key="actionSetFilter"/>
+		<item value="true" key="uncategorizedFilter"/>
+		<item value="true" key="internalFilter"/>
+	</section>
 	<section name="org.eclipse.ui.internal.QuickAccess">
 		<item value="-1" key="dialogHeight"/>
 		<item value="-1" key="dialogWidth"/>
@@ -15,5 +20,7 @@
 		</list>
 		<list key="textArray">
 		</list>
+	</section>
+	<section name="ImportExportAction">
 	</section>
 </section>

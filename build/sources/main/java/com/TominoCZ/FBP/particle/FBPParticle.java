@@ -1,5 +1,6 @@
 package com.TominoCZ.FBP.particle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -18,6 +19,8 @@ import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -126,7 +129,7 @@ public class FBPParticle extends ParticleDigging {
 		scaleAlpha = particleScale * 0.75;
 
 		BlockModelShapes blockModelShapes = mc.getBlockRendererDispatcher().getBlockModelShapes();
-
+		
 		// GET THE TOP TEXTURE OF THE BLOCK
 		if (!(destroyed = (facing == null))) {
 			try {
@@ -427,7 +430,11 @@ public class FBPParticle extends ParticleDigging {
 
 		int i = getBrightnessForRender(partialTicks);
 
-		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
+		par = new Vec2f[] { 
+				new Vec2f(f1, f3),
+				new Vec2f(f1, f2),
+				new Vec2f(f, f2),
+				new Vec2f(f, f3) };
 
 		float alpha = particleAlpha;
 
@@ -524,9 +531,8 @@ public class FBPParticle extends ParticleDigging {
 
 	/*
 	 * public static Vec3d getNormalD(Vec3d pos0, Vec3d pos1, Vec3d pos2) { //
-	 * calculate // normals Vec3d vec3 = pos1.subtractReverse(pos0); Vec3d vec31
-	 * = pos1.subtractReverse(pos2); return
-	 * vec31.crossProduct(vec3).normalize(); }
+	 * calculate // normals Vec3d vec3 = pos1.subtractReverse(pos0); Vec3d vec31 =
+	 * pos1.subtractReverse(pos2); return vec31.crossProduct(vec3).normalize(); }
 	 */
 
 	Vec3d rotatef(Vec3d vec, float AngleX, float AngleY, float AngleZ) {
@@ -603,6 +609,5 @@ public class FBPParticle extends ParticleDigging {
 					return Math.sqrt(motionX * motionX + motionZ * motionZ) * 1000;
 			}
 		}
-
 	}
 }

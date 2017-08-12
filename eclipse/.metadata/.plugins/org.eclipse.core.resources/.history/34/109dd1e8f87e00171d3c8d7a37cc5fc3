@@ -1,0 +1,43 @@
+package com.TominoCZ.FBP.handler;
+
+import com.TominoCZ.FBP.particle.BlockPlaceAnimationDummy;
+import com.TominoCZ.FBP.particle.FBPParticleManager;
+
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.particle.ParticleDigging.Factory;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+public class FBPEventHandler {
+
+	Minecraft mc;
+
+	public FBPEventHandler() {
+		mc = Minecraft.getMinecraft();
+	}
+
+	@SubscribeEvent
+	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
+		if (e.getEntity() instanceof EntityPlayerSP)
+			Minecraft.getMinecraft().effectRenderer = new FBPParticleManager(e.getWorld(),
+					Minecraft.getMinecraft().getTextureManager(), new Factory());
+	}
+
+	@SubscribeEvent
+	public void onPlayerPlaceBlockEvent(BlockEvent.PlaceEvent e) {
+		IBlockState bs = e.getPlacedBlock();
+
+		BlockPos p1 = e.getPos();
+
+		long seed = MathHelper.getPositionRandom(p1);
+
+		mc.effectRenderer.addEffect(new BlockPlaceAnimationDummy(mc.theWorld, p1.getX() + 0.5f, p1.getY() + 0.5f,
+				p1.getZ() + 0.5f, p1, bs, seed));
+	}
+}

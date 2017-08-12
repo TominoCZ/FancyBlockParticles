@@ -47,11 +47,35 @@ public class FBP {
 
 	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
-	public static final Vec3d[] CUBE = { new Vec3d(-1, -1, 1), new Vec3d(-1, 1, 1), new Vec3d(1, 1, 1),
-			new Vec3d(1, -1, 1), new Vec3d(1, -1, -1), new Vec3d(1, 1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, -1, -1),
-			new Vec3d(-1, -1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, 1, 1), new Vec3d(-1, -1, 1), new Vec3d(1, -1, 1),
-			new Vec3d(1, 1, 1), new Vec3d(1, 1, -1), new Vec3d(1, -1, -1), new Vec3d(1, 1, -1), new Vec3d(1, 1, 1),
-			new Vec3d(-1, 1, 1), new Vec3d(-1, 1, -1), new Vec3d(-1, -1, -1), new Vec3d(-1, -1, 1), new Vec3d(1, -1, 1),
+	public static final Vec3d[] CUBE = {
+			new Vec3d(-1, -1, 1),
+			new Vec3d(-1, 1, 1),
+			new Vec3d(1, 1, 1),
+			new Vec3d(1, -1, 1),
+			
+			new Vec3d(1, -1, -1),
+			new Vec3d(1, 1, -1), 
+			new Vec3d(-1, 1, -1),
+			new Vec3d(-1, -1, -1),
+			
+			new Vec3d(-1, -1, -1),
+			new Vec3d(-1, 1, -1),
+			new Vec3d(-1, 1, 1), 
+			new Vec3d(-1, -1, 1), 
+			
+			new Vec3d(1, -1, 1),
+			new Vec3d(1, 1, 1), 
+			new Vec3d(1, 1, -1),
+			new Vec3d(1, -1, -1),
+			
+			new Vec3d(1, 1, -1),
+			new Vec3d(1, 1, 1),
+			new Vec3d(-1, 1, 1), 
+			new Vec3d(-1, 1, -1),
+			
+			new Vec3d(-1, -1, -1), 
+			new Vec3d(-1, -1, 1),
+			new Vec3d(1, -1, 1),
 			new Vec3d(1, -1, -1) };
 
 	public static MethodHandle setSourcePos;

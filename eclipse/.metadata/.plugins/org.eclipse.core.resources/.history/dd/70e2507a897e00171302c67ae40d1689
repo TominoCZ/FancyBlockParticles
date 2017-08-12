@@ -1,0 +1,8 @@
+package com.TominoCZ.FBP;
+
+public class IBakedQuadF {
+
+	public IBakedQuadF(float x, float y, float z, float U, float V, float nX, float nY, float nZ) {
+		
+	}
+}

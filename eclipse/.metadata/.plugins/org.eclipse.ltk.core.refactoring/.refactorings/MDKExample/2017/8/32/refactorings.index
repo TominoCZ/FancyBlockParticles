@@ -1,0 +1,26 @@
+1502407231262	Move compilation unit
+1502407233138	Delete element
+1502451591303	Rename type 'IBakedQuadF'
+1502452461834	Rename local variable 'worldRendererIn'
+1502462598971	Rename local variable 'buf'
+1502467156988	Delete element
+1502467158437	Delete element
+1502471112225	Delete element
+1502471140777	Delete element
+1502480403712	Rename field 'model'
+1502488093675	Delete element
+1502499358424	Rename local variable 'p1'
+1502544307700	Move compilation unit
+1502544327162	Move compilation units
+1502544377914	Move compilation unit
+1502544383960	Move compilation unit
+1502544405995	Rename type 'BlockPlaceAnimationDummy'
+1502544412879	Rename type 'BakedQuadF'
+1502544419901	Rename type 'ModelTransformer'
+1502544426544	Rename type 'SimpleBakedModel'
+1502544430857	Delete element
+1502544441112	Delete element
+1502544462308	Move compilation unit
+1502544472995	Rename type 'BakedModelTransformer'
+1502544587415	Rename type 'RenderUtils'
+1502544635660	Delete element

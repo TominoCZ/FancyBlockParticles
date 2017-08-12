@@ -1,0 +1,46 @@
+package com.TominoCZ.FBP;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.vecmath.Vector2f;
+import javax.vecmath.Vector3f;
+
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.util.EnumFacing;
+
+public class BakedQuadF {
+
+	public List<VertexF> vertexes;
+	
+	public EnumFacing facing;
+	
+	VertexFormat format;
+	
+	public BakedQuadF(VertexFormat format, EnumFacing facing) {
+		this.facing = facing;
+		this.format = format;
+		
+		vertexes = new ArrayList<VertexF>();
+	}
+	
+	public void addVertex(float x, float y, float z, float nX, float nY, float nZ, float U, float V) {
+		vertexes.add(new VertexF(x, y, z, nX, nY, nZ, U, V));
+	}
+
+	public int[] createVertexData() {
+		List<Integer> data = new ArrayList<Integer>(); // 8 each vertex, 4 vertexes => 32 items
+		
+		for (VertexF vertex : vertexes) {
+			
+			int[] tmp = vertex.getParsedVertexData();
+			
+			for (int i = 0; i < data.length; i++)
+			{
+			
+			}
+		}
+			
+		return data;
+	}
+}

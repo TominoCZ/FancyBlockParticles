@@ -2,19 +2,27 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="" key="selection"/>
+		<item value="rightC" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="rightc"/>
+			<item value="click"/>
+			<item value="input"/>
+			<item value="textureSeed"/>
+			<item value="long"/>
+			<item value="Utils"/>
+			<item value="render"/>
+			<item value="partial"/>
+			<item value="draw"/>
 			<item value="legacyMode"/>
 			<item value="shadow"/>
 			<item value="getEntitiesWithinAABB("/>
 			<item value="getEntitiesWithinAABB"/>
 			<item value="damaged"/>
 			<item value="progress"/>
-			<item value="break"/>
 		</list>
 		<list key="replacehistory">
 			<item value="randomRotation"/>

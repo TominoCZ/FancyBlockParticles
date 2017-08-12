@@ -1,0 +1,12 @@
+package com.TominoCZ.FBP.model;
+
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
+
+public class FBPBakedModelTransformer implements FBPModelTransformer.IVertexTransformer{
+
+	@Override
+	public float[] transform(BakedQuad quad, VertexFormatElement element, float... data) {
+		return null;
+	}
+}

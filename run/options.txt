@@ -1,19 +1,19 @@
 version:512
 invertYMouse:false
-mouseSensitivity:0.5
+mouseSensitivity:0.26760563
 fov:0.0
 gamma:1.0
 saturation:0.0
 renderDistance:2
 guiScale:0
-particles:1
+particles:2
 bobView:true
 anaglyph3d:false
 maxFps:260
 fboEnable:true
 difficulty:0
 fancyGraphics:false
-ao:1
+ao:0
 renderClouds:false
 resourcePacks:[]
 incompatibleResourcePacks:[]
@@ -85,8 +85,8 @@ key_Open Menu:25
 key_Toggle Freeze Effect:19
 key_Enable/Disable:0
 key_Kill Particles:45
-soundCategory_master:0.01986755
-soundCategory_music:1.0
+soundCategory_master:0.01655629
+soundCategory_music:0.1056338
 soundCategory_record:1.0
 soundCategory_weather:1.0
 soundCategory_block:1.0
