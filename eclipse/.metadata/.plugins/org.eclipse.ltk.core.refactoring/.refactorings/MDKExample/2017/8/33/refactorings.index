@@ -1,0 +1,11 @@
+1502582735604	Rename local variable 'clicked'
+1502659933787	Delete element
+1502659935124	Delete element
+1502659936231	Delete element
+1502835353998	Rename local variable 'blockLocation'
+1502836242415	Rename method 'setCollisionBoxFromState'
+1502842728646	Rename method 'copyCollisionBoxFromState'
+1502842753169	Rename field 'bbs'
+1502842770313	Rename field 'bbs_col'
+1502845098045	Rename field 'blockHardness'
+1502892382751	Rename local variable 'f'

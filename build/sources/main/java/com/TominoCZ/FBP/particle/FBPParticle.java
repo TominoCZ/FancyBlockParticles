@@ -130,7 +130,7 @@ public class FBPParticle extends ParticleDigging {
 
 		BlockModelShapes blockModelShapes = mc.getBlockRendererDispatcher().getBlockModelShapes();
 		
-		// GET THE TOP TEXTURE OF THE BLOCK
+		// GET THE TEXTURE OF THE BLOCK FACE
 		if (!(destroyed = (facing == null))) {
 			try {
 				List<BakedQuad> quads = blockModelShapes.getModelForState(state).getQuads(state, facing, 0);
@@ -215,8 +215,6 @@ public class FBPParticle extends ParticleDigging {
 					if (!modeDebounce) {
 						modeDebounce = true;
 
-						// angleX = 0;
-						// angleY = 0;
 						angleZ = 0;
 
 						calculateYAngle();
@@ -480,9 +478,7 @@ public class FBPParticle extends ParticleDigging {
 	}
 
 	public void putCube(VertexBuffer buff, double scale, double rotX, double rotY, double rotZ, int j, int k, float r,
-			float g, float b, float a, boolean cartoon) { // put all vertexes to
-															// buffer
-															// to form a cube
+			float g, float b, float a, boolean cartoon) {
 		brightness = 1;
 
 		float R = 0;
@@ -494,7 +490,6 @@ public class FBPParticle extends ParticleDigging {
 			Vec3d v2 = FBP.CUBE[i + 1];
 			Vec3d v3 = FBP.CUBE[i + 2];
 			Vec3d v4 = FBP.CUBE[i + 3];
-			// Vec3d normal = getNormalD(v1, v2, v3);
 
 			v1 = rotatef(v1, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
 			v2 = rotatef(v2, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
@@ -522,19 +517,11 @@ public class FBPParticle extends ParticleDigging {
 	}
 
 	private void addVt(VertexBuffer buff, double scale, Vec3d pos, double u, double v, int j, int k, float r, float g,
-			float b, float a) { // add vertex to buffer
+			float b, float a) {
 		buff.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a)
-				// .normal((float) normal.xCoord, (float) normal.yCoord, (float)
-				// normal.zCoord)
 				.lightmap(j, k).endVertex();
 	}
-
-	/*
-	 * public static Vec3d getNormalD(Vec3d pos0, Vec3d pos1, Vec3d pos2) { //
-	 * calculate // normals Vec3d vec3 = pos1.subtractReverse(pos0); Vec3d vec31 =
-	 * pos1.subtractReverse(pos2); return vec31.crossProduct(vec3).normalize(); }
-	 */
-
+	
 	Vec3d rotatef(Vec3d vec, float AngleX, float AngleY, float AngleZ) {
 		double sinAngleX = MathHelper.sin(AngleX);
 		double sinAngleY = MathHelper.sin(AngleY);

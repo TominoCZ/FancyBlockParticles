@@ -1,8 +1,0 @@
-package com.TominoCZ.FBP;
-
-public class IBakedQuadF {
-
-	public IBakedQuadF() {
-		
-	}
-}

@@ -11,13 +11,13 @@ bobView:true
 anaglyph3d:false
 maxFps:260
 fboEnable:true
-difficulty:0
+difficulty:3
 fancyGraphics:false
 ao:0
 renderClouds:false
 resourcePacks:[]
 incompatibleResourcePacks:[]
-lastServer:
+lastServer:82.208.17.27:37892
 lang:en_US
 chatVisibility:0
 chatColors:true
@@ -26,10 +26,10 @@ chatLinksPrompt:true
 chatOpacity:1.0
 snooperEnabled:true
 fullscreen:false
-enableVsync:false
+enableVsync:true
 useVbo:true
 hideServerAddress:false
-advancedItemTooltips:false
+advancedItemTooltips:true
 pauseOnLostFocus:true
 touchscreen:false
 overrideWidth:0
@@ -85,8 +85,8 @@ key_Open Menu:25
 key_Toggle Freeze Effect:19
 key_Enable/Disable:0
 key_Kill Particles:45
-soundCategory_master:0.01655629
-soundCategory_music:0.1056338
+soundCategory_master:0.04304636
+soundCategory_music:0.0
 soundCategory_record:1.0
 soundCategory_weather:1.0
 soundCategory_block:1.0

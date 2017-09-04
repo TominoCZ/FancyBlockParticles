@@ -2,13 +2,18 @@ package com.TominoCZ.FBP.particle;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Nullable;
 
 import com.TominoCZ.FBP.FBP;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Queues;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
@@ -18,6 +23,7 @@ import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.particle.ParticleRain;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -44,7 +50,7 @@ public class FBPParticleManager extends ParticleManager {
 
 	private static IParticleFactory particleFactory;
 	private static IBlockState blockState;
-
+	
 	public FBPParticleManager(World worldIn, TextureManager rendererIn, IParticleFactory particleFactory) {
 		super(worldIn, rendererIn);
 		this.particleFactory = particleFactory;
@@ -68,7 +74,7 @@ public class FBPParticleManager extends ParticleManager {
 					ReflectionHelper.findField(ParticleDigging.class, "field_174847_a", "sourceState"));
 			getBlockDamage = lookup
 					.unreflectGetter(ReflectionHelper.findField(RenderGlobal.class, "field_72738_E", "damagedBlocks"));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw Throwables.propagate(e);
 		}
 	}
@@ -77,23 +83,37 @@ public class FBPParticleManager extends ParticleManager {
 	public void addEffect(Particle effect) {
 		Particle toAdd = effect;
 
-		if (toAdd != null && (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticle))) {
-			try {
-				blockState = (IBlockState) getSourceState.invokeExact((ParticleDigging) effect);
+		if (FBP.enabled && toAdd != null) {
+			if (FBP.fancyRain && toAdd instanceof ParticleRain && !(toAdd instanceof FBPParticleRain)) {
+				ParticleRain p = (ParticleRain) effect;
 
-				if (FBP.enabled && blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
-						&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
-					if (!(blockState.getBlock() instanceof BlockLiquid)) {
-						toAdd = new FBPParticle(worldObj, (double) X.invokeExact(effect),
-								(double) Y.invokeExact(effect) - 0.10000000149011612D, (double) Z.invokeExact(effect),
-								0, 0, 0, blockState, null, (float) getParticleScale.invokeExact(effect));
-
-						toAdd.setParticleTexture((TextureAtlasSprite) getParticleTexture.invokeExact(effect));
-					} else
-						toAdd = null;
+				try {
+					toAdd = new FBPParticleRain(worldObj, (double) X.invokeExact(effect),
+							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect),
+							FBP.random.nextDouble(-0.1, 0.1), FBP.random.nextDouble() * 0.25,
+							FBP.random.nextDouble(-0.1, 0.1), Blocks.WATER.getDefaultState());
+				} catch (Throwable t) {
+					t.printStackTrace();
 				}
-			} catch (Throwable e) {
-				e.printStackTrace();
+			} else if (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticle)) {
+				try {
+					blockState = (IBlockState) getSourceState.invokeExact((ParticleDigging) effect);
+
+					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
+							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
+						if (!(blockState.getBlock() instanceof BlockLiquid)) {
+							toAdd = new FBPParticle(worldObj, (double) X.invokeExact(effect),
+									(double) Y.invokeExact(effect) - 0.10000000149011612D,
+									(double) Z.invokeExact(effect), 0, 0, 0, blockState, null,
+									(float) getParticleScale.invokeExact(effect));
+
+							toAdd.setParticleTexture((TextureAtlasSprite) getParticleTexture.invokeExact(effect));
+						} else
+							toAdd = null;
+					}
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -141,7 +161,8 @@ public class FBPParticleManager extends ParticleManager {
 	@Override
 	public void addBlockDestroyEffects(BlockPos pos, IBlockState state) {
 		Block b = state.getBlock();
-		if (!b.isAir(state, worldObj, pos) && !b.addDestroyEffects(worldObj, pos, this)) {
+
+		if (!b.isAir(state, worldObj, pos) && !b.addDestroyEffects(worldObj, pos, this) && b != FBP.FBPBlock) {
 			state = state.getActualState(worldObj, pos);
 			b = state.getBlock();
 			int i = 4;
@@ -177,6 +198,9 @@ public class FBPParticleManager extends ParticleManager {
 	@Override
 	public void addBlockHitEffects(BlockPos pos, EnumFacing side) {
 		IBlockState iblockstate = worldObj.getBlockState(pos);
+
+		if (iblockstate.getBlock() == FBP.FBPBlock)
+			return;
 
 		if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE) {
 			int i = pos.getX();

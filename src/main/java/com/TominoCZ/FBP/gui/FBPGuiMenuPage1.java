@@ -162,6 +162,8 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 
 		FBPConfigHandler.check();
 		FBPConfigHandler.write();
+		
+		initGui();
 	}
 
 	public boolean doesGuiPauseGame() {

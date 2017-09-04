@@ -1,7 +1,0 @@
-package com.TominoCZ.FBP;
-
-public class VertexF {
-	public VertexF() {
-		
-	}
-}

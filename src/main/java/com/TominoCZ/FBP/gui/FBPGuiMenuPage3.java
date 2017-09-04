@@ -16,12 +16,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class FBPGuiMenuPage3 extends GuiScreen {
 
-	GuiButton Reload, Done, Defaults, Back, ReportBug, Enable, b1, b2, b3, b4;
+	GuiButton Reload, Done, Defaults, Back, ReportBug, Enable, b1, b2, b3, b4, b5, b6, b5_settings;
 
 	String b1Text = "Collide With Entities";
 	String b2Text = "Bounce Off Walls";
 	String b3Text = "Roll Particles";
 	String b4Text = "Smart Breaking";
+	String b5Text = "Fancy Place Animation";
+	String b6Text = "Fancy Rain";
 
 	String description = "";
 
@@ -36,6 +38,10 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		b2 = new FBPGuiButton(2, x, b1.yPosition + b1.height + 1, b2Text, FBP.bounceOffWalls, true);
 		b3 = new FBPGuiButton(3, x, b2.yPosition + b1.height + 6, b3Text, FBP.rollParticles, true);
 		b4 = new FBPGuiButton(4, x, b3.yPosition + b1.height + 1, b4Text, FBP.smartBreaking, true);
+		b5 = new FBPGuiButton(5, x, b4.yPosition + b1.height + 6, b5Text, FBP.fancyPlaceAnim, true);
+		b6 = new FBPGuiButton(6, x, b5.yPosition + b1.height + 1, b6Text, FBP.fancyRain, true);
+
+		b5_settings = new FBPGuiButton(7, x + b1.width + 5, b5.yPosition, "cogwheel", false, false);
 
 		Back = new FBPGuiButton(-3, this.width / 2 - 125, (int) 6 * b1.height + b1.yPosition - 5, "<<", false, false);
 		Defaults = new FBPGuiButton(0, this.width / 2 + 2, Back.yPosition + Back.height + 24, "Defaults", false, false);
@@ -50,10 +56,10 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		Defaults.width = Done.width = 98;
 		Reload.width = b1.width = 200;
 
-		Back.width = 20;
+		Back.width = b5_settings.width = 20;
 
-		this.buttonList.addAll(java.util.Arrays
-				.asList(new GuiButton[] { b1, b2, b3, b4, Defaults, Done, Reload, Back, Enable, ReportBug }));
+		this.buttonList.addAll(java.util.Arrays.asList(new GuiButton[] { b1, b2, b3, b4, b5, b6, b5_settings, Defaults,
+				Done, Reload, Back, Enable, ReportBug }));
 	}
 
 	protected void actionPerformed(GuiButton button) throws IOException {
@@ -92,10 +98,21 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		case 4:
 			FBP.smartBreaking = !FBP.smartBreaking;
 			break;
+		case 5:
+			FBP.fancyPlaceAnim = !FBP.fancyPlaceAnim;
+			break;
+		case 6:
+			FBP.fancyRain = !FBP.fancyRain;
+			break;
+		case 7:
+			mc.displayGuiScreen(new FBPGuiExceptionList(this));
+			break;
 		}
 
 		FBPConfigHandler.check();
 		FBPConfigHandler.write();
+
+		initGui();
 	}
 
 	public boolean doesGuiPauseGame() {
@@ -111,7 +128,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		getDescription();
 
 		if ((mouseX >= b1.xPosition && mouseX < b1.xPosition + b1.width)
-				&& (mouseY >= b1.yPosition && mouseY < b4.yPosition + b1.height)) {
+				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height)) {
 
 			moveText();
 
@@ -139,6 +156,12 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 					break;
 				case 4:
 					description = "Smart particle \u00A76motion\u00A7a and \u00A76scaling\u00A7a.";
+					break;
+				case 5:
+					description = "Adds a \u00A76fancy block placing\u00A7a animation \u00A76[\u00A7cALPHA\u00A76]\u00A7a.";
+					break;
+				case 6:
+					description = "Makes \u00A76rain particles\u00A7a fancy.";
 					break;
 				}
 			}

@@ -33,6 +33,10 @@ public class FBPGuiButton extends GuiButton {
 			this.displayString = "\u00A76" + this.displayString;
 			offsetX = (this.height - 10) / 2;
 			break;
+		case "cogwheel":
+			this.displayString = "\u00A7a\u2699";
+			offsetX = (this.height - 5) / 2;
+			break;
 		default:
 			offsetX = -1;
 			break;
@@ -89,7 +93,7 @@ public class FBPGuiButton extends GuiButton {
 			} else if (this.hovered) {
 				j = 16777120;
 			}
-
+			
 			if (!toggleButton) {
 				if (offsetX == -1)
 					this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2,

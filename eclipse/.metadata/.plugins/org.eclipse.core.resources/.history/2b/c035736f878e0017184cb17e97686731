@@ -1,0 +1,14 @@
+package com.TominoCZ.FBP;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+
+public class BlockStateNode {
+	public IBlockState state;
+	public Block originaBlock;
+	
+	public BlockStateNode(IBlockState s, Block b) {
+		state = s;
+		originaBlock = b;
+	}
+}

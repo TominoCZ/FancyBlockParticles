@@ -23,7 +23,7 @@ public class FBPGuiHelper extends GuiScreen {
 		GlStateManager.disableFog();
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer vertexbuffer = tessellator.getBuffer();
-		
+
 		drawContainerBackground(tessellator, top, bottom, 0, width);
 
 		GlStateManager.disableDepth();
@@ -78,7 +78,7 @@ public class FBPGuiHelper extends GuiScreen {
 			_drawCenteredString(fr, "\u00A7a(\u00A7cdisabled\u00A7a)", screenWidth / 2, y - 32, fr.getColorCode('c'));
 
 		_drawCenteredString(fr, "\u00A7LFancy Block Particles", screenWidth / 2, y - 23, fr.getColorCode('6'));
-		String version = FMLCommonHandler.instance().findContainerFor(FBP.instance).getVersion();
+		String version = FMLCommonHandler.instance().findContainerFor(FBP.INSTANCE).getVersion();
 
 		fr.drawStringWithShadow("\u00A76Version \u00A7L" + version, 2, screenHeight - 10, fr.getColorCode('6'));
 	}

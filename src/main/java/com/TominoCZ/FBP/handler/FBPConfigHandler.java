@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.TominoCZ.FBP.FBP;
 
@@ -17,26 +21,39 @@ public class FBPConfigHandler {
 	static InputStreamReader isr;
 	static BufferedReader br;
 
-	static File f;
+	static File configFile;
+	static File exceptionsFile;
 
 	public static void init() {
 		try {
-			f = FBP.config;
+			configFile = FBP.config;
+			exceptionsFile = FBP.exceptionsFile;
 
 			defaults(false);
 
-			if (!f.exists()) {
-				if (!Directory.apply(f.getParent()).exists())
-					Directory.apply(f.getParent()).createDirectory(true, false);
+			if (!configFile.exists()) {
+				if (!Directory.apply(configFile.getParent()).exists())
+					Directory.apply(configFile.getParent()).createDirectory(true, false);
 
-				f.createNewFile();
+				configFile.createNewFile();
 
 				write();
 			}
 
+			if (!exceptionsFile.exists()) {
+				if (!Directory.apply(exceptionsFile.getParent()).exists())
+					Directory.apply(exceptionsFile.getParent()).createDirectory(true, false);
+
+				exceptionsFile.createNewFile();
+
+				writeExceptions();
+			}
+
 			read();
+			readExceptions();
 
 			write();
+			writeExceptions();
 
 			closeStreams();
 		} catch (IOException e) {
@@ -50,8 +67,10 @@ public class FBPConfigHandler {
 		try {
 			check();
 
-			PrintWriter writer = new PrintWriter(f.getPath(), "UTF-8");
+			PrintWriter writer = new PrintWriter(configFile.getPath(), "UTF-8");
 			writer.println("enabled=" + FBP.enabled);
+			writer.println("fancyRain=" + FBP.fancyRain);
+			writer.println("fancyPlaceAnim=" + FBP.fancyPlaceAnim);
 			writer.println("smartBreaking=" + FBP.smartBreaking);
 			writer.println("rollParticles=" + FBP.rollParticles);
 			writer.println("bounceOffWalls=" + FBP.bounceOffWalls);
@@ -73,12 +92,39 @@ public class FBPConfigHandler {
 		} catch (Exception e) {
 			closeStreams();
 
-			if (!f.exists()) {
-				if (!Directory.apply(f.getParent()).exists())
-					Directory.apply(f.getParent()).createDirectory(true, false);
+			if (!configFile.exists()) {
+				if (!Directory.apply(configFile.getParent()).exists())
+					Directory.apply(configFile.getParent()).createDirectory(true, false);
 
 				try {
-					f.createNewFile();
+					configFile.createNewFile();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+
+			write();
+		}
+	}
+
+	public static void writeExceptions() {
+		try {
+			PrintWriter writer = new PrintWriter(exceptionsFile.getPath(), "UTF-8");
+			for (int i = 0; i < FBP.blockExceptions.size() - 1; i++)
+				writer.println(FBP.blockExceptions.get(i));
+
+			writer.print(FBP.blockExceptions.get(FBP.blockExceptions.size() - 1));
+
+			writer.close();
+		} catch (Exception e) {
+			closeStreams();
+
+			if (!exceptionsFile.exists()) {
+				if (!Directory.apply(exceptionsFile.getParent()).exists())
+					Directory.apply(exceptionsFile.getParent()).createDirectory(true, false);
+
+				try {
+					exceptionsFile.createNewFile();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -90,7 +136,7 @@ public class FBPConfigHandler {
 
 	static void read() {
 		try {
-			fis = new FileInputStream(f);
+			fis = new FileInputStream(configFile);
 			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 			br = new BufferedReader(isr);
 
@@ -99,6 +145,10 @@ public class FBPConfigHandler {
 			while ((line = br.readLine()) != null) {
 				if (line.contains("enabled="))
 					FBP.enabled = Boolean.valueOf(line.replaceAll(" ", "").replace("enabled=", ""));
+				else if (line.contains("fancyRain="))
+					FBP.fancyRain = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyRain=", ""));
+				else if (line.contains("fancyPlaceAnim="))
+					FBP.fancyPlaceAnim = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyPlaceAnim=", ""));
 				else if (line.contains("smartBreaking="))
 					FBP.smartBreaking = Boolean.valueOf(line.replaceAll(" ", "").replace("smartBreaking=", ""));
 				else if (line.contains("rollParticles="))
@@ -149,6 +199,42 @@ public class FBPConfigHandler {
 		}
 	}
 
+	static void readExceptions() {
+		try {
+			fis = new FileInputStream(exceptionsFile);
+			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
+			br = new BufferedReader(isr);
+
+			String line;
+
+			List<Integer> toAdd = new ArrayList<Integer>();
+
+			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line)) {
+				try {
+					int ID = Integer.parseInt(line.replaceAll(" ", ""));
+					toAdd.add(ID);
+				} catch (Exception e) {
+
+				}
+			}
+
+			if (toAdd.size() > 0) {
+				FBP.blockExceptions.clear();
+				FBP.blockExceptions.addAll(toAdd);
+			}
+
+			closeStreams();
+
+			check();
+		} catch (Exception e) {
+			closeStreams();
+
+			check();
+
+			write();
+		}
+	}
+
 	static void closeStreams() {
 		try {
 			br.close();
@@ -176,9 +262,16 @@ public class FBPConfigHandler {
 		FBP.infiniteDuration = false;
 		FBP.spawnWhileFrozen = true;
 		FBP.smartBreaking = true;
+		FBP.fancyPlaceAnim = true;
+		FBP.fancyRain = true;
+		
+		FBP.blockExceptions.clear();
+		FBP.blockExceptions.addAll(FBP.defaultBlockExceptions);
 
-		if (write)
+		if (write) {
 			write();
+			writeExceptions();
+		}
 	}
 
 	public static void check() {

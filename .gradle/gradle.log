@@ -16,7 +16,7 @@
 :sourceMainJava
 :compileJavaNote: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
-Note: C:\Users\tom\FancyBlockParticles\build\sources\main\java\com\TominoCZ\FBP\SimpleBakedModel.java uses unchecked or unsafe operations.
+Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 
 :processResources
@@ -44,4 +44,4 @@ remapping source...
 
 BUILD SUCCESSFUL
 
-Total time: 53.531 secs
+Total time: 45.009 secs

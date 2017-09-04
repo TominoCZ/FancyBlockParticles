@@ -1,31 +1,17 @@
 Symbol range map extraction starting
-Processing 26 files
-startProcessing "com\TominoCZ\FBP\BakedModelTransformer.java" md5: 56d2269a9838f35688546c67ddc0de45
-endProcessing "com\TominoCZ\FBP\BakedModelTransformer.java"
+Processing 27 files
+startProcessing "com\TominoCZ\FBP\BlockNode.java" md5: a4a81ef7fad2372bdf315613e179ddde
+endProcessing "com\TominoCZ\FBP\BlockNode.java"
 
-startProcessing "com\TominoCZ\FBP\BakedQuadF.java" md5: f65576b3636641951bf857de06ecc5d8
-endProcessing "com\TominoCZ\FBP\BakedQuadF.java"
-
-startProcessing "com\TominoCZ\FBP\CharsetFaceBakery.java" md5: bd8653148fdea1fdfd32917fa8d1c597
-endProcessing "com\TominoCZ\FBP\CharsetFaceBakery.java"
-
-startProcessing "com\TominoCZ\FBP\FBP.java" md5: d7d304d2b4bb4a91aecee50b30d397de
+startProcessing "com\TominoCZ\FBP\FBP.java" md5: 87afb6eaefe7dfd81159f327fbb7e352
 endProcessing "com\TominoCZ\FBP\FBP.java"
 
-startProcessing "com\TominoCZ\FBP\ModelTransformer.java" md5: 23b7f1ef7dd31a998453c01c7289ab02
-endProcessing "com\TominoCZ\FBP\ModelTransformer.java"
+startProcessing "com\TominoCZ\FBP\block\FBPPlaceAnimationDummyBlock.java" md5: 9a63e05621d78ee8abc27d331aee27df
+    Compile Error! Pb(645) Lambda expressions are allowed only at source level 1.8 or above
+    Compile Error! Pb(25) Cannot refer to the non-final local variable toRemove defined in an enclosing scope
+endProcessing "com\TominoCZ\FBP\block\FBPPlaceAnimationDummyBlock.java"
 
-startProcessing "com\TominoCZ\FBP\RenderUtils.java" md5: 0f7a88039a3278da3f2dac81fe0cb913
-endProcessing "com\TominoCZ\FBP\RenderUtils.java"
-
-startProcessing "com\TominoCZ\FBP\SimpleBakedModel.java" md5: 55c20c99dbbe10dfea5ed3351b4c29f8
-    Compile Error! Pb(883) '<>' operator is not allowed for source level below 1.7
-endProcessing "com\TominoCZ\FBP\SimpleBakedModel.java"
-
-startProcessing "com\TominoCZ\FBP\VertexF.java" md5: 79aa6e0aab6bddd769abebecab4e022e
-endProcessing "com\TominoCZ\FBP\VertexF.java"
-
-startProcessing "com\TominoCZ\FBP\gui\FBPGuiButton.java" md5: 8601aa3558fd07fb8eace6a224e9bce9
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiButton.java" md5: 1c4e1c692f50bb163ca69da92b715197
     Compile Error! Pb(881) Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted
 endProcessing "com\TominoCZ\FBP\gui\FBPGuiButton.java"
 
@@ -35,16 +21,19 @@ endProcessing "com\TominoCZ\FBP\gui\FBPGuiButtonBugReport.java"
 startProcessing "com\TominoCZ\FBP\gui\FBPGuiButtonEnable.java" md5: 986363625649b2e3019de9d5f9998584
 endProcessing "com\TominoCZ\FBP\gui\FBPGuiButtonEnable.java"
 
-startProcessing "com\TominoCZ\FBP\gui\FBPGuiHelper.java" md5: c9c921423675d81d22a9fefeb3537bee
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiExceptionList.java" md5: 503432b71e37a8162c4fa3cf777b7a05
+endProcessing "com\TominoCZ\FBP\gui\FBPGuiExceptionList.java"
+
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiHelper.java" md5: b2439d64e791f8c7ff1ea0f80178f000
 endProcessing "com\TominoCZ\FBP\gui\FBPGuiHelper.java"
 
-startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage1.java" md5: 18bd98b8109ba6f43338e72835372cea
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage1.java" md5: 93bde9ac06d831cb3253e900e2bb4cde
 endProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage1.java"
 
-startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage2.java" md5: f8e4ceefde0936dd4ab159e5e04fe89b
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage2.java" md5: 5a28af60d1f8f7c6973c12e22590e1c4
 endProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage2.java"
 
-startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage3.java" md5: 6cfdc4057821ed125e0f202b991bb34c
+startProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage3.java" md5: 930d3b6beef5958e99770393e898ac7f
 endProcessing "com\TominoCZ\FBP\gui\FBPGuiMenuPage3.java"
 
 startProcessing "com\TominoCZ\FBP\gui\FBPGuiNote.java" md5: 12a8ea15e56140176ae45078275b8bdd
@@ -53,10 +42,10 @@ endProcessing "com\TominoCZ\FBP\gui\FBPGuiNote.java"
 startProcessing "com\TominoCZ\FBP\gui\FBPGuiYesNo.java" md5: 5ed65e882acec6c3a6342b639a995d00
 endProcessing "com\TominoCZ\FBP\gui\FBPGuiYesNo.java"
 
-startProcessing "com\TominoCZ\FBP\handler\FBPConfigHandler.java" md5: 4d4866a5a452f0bfe8e1bf6940842e72
+startProcessing "com\TominoCZ\FBP\handler\FBPConfigHandler.java" md5: 6abfaf8643ae4de9c98da3cfa3bb873d
 endProcessing "com\TominoCZ\FBP\handler\FBPConfigHandler.java"
 
-startProcessing "com\TominoCZ\FBP\handler\FBPEventHandler.java" md5: 8c6713245629d70dd497d255baf18728
+startProcessing "com\TominoCZ\FBP\handler\FBPEventHandler.java" md5: 9a9aa7409b410882a1bc1b213808d462
 endProcessing "com\TominoCZ\FBP\handler\FBPEventHandler.java"
 
 startProcessing "com\TominoCZ\FBP\handler\FBPKeyInputHandler.java" md5: 22c4c305c5f9cabcfb775ffb71e419ff
@@ -71,14 +60,27 @@ endProcessing "com\TominoCZ\FBP\keys\FBPKeyBindings.java"
 startProcessing "com\TominoCZ\FBP\math\FBPMathHelper.java" md5: 2151cc70c19bb9024098fada2ce832d8
 endProcessing "com\TominoCZ\FBP\math\FBPMathHelper.java"
 
-startProcessing "com\TominoCZ\FBP\particle\BlockPlaceAnimationDummy.java" md5: ef6dcdde3bbbf1f33db56e8c13c8e408
-endProcessing "com\TominoCZ\FBP\particle\BlockPlaceAnimationDummy.java"
+startProcessing "com\TominoCZ\FBP\model\FBPFaceBakery.java" md5: 068c1694e7468d34f9e849107f2a53e3
+endProcessing "com\TominoCZ\FBP\model\FBPFaceBakery.java"
 
-startProcessing "com\TominoCZ\FBP\particle\FBPParticle.java" md5: d336d3dee88e47e74a5bfe2d4761bf49
+startProcessing "com\TominoCZ\FBP\model\FBPModelTransformer.java" md5: e270c2320a31e8533933dab6c1b9545b
+endProcessing "com\TominoCZ\FBP\model\FBPModelTransformer.java"
+
+startProcessing "com\TominoCZ\FBP\model\FBPSimpleBakedModel.java" md5: a890d8cf8987466019c03736aca36cad
+    Compile Error! Pb(883) '<>' operator is not allowed for source level below 1.7
+endProcessing "com\TominoCZ\FBP\model\FBPSimpleBakedModel.java"
+
+startProcessing "com\TominoCZ\FBP\particle\FBPBlockPlaceAnimationDummyParticle.java" md5: 1924eb1b51ef01110103386fe5d9d5d7
+endProcessing "com\TominoCZ\FBP\particle\FBPBlockPlaceAnimationDummyParticle.java"
+
+startProcessing "com\TominoCZ\FBP\particle\FBPParticle.java" md5: d2e1bbd94c278083d9621c775d9d2a16
     Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
 endProcessing "com\TominoCZ\FBP\particle\FBPParticle.java"
 
-startProcessing "com\TominoCZ\FBP\particle\FBPParticleManager.java" md5: a8e9d71e36111aee111dd119d93e57e4
+startProcessing "com\TominoCZ\FBP\particle\FBPParticleManager.java" md5: 5c16f0b86fed8ce4bf707582fe30d457
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
+    Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
     Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
     Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
     Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
@@ -88,4 +90,10 @@ startProcessing "com\TominoCZ\FBP\particle\FBPParticleManager.java" md5: a8e9d71
     Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
     Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
 endProcessing "com\TominoCZ\FBP\particle\FBPParticleManager.java"
+
+startProcessing "com\TominoCZ\FBP\particle\FBPParticleRain.java" md5: ede487103f7cc94227bbc38286e8056c
+endProcessing "com\TominoCZ\FBP\particle\FBPParticleRain.java"
+
+startProcessing "com\TominoCZ\FBP\util\FBPRenderUtils.java" md5: 6f00175cc8cfeedadb49ab01fbba1b49
+endProcessing "com\TominoCZ\FBP\util\FBPRenderUtils.java"
 
