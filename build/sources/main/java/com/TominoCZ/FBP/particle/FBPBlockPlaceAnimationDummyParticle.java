@@ -1,8 +1,5 @@
 package com.TominoCZ.FBP.particle;
 
-import java.beans.IndexedPropertyDescriptor;
-import java.io.IOException;
-
 import javax.vecmath.Vector2d;
 
 import org.lwjgl.opengl.GL11;
@@ -12,16 +9,8 @@ import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.model.FBPModelTransformer;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockCommandBlock;
-import net.minecraft.block.BlockStructure;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockStateBase;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -29,34 +18,20 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.statemap.BlockStateMapper;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.INetHandler;
-import net.minecraft.network.Packet;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerDigging.Action;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
-import net.minecraft.network.play.server.SPacketBlockChange;
-import net.minecraft.network.status.client.CPacketPing;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
@@ -82,9 +57,9 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
 	long textureSeed;
 
-	float startingHeight = 0.1125f;
-	float startingAngle = 0.0875f;
-	float step = 0.002f;
+	float startingHeight = 0.112f;
+	float startingAngle = 0.08f;
+	float step = 0.0025f;
 
 	float height;
 	float prevHeight;
@@ -93,13 +68,17 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
 	boolean lookingUp;
 
-	boolean tickSwitch = true;
+	// boolean tickSwitch = true;
 
 	int ticks;
 
 	public FBPBlockPlaceAnimationDummyParticle(World worldIn, double posXIn, double posYIn, double posZIn,
 			IBlockState state, EntityPlayer p, long rand) {
 		super(worldIn, posXIn, posYIn, posZIn);
+
+		pos = new BlockPos(posXIn, posYIn, posZIn);
+
+		FBP.FBPBlock.copyState(worldObj, pos, state, this);
 
 		mc = Minecraft.getMinecraft();
 
@@ -112,8 +91,6 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 		smoothRot = new Vector3f();
 		prevRot = new Vector3f();
 		rot = new Vector3f();
-
-		pos = new BlockPos(posXIn, posYIn, posZIn);
 
 		worldObj.setBlockState(pos, Blocks.AIR.getDefaultState(), 1);
 
@@ -137,19 +114,19 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 							switch (facing) {
 							case EAST:
 								rot.z = -startingAngle;
-								vec.x += 0.010000000149011612D;
+								vec.x += 0.01000000;// 0149011612D;
 								break;
 							case NORTH:
 								rot.x = -startingAngle;
-								vec.z -= 0.010000000149011612D;
+								vec.z -= 0.01000000;// 0149011612D;
 								break;
 							case SOUTH:
 								rot.x = startingAngle;
-								vec.z += 0.010000000149011612D;
+								vec.z += 0.010000000;// 149011612D;
 								break;
 							case WEST:
 								rot.z = startingAngle;
-								vec.x -= 0.010000000149011612D;
+								vec.x -= 0.010000000;// 149011612D;
 								break;
 							}
 
@@ -162,8 +139,6 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 					}
 				});
 
-		FBP.FBPBlock.copyState(worldObj, pos, blockState);
-
 		prevRot.x = rot.x = 0;
 		prevRot.z = rot.z = 0;
 
@@ -173,6 +148,13 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void onUpdate() {
+		if (ticks < 3) {
+			return;
+		}
+
+		if (this.isExpired)
+			return;
+
 		prevHeight = height;
 
 		prevRot.x = rot.x;
@@ -203,34 +185,35 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 	@Override
 	public void renderParticle(VertexBuffer buff, Entity entityIn, float partialTicks, float rotationX, float rotationZ,
 			float rotationYZ, float rotationXY, float rotationXZ) {
+		if (this.isExpired)
+			return;
+
 		if (canCollide) {
-			if (particleAge >= 10) {
+			if (particleAge >= 7) {
 				this.isExpired = true;
 				return;
-			}
-			else if (particleAge == 0) {
+			} else if (particleAge == 0) {
 				worldObj.setBlockState(pos, Blocks.AIR.getDefaultState());
 
 				worldObj.sendPacketToServer(
 						new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos, facing.getOpposite()));
+				worldObj.sendPacketToServer(
+						new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos, facing.getOpposite()));
 
 				if ((!(FBP.frozen && !FBP.spawnWhileFrozen)
-						&& (FBP.spawnRedstoneBlockParticles || block != Blocks.REDSTONE_BLOCK)) && mc.gameSettings.particleSetting > 2)
+						&& (FBP.spawnRedstoneBlockParticles || block != Blocks.REDSTONE_BLOCK))
+						&& mc.gameSettings.particleSetting < 2)
 					spawnParticles();
 			}
 
 			particleAge++;
-		} else if (tickSwitch) {
-			if (worldObj.getBlockState(pos) != FBP.FBPBlock.getDefaultState()) {
-				new Thread() {
-					public void run() {
-						worldObj.setBlockState(pos, FBP.FBPBlock.getDefaultState());
-					}
-				}.start();
-			}
+		} else if (ticks >= 2 && (particleAge == 0 || particleAge % 3 == 0)) {
+			new Thread() {
+				public void run() {
+					worldObj.setBlockState(pos, FBP.FBPBlock.getDefaultState());
+				}
+			}.start();
 		}
-
-		tickSwitch = !tickSwitch;
 
 		if (ticks < 3) {
 			ticks++;
@@ -304,7 +287,10 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 		GlStateManager.enableBlend();
 		GlStateManager.enableAlpha();
 
-		mr.renderModelSmooth(worldObj, modelForRender, blockState, pos, buff, false, textureSeed);
+		if (mc.gameSettings.ambientOcclusion > 0)
+			mr.renderModelSmooth(worldObj, modelForRender, blockState, pos, buff, false, textureSeed);
+		else
+			mr.renderModel(worldObj, modelForRender, blockState, pos, buff, false, textureSeed);
 
 		Tessellator.getInstance().draw();
 		Minecraft.getMinecraft().getTextureManager()
@@ -389,10 +375,14 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
 			mX /= -0.5;
 			mZ /= -0.5;
-			
+
 			mc.effectRenderer.addEffect(new FBPParticle(worldObj, corner.x, pos.getY() + 0.1f, corner.y, mX, 0, mZ,
-					block.getActualState(blockState, worldObj, pos), null, 0.6f).multipleParticleScaleBy(0.5f).multiplyVelocity(0.5f));
+					block.getActualState(blockState, worldObj, pos), null, 0.6f).multipleParticleScaleBy(0.5f)
+							.multiplyVelocity(0.5f));
 		}
+
+		if (mc.gameSettings.particleSetting == 1)
+			return;
 
 		for (Vector2d corner : corners) {
 			if (corner == null)
@@ -403,10 +393,15 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
 			mX /= -0.5;
 			mZ /= -0.5;
-			
+
 			mc.effectRenderer.addEffect(new FBPParticle(worldObj, corner.x, pos.getY() + 0.1f, corner.y, mX / 3, 0,
-					mZ / 3, block.getActualState(blockState, worldObj, pos), null, 0.6f).multipleParticleScaleBy(0.75f).multiplyVelocity(0.75f));
+					mZ / 3, block.getActualState(blockState, worldObj, pos), null, 0.6f).multipleParticleScaleBy(0.75f)
+							.multiplyVelocity(0.75f));
 		}
+	}
+
+	public void killParticle() {
+		this.isExpired = true;
 	}
 
 	@Override

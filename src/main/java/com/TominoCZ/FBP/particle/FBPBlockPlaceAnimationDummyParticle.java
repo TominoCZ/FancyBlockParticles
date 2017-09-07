@@ -114,19 +114,19 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 							switch (facing) {
 							case EAST:
 								rot.z = -startingAngle;
-								vec.x += 0.01000000;//0149011612D;
+								vec.x += 0.01000000;// 0149011612D;
 								break;
 							case NORTH:
 								rot.x = -startingAngle;
-								vec.z -= 0.01000000;//0149011612D;
+								vec.z -= 0.01000000;// 0149011612D;
 								break;
 							case SOUTH:
 								rot.x = startingAngle;
-								vec.z += 0.010000000;//149011612D;
+								vec.z += 0.010000000;// 149011612D;
 								break;
 							case WEST:
 								rot.z = startingAngle;
-								vec.x -= 0.010000000;//149011612D;
+								vec.x -= 0.010000000;// 149011612D;
 								break;
 							}
 
@@ -202,12 +202,12 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
 				if ((!(FBP.frozen && !FBP.spawnWhileFrozen)
 						&& (FBP.spawnRedstoneBlockParticles || block != Blocks.REDSTONE_BLOCK))
-						&& mc.gameSettings.particleSetting > 2)
+						&& mc.gameSettings.particleSetting < 2)
 					spawnParticles();
 			}
 
 			particleAge++;
-		} else if (ticks >= 2 && (particleAge == 0 || particleAge % 3 == 0)){
+		} else if (ticks >= 2 && (particleAge == 0 || particleAge % 3 == 0)) {
 			new Thread() {
 				public void run() {
 					worldObj.setBlockState(pos, FBP.FBPBlock.getDefaultState());
@@ -380,6 +380,9 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 					block.getActualState(blockState, worldObj, pos), null, 0.6f).multipleParticleScaleBy(0.5f)
 							.multiplyVelocity(0.5f));
 		}
+
+		if (mc.gameSettings.particleSetting == 1)
+			return;
 
 		for (Vector2d corner : corners) {
 			if (corner == null)

@@ -48,7 +48,7 @@ public class FBPParticleRain extends ParticleRain {
 	public FBPParticleRain(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
 			double ySpeedIn, double zSpeedIn, IBlockState state) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn);
-		
+
 		this.motionX = xSpeedIn;
 		this.motionY = ySpeedIn;
 		this.motionZ = zSpeedIn;
@@ -59,7 +59,7 @@ public class FBPParticleRain extends ParticleRain {
 		this.particleTexture = mc.getBlockRendererDispatcher().getModelForState(state).getParticleTexture();
 
 		particleScale *= FBP.scaleMult * 2.0F;
-		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
+		particleMaxAge = (int) FBP.random.nextDouble(10, 13);
 		this.particleRed = this.particleGreen = this.particleBlue = 0.7F + (0.25F * mc.gameSettings.gammaSetting);
 
 		scaleAlpha = particleScale * 0.75;
@@ -79,11 +79,10 @@ public class FBPParticleRain extends ParticleRain {
 	}
 
 	@Override
-	public void setParticleTextureIndex(int particleTextureIndex)
-    {
-		
-    }
-	
+	public void setParticleTextureIndex(int particleTextureIndex) {
+
+	}
+
 	public Particle MultiplyVelocity(float multiplier) {
 		this.motionX *= (double) multiplier;
 		this.motionY = (this.motionY - 0.10000000149011612D) * (multiplier / 2) + 0.10000000149011612D;
@@ -112,8 +111,7 @@ public class FBPParticleRain extends ParticleRain {
 		prevParticleScale = particleScale;
 
 		if (!mc.isGamePaused()) {
-			if (!FBP.infiniteDuration)
-				particleAge++;
+			particleAge++;
 
 			if (this.particleAge >= this.particleMaxAge) {
 				if (FBP.randomFadingSpeed)
@@ -218,9 +216,7 @@ public class FBPParticleRain extends ParticleRain {
 		double cosAngleY = MathHelper.cos(AngleY);
 		double cosAngleZ = MathHelper.cos(AngleZ);
 
-		vec = new Vec3d(
-				vec.xCoord,
-				vec.yCoord * cosAngleX - vec.zCoord * sinAngleX,
+		vec = new Vec3d(vec.xCoord, vec.yCoord * cosAngleX - vec.zCoord * sinAngleX,
 				vec.yCoord * sinAngleX + vec.zCoord * cosAngleX);
 		vec = new Vec3d(vec.xCoord * cosAngleY + vec.zCoord * sinAngleY, vec.yCoord,
 				vec.xCoord * sinAngleY - vec.zCoord * cosAngleY);

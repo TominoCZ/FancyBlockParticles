@@ -1,14 +1,12 @@
 Symbol range map extraction starting
 Processing 27 files
-startProcessing "com\TominoCZ\FBP\BlockNode.java" md5: a4a81ef7fad2372bdf315613e179ddde
+startProcessing "com\TominoCZ\FBP\BlockNode.java" md5: 0b465fcd10c7d47993d04c2520aecc9f
 endProcessing "com\TominoCZ\FBP\BlockNode.java"
 
 startProcessing "com\TominoCZ\FBP\FBP.java" md5: 87afb6eaefe7dfd81159f327fbb7e352
 endProcessing "com\TominoCZ\FBP\FBP.java"
 
-startProcessing "com\TominoCZ\FBP\block\FBPPlaceAnimationDummyBlock.java" md5: 9a63e05621d78ee8abc27d331aee27df
-    Compile Error! Pb(645) Lambda expressions are allowed only at source level 1.8 or above
-    Compile Error! Pb(25) Cannot refer to the non-final local variable toRemove defined in an enclosing scope
+startProcessing "com\TominoCZ\FBP\block\FBPPlaceAnimationDummyBlock.java" md5: 9a51a406c6c0ba08032cd9dd4e95f1d4
 endProcessing "com\TominoCZ\FBP\block\FBPPlaceAnimationDummyBlock.java"
 
 startProcessing "com\TominoCZ\FBP\gui\FBPGuiButton.java" md5: 1c4e1c692f50bb163ca69da92b715197
@@ -45,7 +43,7 @@ endProcessing "com\TominoCZ\FBP\gui\FBPGuiYesNo.java"
 startProcessing "com\TominoCZ\FBP\handler\FBPConfigHandler.java" md5: 6abfaf8643ae4de9c98da3cfa3bb873d
 endProcessing "com\TominoCZ\FBP\handler\FBPConfigHandler.java"
 
-startProcessing "com\TominoCZ\FBP\handler\FBPEventHandler.java" md5: 9a9aa7409b410882a1bc1b213808d462
+startProcessing "com\TominoCZ\FBP\handler\FBPEventHandler.java" md5: 34114878b0db8f3e45d27465dc28b007
 endProcessing "com\TominoCZ\FBP\handler\FBPEventHandler.java"
 
 startProcessing "com\TominoCZ\FBP\handler\FBPKeyInputHandler.java" md5: 22c4c305c5f9cabcfb775ffb71e419ff
@@ -70,7 +68,7 @@ startProcessing "com\TominoCZ\FBP\model\FBPSimpleBakedModel.java" md5: a890d8cf8
     Compile Error! Pb(883) '<>' operator is not allowed for source level below 1.7
 endProcessing "com\TominoCZ\FBP\model\FBPSimpleBakedModel.java"
 
-startProcessing "com\TominoCZ\FBP\particle\FBPBlockPlaceAnimationDummyParticle.java" md5: 1924eb1b51ef01110103386fe5d9d5d7
+startProcessing "com\TominoCZ\FBP\particle\FBPBlockPlaceAnimationDummyParticle.java" md5: 66ce7e1c18297290c01e2c28472367a0
 endProcessing "com\TominoCZ\FBP\particle\FBPBlockPlaceAnimationDummyParticle.java"
 
 startProcessing "com\TominoCZ\FBP\particle\FBPParticle.java" md5: d2e1bbd94c278083d9621c775d9d2a16
@@ -91,7 +89,7 @@ startProcessing "com\TominoCZ\FBP\particle\FBPParticleManager.java" md5: 5c16f0b
     Compile Error! Pb(876) Invocation of polymorphic methods not allowed for source level below 1.7
 endProcessing "com\TominoCZ\FBP\particle\FBPParticleManager.java"
 
-startProcessing "com\TominoCZ\FBP\particle\FBPParticleRain.java" md5: ede487103f7cc94227bbc38286e8056c
+startProcessing "com\TominoCZ\FBP\particle\FBPParticleRain.java" md5: 2fe138a873c9cf716657c35615c3d0a0
 endProcessing "com\TominoCZ\FBP\particle\FBPParticleRain.java"
 
 startProcessing "com\TominoCZ\FBP\util\FBPRenderUtils.java" md5: 6f00175cc8cfeedadb49ab01fbba1b49

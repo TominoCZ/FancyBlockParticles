@@ -1,27 +1,23 @@
 package com.TominoCZ.FBP.handler;
 
-import java.util.HashMap;
-
-import com.TominoCZ.FBP.BlockNode;
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.block.FBPPlaceAnimationDummyBlock;
 import com.TominoCZ.FBP.particle.FBPBlockPlaceAnimationDummyParticle;
 import com.TominoCZ.FBP.particle.FBPParticleManager;
 
-import jline.internal.Log;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
+import net.minecraft.block.BlockFalling;
+import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockSlab.EnumBlockHalf;
 import net.minecraft.block.BlockStructure;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.ParticleDigging.Factory;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -30,8 +26,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -76,16 +70,7 @@ public class FBPEventHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onBreakBlockEvent(BlockEvent.BreakEvent e) {
-		IBlockState state = mc.theWorld.getBlockState(e.getPos());
 
-		BlockNode node = FBP.FBPBlock.blockNodes.get(e.getPos());
-
-		if (node == null)
-			return;
-
-		if (state.getBlock() == node.originalBlock) {
-			mc.effectRenderer.addBlockDestroyEffects(e.getPos(), node.originalBlock.getDefaultState());
-		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -93,24 +78,6 @@ public class FBPEventHandler {
 	public void onPlayerPlaceBlockEvent(BlockEvent.PlaceEvent e) {
 		if (e.getPlacedBlock().getBlock() == FBP.FBPBlock)
 			e.setCanceled(true);
-		/*
-		 * else if (FBP.enabled && FBP.fancyPlaceAnim) { if (mc.getIntegratedServer() !=
-		 * null) return;
-		 * 
-		 * BlockPos pos = e.getPos(); IBlockState bs = e.getPlacedBlock();
-		 * 
-		 * long seed = MathHelper.getPositionRandom(pos);
-		 * 
-		 * World w = e.getWorld();
-		 * 
-		 * AxisAlignedBB bb1 = bs.getBoundingBox(w, pos).offset(pos); AxisAlignedBB bb2
-		 * = e.getPlayer().getEntityBoundingBox();
-		 * 
-		 * if (bs.getBlock().canPlaceBlockAt(w, pos) && !bb1.intersectsWith(bb2) &&
-		 * FBP.canBlockBeAnimated(bs.getBlock())) mc.effectRenderer.addEffect(new
-		 * FBPBlockPlaceAnimationDummyParticle(mc.theWorld, pos.getX() + 0.5f,
-		 * pos.getY() + 0.5f, pos.getZ() + 0.5f, bs, e.getPlayer(), seed)); }
-		 */
 	}
 
 	@SubscribeEvent
@@ -125,16 +92,23 @@ public class FBPEventHandler {
 		BlockPos pos = e.getPos().offset(facing);
 
 		Block b = null;
-		Block clickedBlock = w.getBlockState(pos.offset(facing.getOpposite())).getBlock();
+		IBlockState clickedBlockState = w.getBlockState(pos.offset(facing.getOpposite()));
 
 		if (w instanceof WorldClient && itemStack != null) {
 			b = Block.getBlockFromItem(itemStack.getItem());
-			Vec3d hitVec = e.getHitVec();
+
+			if (b instanceof BlockSlab && w.getBlockState(pos.offset(facing.getOpposite()))
+					.getBlock() instanceof FBPPlaceAnimationDummyBlock)
+				return;
+
+			Vec3d vec = e.getHitVec();
 
 			if (b != null && canBlockBePlaced(plr, w, e.getPos(), facing, hand, e.getUseBlock(), e.getUseItem(),
-					e.getItemStack(), hitVec)) {
+					e.getItemStack(), vec)) {
 
 				if (b == FBP.FBPBlock) {
+					mc.thePlayer.inventory.deleteStack(itemStack);
+					mc.thePlayer.inventory.markDirty();
 					e.setCanceled(true);
 					return;
 				}
@@ -144,111 +118,86 @@ public class FBPEventHandler {
 
 				int itemBlockMeta = ((ItemBlock) Item.getItemFromBlock(b)).getMetadata(itemStack.getMetadata());
 
-				IBlockState bs = b.getStateForPlacement(w, pos, facing.getOpposite(), (float) hitVec.xCoord,
-						(float) hitVec.yCoord, (float) hitVec.zCoord, itemBlockMeta, plr, itemStack);
+				float f = (float) (vec.xCoord - (double) pos.getX());
+				float f1 = (float) (vec.yCoord - (double) pos.getY());
+				float f2 = (float) (vec.zCoord - (double) pos.getZ());
 
-				bs = b.onBlockPlaced(w, pos, facing, (float) hitVec.xCoord, (float) hitVec.yCoord,
-						(float) hitVec.zCoord, itemBlockMeta, plr);
+				IBlockState bs = b.getStateForPlacement(w, pos, facing, f, f1, f2, itemBlockMeta, plr, itemStack);
 
-				bs = b.getActualState(bs, w, pos);
+				IBlockState stateAtPos;
+				boolean becomesDoubleSlab = false;
+				boolean isSlabAtPos = (stateAtPos = w.getBlockState(pos)).getBlock() instanceof BlockSlab;
 
-				/*
-				 * boolean becomesDoubleSlab = false;
-				 * 
-				 * if (b instanceof BlockSlab) { ItemSlab is = (ItemSlab)
-				 * Item.getItemFromBlock(b);
-				 * 
-				 * // TODO check if placing a single slab
-				 * 
-				 * // BlockSlab toPlace = ((BlockSlab) b);
-				 * 
-				 * IProperty<?> iproperty = ((BlockSlab) b).getVariantProperty();
-				 * 
-				 * BlockSlab singleSlab = null; BlockSlab doubleSlab = null;
-				 * 
-				 * try { singleSlab = (BlockSlab) ReflectionHelper .findField(ItemSlab.class,
-				 * "field_150949_c", "singleSlab").get(is); doubleSlab = (BlockSlab)
-				 * ReflectionHelper .findField(ItemSlab.class, "field_179226_c",
-				 * "doubleSlab").get(is); // bs = makeState(doubleSlab, iproperty, comparable1);
-				 * 
-				 * if (itemStack.stackSize != 0 && plr.canPlayerEdit(pos.offset(facing), facing,
-				 * itemStack)) { Comparable<?> comparable =
-				 * singleSlab.getTypeForItem(itemStack);
-				 * 
-				 * boolean single = false;
-				 * 
-				 * if (clickedBlock == singleSlab) { iproperty =
-				 * singleSlab.getVariantProperty(); comparable = bs.getValue(iproperty);
-				 * BlockSlab.EnumBlockHalf blockslab$enumblockhalf = (BlockSlab.EnumBlockHalf)
-				 * bs .getValue(BlockSlab.HALF);
-				 * 
-				 * Comparable<?> comparable1 =
-				 * clickedBlock.getActualState(clickedBlock.getDefaultState(), w,
-				 * pos.offset(facing.getOpposite())).getValue(iproperty);
-				 * 
-				 * if ((facing == EnumFacing.UP && blockslab$enumblockhalf ==
-				 * BlockSlab.EnumBlockHalf.BOTTOM || facing == EnumFacing.DOWN &&
-				 * blockslab$enumblockhalf == BlockSlab.EnumBlockHalf.TOP) && comparable1 ==
-				 * comparable) { bs = makeState(doubleSlab, iproperty, comparable1);
-				 * becomesDoubleSlab = true; } } } } catch (Exception e1) {
-				 * e1.printStackTrace(); }
-				 * 
-				 * if (!becomesDoubleSlab && facing != EnumFacing.UP && facing !=
-				 * EnumFacing.DOWN) { bs = bs.withProperty(BlockSlab.HALF, hitVec.yCoord - (int)
-				 * hitVec.yCoord > 0.5 ? EnumBlockHalf.TOP : EnumBlockHalf.BOTTOM); } //
-				 * IBlockState iblockstate1 = this.makeState(iproperty, comparable1); }
-				 * 
-				 * if (itemStack.stackSize != 0 && plr.canPlayerEdit(pos.offset(facing), facing,
-				 * stack)) { Comparable<?> comparable = this.singleSlab.getTypeForItem(stack);
-				 * IBlockState iblockstate = worldIn.getBlockState(pos);
-				 * 
-				 * if (iblockstate.getBlock() == this.singleSlab) { IProperty<?> iproperty =
-				 * this.singleSlab.getVariantProperty(); Comparable<?> comparable1 =
-				 * iblockstate.getValue(iproperty); BlockSlab.EnumBlockHalf
-				 * blockslab$enumblockhalf =
-				 * (BlockSlab.EnumBlockHalf)iblockstate.getValue(BlockSlab.HALF);
-				 * 
-				 * if ((facing == EnumFacing.UP && blockslab$enumblockhalf ==
-				 * BlockSlab.EnumBlockHalf.BOTTOM || facing == EnumFacing.DOWN &&
-				 * blockslab$enumblockhalf == BlockSlab.EnumBlockHalf.TOP) && comparable1 ==
-				 * comparable) { IBlockState iblockstate1 = this.makeState(iproperty,
-				 * comparable1); AxisAlignedBB axisalignedbb =
-				 * iblockstate1.getCollisionBoundingBox(worldIn, pos);
-				 * 
-				 * if (axisalignedbb != Block.NULL_AABB &&
-				 * worldIn.checkNoEntityCollision(axisalignedbb.offset(pos)) &&
-				 * worldIn.setBlockState(pos, iblockstate1, 11)) { SoundType soundtype =
-				 * this.doubleSlab.getSoundType(iblockstate1, worldIn, pos,playerIn);
-				 * worldIn.playSound(playerIn, pos, soundtype.getPlaceSound(),
-				 * SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
-				 * soundtype.getPitch() * 0.8F); --stack.stackSize; }
-				 * 
-				 * return EnumActionResult.SUCCESS; } }
-				 * 
-				 * return this.tryPlace(playerIn, stack, worldIn, pos.offset(facing),
-				 * comparable) ? EnumActionResult.SUCCESS : super.onItemUse(stack, playerIn,
-				 * worldIn, pos, hand, facing, hitX, hitY, hitZ); } else { return
-				 * EnumActionResult.FAIL; }
-				 */
+				if (b instanceof BlockSlab || isSlabAtPos) {
+					ItemSlab is = (ItemSlab) Item.getItemFromBlock(b);
+
+					BlockSlab toPlace = ((BlockSlab) b);
+
+					IProperty<?> iproperty = ((BlockSlab) b).getVariantProperty();
+
+					BlockSlab singleSlab = null;
+					BlockSlab doubleSlab = null;
+
+					try {
+						singleSlab = (BlockSlab) ReflectionHelper.findField(ItemSlab.class,
+
+								"field_150949_c", "singleSlab").get(is);
+						doubleSlab = (BlockSlab) ReflectionHelper
+								.findField(ItemSlab.class, "field_179226_c", "doubleSlab").get(is);
+						EnumBlockHalf half;
+
+						if (isSlabAtPos) {
+							half = stateAtPos.getValue(BlockSlab.HALF);
+
+							if (stateAtPos.getValue(iproperty) == bs.getValue(iproperty)
+									&& ((half == EnumBlockHalf.TOP && f1 < 0.5)
+											|| half == EnumBlockHalf.BOTTOM && f1 > 0.5)) {
+								bs = doubleSlab.getStateFromMeta(itemBlockMeta);
+
+								b = bs.getBlock();
+
+								becomesDoubleSlab = true;
+							}
+						} else {
+							half = clickedBlockState.getValue(BlockSlab.HALF);
+							if (clickedBlockState.getValue(iproperty) == bs.getValue(iproperty)
+									&& ((facing == EnumFacing.DOWN && half == EnumBlockHalf.TOP)
+											|| (facing == EnumFacing.UP && half == EnumBlockHalf.BOTTOM))) {
+								bs = doubleSlab.getStateFromMeta(itemBlockMeta);
+
+								b = bs.getBlock();
+								pos = pos.offset(facing.getOpposite());
+
+								becomesDoubleSlab = true;
+							}
+						}
+					} catch (Exception ex) {
+
+					}
+				}
+
+				bs = bs.getActualState(w, pos);
 
 				long seed = MathHelper.getPositionRandom(pos);
 
 				AxisAlignedBB bb1 = bs.getBoundingBox(w, pos).offset(pos);
 				AxisAlignedBB bb2 = plr.getEntityBoundingBox();
 
-				if (b.canPlaceBlockAt(w, pos) && !bb1.intersectsWith(bb2) && FBP.canBlockBeAnimated(bs.getBlock()))
-					mc.effectRenderer.addEffect(new FBPBlockPlaceAnimationDummyParticle(mc.theWorld, pos.getX() + 0.5f,
-							pos.getY() + 0.5f/* + (becomesDoubleSlab ? -1 : 0) */, pos.getZ() + 0.5f, bs,
-							e.getEntityPlayer(), seed));
+				if (b instanceof BlockFalling) {
+					BlockFalling bf = (BlockFalling) b;
+					if (bf.canFallThrough(w.getBlockState(pos.offset(EnumFacing.DOWN))))
+						return;
+				}
+
+				if ((b.canPlaceBlockAt(w, pos) || becomesDoubleSlab) && !bb1.intersectsWith(bb2)
+						&& FBP.canBlockBeAnimated(bs.getBlock())) {
+					FBPBlockPlaceAnimationDummyParticle p = new FBPBlockPlaceAnimationDummyParticle(mc.theWorld,
+							pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, bs, e.getEntityPlayer(), seed);
+
+					mc.effectRenderer.addEffect(p);
+				}
 			}
 		}
-	}
-
-	@SubscribeEvent
-	public void onBlockBreakEvent(BlockEvent.BreakEvent e) {
-		IBlockState state = e.getWorld().getBlockState(e.getPos());
-
-		e.setCanceled(state != null && state.getBlock() == FBP.FBPBlock);
 	}
 
 	boolean canBlockBePlaced(EntityPlayer plr, World w, BlockPos pos, EnumFacing fc, EnumHand hand, Result getUseBlock,
@@ -272,11 +221,11 @@ public class FBPEventHandler {
 				bypass = bypass && (s == null || s.getItem().doesSneakBypassUse(s, w, pos, plr));
 
 			if (!plr.isSneaking() || bypass || getUseBlock == Result.ALLOW) {
-				if (getUseBlock != Result.DENY)
+				if (getUseBlock != Result.DENY && !(iblockstate.getBlock() instanceof BlockFence)) {
 					flag = iblockstate.getBlock().onBlockActivated(w, pos, iblockstate, plr, hand, stack, fc, f, f1,
 							f2);
-				if (flag)
-					return false;
+					return !flag;
+				}
 			}
 
 			if (!flag && stack != null && stack.getItem() instanceof ItemBlock) {

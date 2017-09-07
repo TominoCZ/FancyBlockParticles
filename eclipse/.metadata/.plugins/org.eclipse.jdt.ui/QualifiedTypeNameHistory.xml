@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="org.apache.commons.lang3.StringUtils"/>
 <fullyQualifiedTypeName name="net.minecraft.world.chunk.BlockStatePaletteRegistry"/>
 <fullyQualifiedTypeName name="net.minecraftforge.event.world.BlockEvent.BreakEvent"/>
 <fullyQualifiedTypeName name="net.minecraft.client.renderer.texture.TextureAtlasSprite"/>
@@ -45,7 +44,6 @@
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.handler.FBPConfigHandler"/>
 <fullyQualifiedTypeName name="javax.annotation.Nullable"/>
 <fullyQualifiedTypeName name="net.minecraft.block.BlockSlab"/>
-<fullyQualifiedTypeName name="net.minecraft.block.BlockSlab.EnumBlockHalf"/>
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.FBP"/>
 <fullyQualifiedTypeName name="net.minecraft.util.EnumFacing"/>
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.handler.FBPEventHandler"/>
@@ -54,10 +52,12 @@
 <fullyQualifiedTypeName name="net.minecraft.client.entity.EntityPlayerSP"/>
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.BlockNode"/>
 <fullyQualifiedTypeName name="com.TominoCZ.FBP.particle.FBPBlockPlaceAnimationDummyParticle"/>
-<fullyQualifiedTypeName name="com.TominoCZ.FBP.block.FBPPlaceAnimationDummyBlock"/>
 <fullyQualifiedTypeName name="net.minecraft.world.Explosion"/>
 <fullyQualifiedTypeName name="net.minecraft.block.SoundType"/>
 <fullyQualifiedTypeName name="net.minecraft.item.ItemStack"/>
 <fullyQualifiedTypeName name="net.minecraft.util.math.AxisAlignedBB"/>
 <fullyQualifiedTypeName name="net.minecraft.init.Blocks"/>
+<fullyQualifiedTypeName name="net.minecraft.block.BlockStairs.EnumHalf"/>
+<fullyQualifiedTypeName name="net.minecraft.block.BlockSlab.EnumBlockHalf"/>
+<fullyQualifiedTypeName name="com.TominoCZ.FBP.block.FBPPlaceAnimationDummyBlock"/>
 </qualifiedTypeNameHistroy>

@@ -6,12 +6,12 @@ gamma:1.0
 saturation:0.0
 renderDistance:2
 guiScale:0
-particles:2
+particles:0
 bobView:true
 anaglyph3d:false
 maxFps:260
 fboEnable:true
-difficulty:3
+difficulty:0
 fancyGraphics:false
 ao:0
 renderClouds:false
