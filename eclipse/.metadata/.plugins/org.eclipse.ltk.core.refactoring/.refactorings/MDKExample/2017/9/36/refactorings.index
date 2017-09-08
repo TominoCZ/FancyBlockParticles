@@ -1,2 +1,10 @@
 1504531209412	Delete element
 1504738358608	Rename local variable 'hitVec'
+1504789386818	Delete element
+1504800847246	Move compilation unit
+1504806467436	Copy compilation unit
+1504824142873	Copy compilation unit
+1504825436390	Rename field 'backTo'
+1504830085734	Copy compilation unit
+1504832633080	Rename local variable 'squareSize'
+1504837213532	Rename field 'fancyRain'

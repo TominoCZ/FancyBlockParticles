@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.TominoCZ.FBP.BlockNode;
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.node.BlockNode;
 import com.TominoCZ.FBP.particle.FBPBlockPlaceAnimationDummyParticle;
 
 import net.minecraft.block.Block;
@@ -16,8 +16,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
+import net.minecraft.network.play.client.CPacketPlayerDigging.Action;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -40,26 +43,22 @@ public class FBPPlaceAnimationDummyBlock extends Block {
 	}
 
 	public void copyState(World w, BlockPos pos, IBlockState state, FBPBlockPlaceAnimationDummyParticle p) {
-		FBP.FBPBlock.cleanHashMap();
-
 		if (blockNodes.containsKey(pos))
 			return;
 
 		blockNodes.put(pos, new BlockNode(state, p));
 	}
 
-	public void cleanHashMap() {
-		List<BlockPos> toRemove = new ArrayList<BlockPos>();
-
-		for (BlockPos bp : blockNodes.keySet()) {
-			BlockNode bn = blockNodes.get(bp);
-
-			if (Minecraft.getMinecraft().theWorld.getBlockState((BlockPos) bp).getBlock() != FBP.FBPBlock)
-				toRemove.add((BlockPos) bp);
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+			EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (blockNodes.containsKey(pos)) {
+			BlockNode n = blockNodes.get(pos);
+			
+			return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		}
 
-		for (BlockPos bp : toRemove)
-			blockNodes.remove(bp);
+		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 
 	@Override
@@ -112,14 +111,14 @@ public class FBPPlaceAnimationDummyBlock extends Block {
 
 		if (node == null)
 			return;
-
-		if (node.particle != null)
-			node.particle.killParticle();
-
-		if (worldIn.isRemote && node != null && state.getBlock() != node.originalBlock
+		
+		if (worldIn.isRemote && state.getBlock() != node.originalBlock
 				&& state.getBlock() instanceof FBPPlaceAnimationDummyBlock)
 			Minecraft.getMinecraft().effectRenderer.addBlockDestroyEffects(pos,
 					node.originalBlock.getStateFromMeta(node.meta));
+		
+		if (node.particle != null)
+			node.particle.killParticle();
 	}
 
 	@Override

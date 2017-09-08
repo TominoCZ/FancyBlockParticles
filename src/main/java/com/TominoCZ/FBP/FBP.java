@@ -40,75 +40,59 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 public class FBP {
 	@Instance(FBP.MODID)
 	public static FBP INSTANCE;
-	
+
 	protected final static String MODID = "fbp";
 
 	public static File exceptionsFile = null;
 	public static File config = null;
 
 	public static int lastIDAdded = 1;
-	
+
 	public static int minAge, maxAge;
 
 	public static double scaleMult, gravityMult, rotationMult;
 
 	public static boolean isServer = false;
-	
+
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
 	public static boolean infiniteDuration = false;
 	public static boolean randomRotation = true, cartoonMode = false, spawnWhileFrozen = true,
 			spawnRedstoneBlockParticles = false, smoothTransitions = true, randomFadingSpeed = true,
-			entityCollision = false, bounceOffWalls = true, rollParticles = false, smartBreaking = true, fancyPlaceAnim = true, fancyRain = true, frozen = false;
+			entityCollision = false, bounceOffWalls = true, rollParticles = false, smartBreaking = true,
+			fancyPlaceAnim = true, fancyWeather = true, fancyFlame = true, fancySmoke = true, frozen = false;
 
 	public static List<Integer> blockExceptions = new ArrayList<Integer>();
 	public static List<Integer> defaultBlockExceptions = new ArrayList<Integer>();
-	
+
 	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
-	public static final Vec3d[] CUBE = {
-			new Vec3d(-1, -1, 1),
-			new Vec3d(-1, 1, 1),
-			new Vec3d(1, 1, 1),
+	public static final Vec3d[] CUBE = { new Vec3d(-1, -1, 1), new Vec3d(-1, 1, 1), new Vec3d(1, 1, 1),
 			new Vec3d(1, -1, 1),
-			
-			new Vec3d(1, -1, -1),
-			new Vec3d(1, 1, -1), 
-			new Vec3d(-1, 1, -1),
-			new Vec3d(-1, -1, -1),
-			
-			new Vec3d(-1, -1, -1),
-			new Vec3d(-1, 1, -1),
-			new Vec3d(-1, 1, 1), 
-			new Vec3d(-1, -1, 1), 
-			
-			new Vec3d(1, -1, 1),
-			new Vec3d(1, 1, 1), 
-			new Vec3d(1, 1, -1),
-			new Vec3d(1, -1, -1),
-			
-			new Vec3d(1, 1, -1),
-			new Vec3d(1, 1, 1),
-			new Vec3d(-1, 1, 1), 
-			new Vec3d(-1, 1, -1),
-			
-			new Vec3d(-1, -1, -1), 
-			new Vec3d(-1, -1, 1),
-			new Vec3d(1, -1, 1),
-			new Vec3d(1, -1, -1) };
-	
+
+			new Vec3d(1, -1, -1), new Vec3d(1, 1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, -1, -1),
+
+			new Vec3d(-1, -1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, 1, 1), new Vec3d(-1, -1, 1),
+
+			new Vec3d(1, -1, 1), new Vec3d(1, 1, 1), new Vec3d(1, 1, -1), new Vec3d(1, -1, -1),
+
+			new Vec3d(1, 1, -1), new Vec3d(1, 1, 1), new Vec3d(-1, 1, 1), new Vec3d(-1, 1, -1),
+
+			new Vec3d(-1, -1, -1), new Vec3d(-1, -1, 1), new Vec3d(1, -1, 1), new Vec3d(1, -1, -1) };
+
 	public static MethodHandle setSourcePos;
-	
+
 	public static FBPPlaceAnimationDummyBlock FBPBlock = new FBPPlaceAnimationDummyBlock();
-	
+
 	FBPEventHandler handler = new FBPEventHandler();
-	
+
 	public FBP() {
 		if (isDev())
-			ReflectionHelper.setPrivateValue(Session.class, Minecraft.getMinecraft().getSession(), "ILikeMyMommy", "username", "field_74286_b");
-		
+			ReflectionHelper.setPrivateValue(Session.class, Minecraft.getMinecraft().getSession(), "ILikeMyMommy",
+					"username", "field_74286_b");
+
 		INSTANCE = this;
-		
+
 		defaultBlockExceptions.add(Block.REGISTRY.getIDForObject(Blocks.AIR));
 		defaultBlockExceptions.add(Block.REGISTRY.getIDForObject(Blocks.VINE));
 		defaultBlockExceptions.add(Block.REGISTRY.getIDForObject(Blocks.SKULL));
@@ -116,15 +100,15 @@ public class FBP {
 		defaultBlockExceptions.add(Block.REGISTRY.getIDForObject(Blocks.STANDING_BANNER));
 		defaultBlockExceptions.add(Block.REGISTRY.getIDForObject(Blocks.COBBLESTONE_WALL));
 	}
-	
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
 		if (evt.getSide().isServer())
 			isServer = true;
-		
+
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
 		exceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
-		
+
 		FBPConfigHandler.init();
 
 		FBPKeyBindings.init();
@@ -145,7 +129,7 @@ public class FBP {
 		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
 
 		GameRegistry.registerBlock(FBPBlock);
-		
+
 		try {
 			setSourcePos = lookup
 					.unreflectSetter(ReflectionHelper.findField(ParticleDigging.class, "field_181019_az", "sourcePos"));

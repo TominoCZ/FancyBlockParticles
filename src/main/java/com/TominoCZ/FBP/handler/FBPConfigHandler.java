@@ -69,7 +69,9 @@ public class FBPConfigHandler {
 
 			PrintWriter writer = new PrintWriter(configFile.getPath(), "UTF-8");
 			writer.println("enabled=" + FBP.enabled);
-			writer.println("fancyRain=" + FBP.fancyRain);
+			writer.println("fancyFlame=" + FBP.fancyFlame);
+			writer.println("fancySmoke=" + FBP.fancySmoke);
+			writer.println("fancyWeather=" + FBP.fancyWeather);
 			writer.println("fancyPlaceAnim=" + FBP.fancyPlaceAnim);
 			writer.println("smartBreaking=" + FBP.smartBreaking);
 			writer.println("rollParticles=" + FBP.rollParticles);
@@ -145,8 +147,12 @@ public class FBPConfigHandler {
 			while ((line = br.readLine()) != null) {
 				if (line.contains("enabled="))
 					FBP.enabled = Boolean.valueOf(line.replaceAll(" ", "").replace("enabled=", ""));
-				else if (line.contains("fancyRain="))
-					FBP.fancyRain = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyRain=", ""));
+				else if (line.contains("fancyFlame="))
+					FBP.fancyFlame = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyFlame=", ""));
+				else if (line.contains("fancySmoke="))
+					FBP.fancySmoke = Boolean.valueOf(line.replaceAll(" ", "").replace("fancySmoke=", ""));
+				else if (line.contains("fancyWeather="))
+					FBP.fancyWeather = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyWeather=", ""));
 				else if (line.contains("fancyPlaceAnim="))
 					FBP.fancyPlaceAnim = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyPlaceAnim=", ""));
 				else if (line.contains("smartBreaking="))
@@ -263,7 +269,9 @@ public class FBPConfigHandler {
 		FBP.spawnWhileFrozen = true;
 		FBP.smartBreaking = true;
 		FBP.fancyPlaceAnim = true;
-		FBP.fancyRain = true;
+		FBP.fancyWeather = true;
+		FBP.fancySmoke = true;
+		FBP.fancyFlame = true;
 		
 		FBP.blockExceptions.clear();
 		FBP.blockExceptions.addAll(FBP.defaultBlockExceptions);

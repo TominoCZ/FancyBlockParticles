@@ -1,3 +1,9 @@
+CONTENT_ASSIST_BACKGROUND_COLOR=52,57,61
+CONTENT_ASSIST_FOREGROUND_COLOR=238,238,238
+content_assist_parameters_background=52,57,61
+content_assist_parameters_foreground=238,238,238
+content_assist_proposals_background=52,57,61
+content_assist_proposals_foreground=238,238,238
 eclipse.preferences.version=1
 java_bracket=255,255,255
 java_comment_task_tag=87,166,74
@@ -12,6 +18,7 @@ java_multi_line_comment=87,166,74
 java_operator=220,220,220
 java_single_line_comment=87,166,74
 java_string=214,157,133
+overriddenByCSS=,CONTENT_ASSIST_BACKGROUND_COLOR,CONTENT_ASSIST_FOREGROUND_COLOR,content_assist_parameters_background,content_assist_parameters_foreground,content_assist_proposals_background,content_assist_proposals_foreground,
 semanticHighlighting.localVariable.color=200,200,200
 semanticHighlighting.localVariable.enabled=true
 semanticHighlighting.localVariableDeclaration.color=200,200,200

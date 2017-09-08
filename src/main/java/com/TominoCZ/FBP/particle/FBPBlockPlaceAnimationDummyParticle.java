@@ -9,6 +9,7 @@ import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.model.FBPModelTransformer;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
@@ -57,9 +58,9 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
 	long textureSeed;
 
-	float startingHeight = 0.112f;
-	float startingAngle = 0.08f;
-	float step = 0.0025f;
+	float startingHeight = 0.0475f;
+	float startingAngle = 0.035f;
+	float step = 0.00185f;
 
 	float height;
 	float prevHeight;
@@ -67,8 +68,6 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 	float smoothHeight;
 
 	boolean lookingUp;
-
-	// boolean tickSwitch = true;
 
 	int ticks;
 
@@ -114,19 +113,23 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 							switch (facing) {
 							case EAST:
 								rot.z = -startingAngle;
-								vec.x += 0.01000000;// 0149011612D;
+								rot.x = -startingAngle;
+								// vec.x += 0.0075;//2;//149011612D;
 								break;
 							case NORTH:
 								rot.x = -startingAngle;
-								vec.z -= 0.01000000;// 0149011612D;
+								rot.z = startingAngle;
+								// vec.z -= 0.0075;//2;//149011612D;
 								break;
 							case SOUTH:
 								rot.x = startingAngle;
-								vec.z += 0.010000000;// 149011612D;
+								rot.z = -startingAngle;
+								// vec.z += 0.0075;//2;//149011612D;
 								break;
 							case WEST:
 								rot.z = startingAngle;
-								vec.x -= 0.010000000;// 149011612D;
+								rot.x = startingAngle;
+								// vec.x -= 0.0075;//2; //149011612D;
 								break;
 							}
 
@@ -148,7 +151,7 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void onUpdate() {
-		if (ticks < 3) {
+		if (ticks == 0) {
 			return;
 		}
 
@@ -164,19 +167,23 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 		switch (facing) {
 		case EAST:
 			rot.z += step;
+			rot.x -= step;// TODO
 			break;
 		case NORTH:
 			rot.x -= step;
+			rot.z -= step;
 			break;
 		case SOUTH:
 			rot.x += step;
+			rot.z += step;
 			break;
 		case WEST:
 			rot.z -= step;
+			rot.x += step;
 			break;
 		}
 
-		height -= step * 4f;
+		height -= step * 5f;
 
 		step *= 1.98982f;
 	}
@@ -190,13 +197,11 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
 		if (canCollide) {
 			if (particleAge >= 7) {
-				this.isExpired = true;
+				killParticle();
 				return;
 			} else if (particleAge == 0) {
-				worldObj.setBlockState(pos, Blocks.AIR.getDefaultState());
-
-				worldObj.sendPacketToServer(
-						new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos, facing.getOpposite()));
+				worldObj.setBlockState(pos, blockState, 2);
+				
 				worldObj.sendPacketToServer(
 						new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos, facing.getOpposite()));
 
@@ -207,18 +212,12 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 			}
 
 			particleAge++;
-		} else if (ticks >= 2 && (particleAge == 0 || particleAge % 3 == 0)) {
-			new Thread() {
-				public void run() {
-					worldObj.setBlockState(pos, FBP.FBPBlock.getDefaultState());
-				}
-			}.start();
-		}
-
-		if (ticks < 3) {
+		} else if (worldObj.getBlockState(pos).getBlock() != FBP.FBPBlock) {
+			worldObj.setBlockState(pos, FBP.FBPBlock.getDefaultState());
 			ticks++;
 			return;
 		}
+
 		float f = 0, f1 = 0, f2 = 0, f3 = 0;
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * (double) partialTicks - interpPosX) - 0.5f;
@@ -239,24 +238,28 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 			if (smoothRot.z > startingAngle) {
 				this.canCollide = true;
 				smoothRot.z = startingAngle;
+				smoothRot.x = -startingAngle;
 			}
 			break;
 		case NORTH:
 			if (smoothRot.x < -startingAngle) {
 				this.canCollide = true;
 				smoothRot.x = -startingAngle;
+				smoothRot.z = -startingAngle;
 			}
 			break;
 		case SOUTH:
 			if (smoothRot.x > startingAngle) {
 				this.canCollide = true;
 				smoothRot.x = startingAngle;
+				smoothRot.z = startingAngle;
 			}
 			break;
 		case WEST:
 			if (smoothRot.z < -startingAngle) {
 				this.canCollide = true;
 				smoothRot.z = -startingAngle;
+				smoothRot.x = startingAngle;
 			}
 			break;
 		}
@@ -312,30 +315,44 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 		Vector3f pos1 = new Vector3f(pos.x, pos.y, pos.z);
 		Vector3f pos2;
 
-		if (lookingUp)
-			pos1.y -= 1.0f;
+		// if (lookingUp)
+		// pos1.y -= 1.0f;
 
-		if (facing == EnumFacing.EAST)
+		if (facing == EnumFacing.EAST) {
 			pos1.x -= 1.0f;
-		if (facing == EnumFacing.SOUTH)
+		}
+		if (facing == EnumFacing.WEST) {
+			pos1.x += 1.0f;
+		}
+		if (facing == EnumFacing.SOUTH) {
 			pos1.z -= 1.0f;
+			pos1.x -= 1.0f;
+		}
 
 		pos2 = new Vector3f(pos1.x, pos1.y * cosAngleX - pos1.z * sinAngleX, pos1.y * sinAngleX + pos1.z * cosAngleX);
 		pos2 = new Vector3f(pos2.x * cosAngleY + pos2.z * sinAngleY, pos2.y, pos2.x * sinAngleY - pos2.z * cosAngleY);
 		pos2 = new Vector3f(pos2.x * cosAngleZ - pos2.y * sinAngleZ, pos2.x * sinAngleZ + pos2.y * cosAngleZ, pos2.z);
 
-		if (facing == EnumFacing.EAST)
+		if (facing == EnumFacing.EAST) {
 			pos2.x += 1.0f;
-		if (facing == EnumFacing.SOUTH)
+		}
+		if (facing == EnumFacing.WEST) {
+			pos2.x -= 1.0f;
+		}
+		if (facing == EnumFacing.SOUTH) {
 			pos2.z += 1.0f;
-
-		if (lookingUp)
-			pos2.y += 1;
+			pos2.x += 1.0f;
+		}
+		// if (lookingUp)
+		// pos2.y += 1;
 		return pos2;
 	}
 
 	@SuppressWarnings("incomplete-switch")
 	private void spawnParticles() {
+		if (worldObj.getBlockState(pos.offset(EnumFacing.DOWN)).getBlock() instanceof BlockAir)
+			return;
+
 		AxisAlignedBB aabb = block.getSelectedBoundingBox(blockState, worldObj, pos);
 
 		// z- = north
@@ -402,6 +419,7 @@ public class FBPBlockPlaceAnimationDummyParticle extends Particle {
 
 	public void killParticle() {
 		this.isExpired = true;
+		FBP.FBPBlock.blockNodes.remove(pos);
 	}
 
 	@Override

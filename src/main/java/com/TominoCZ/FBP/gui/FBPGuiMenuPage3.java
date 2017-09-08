@@ -16,14 +16,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class FBPGuiMenuPage3 extends GuiScreen {
 
-	GuiButton Reload, Done, Defaults, Back, ReportBug, Enable, b1, b2, b3, b4, b5, b6, b5_settings;
+	GuiButton Reload, Done, Defaults, Back, Next, ReportBug, Enable, b1, b2, b3, b4, b5, b6, b5_settings;
 
 	String b1Text = "Collide With Entities";
 	String b2Text = "Bounce Off Walls";
 	String b3Text = "Roll Particles";
 	String b4Text = "Smart Breaking";
 	String b5Text = "Fancy Place Animation";
-	String b6Text = "Fancy Rain";
+	String b6Text = "Fancy Weather";
 
 	String description = "";
 
@@ -39,11 +39,13 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		b3 = new FBPGuiButton(3, x, b2.yPosition + b1.height + 6, b3Text, FBP.rollParticles, true);
 		b4 = new FBPGuiButton(4, x, b3.yPosition + b1.height + 1, b4Text, FBP.smartBreaking, true);
 		b5 = new FBPGuiButton(5, x, b4.yPosition + b1.height + 6, b5Text, FBP.fancyPlaceAnim, true);
-		b6 = new FBPGuiButton(6, x, b5.yPosition + b1.height + 1, b6Text, FBP.fancyRain, true);
+		b6 = new FBPGuiButton(6, x, b5.yPosition + b1.height + 1, b6Text, FBP.fancyWeather, true);
 
 		b5_settings = new FBPGuiButton(7, x + b1.width + 5, b5.yPosition, "cogwheel", false, false);
 
 		Back = new FBPGuiButton(-3, this.width / 2 - 125, (int) 6 * b1.height + b1.yPosition - 5, "<<", false, false);
+		Next = new FBPGuiButton(-6, b6.xPosition + b6.width + 3 + 2, (int) b6.yPosition, ">>", false, false);
+		
 		Defaults = new FBPGuiButton(0, this.width / 2 + 2, Back.yPosition + Back.height + 24, "Defaults", false, false);
 		Done = new FBPGuiButton(-1, this.width / 2 - 100, (int) Defaults.yPosition, "Done", false, false);
 		Reload = new FBPGuiButton(-2, Done.xPosition, (int) Defaults.yPosition + Defaults.height + 1, "Reload Config",
@@ -56,14 +58,17 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		Defaults.width = Done.width = 98;
 		Reload.width = b1.width = 200;
 
-		Back.width = b5_settings.width = 20;
+		Back.width = Next.width = b5_settings.width = 20;
 
 		this.buttonList.addAll(java.util.Arrays.asList(new GuiButton[] { b1, b2, b3, b4, b5, b6, b5_settings, Defaults,
-				Done, Reload, Back, Enable, ReportBug }));
+				Done, Reload, Back, Next, Enable, ReportBug }));
 	}
 
 	protected void actionPerformed(GuiButton button) throws IOException {
 		switch (button.id) {
+		case -6:
+			this.mc.displayGuiScreen(new FBPGuiMenuPage4());
+			break;
 		case -5:
 			FBP.enabled = !FBP.enabled;
 			break;
@@ -102,7 +107,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 			FBP.fancyPlaceAnim = !FBP.fancyPlaceAnim;
 			break;
 		case 6:
-			FBP.fancyRain = !FBP.fancyRain;
+			FBP.fancyWeather = !FBP.fancyWeather;
 			break;
 		case 7:
 			mc.displayGuiScreen(new FBPGuiExceptionList(this));
@@ -161,7 +166,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 					description = "Adds a \u00A76fancy block placing\u00A7a animation \u00A76[\u00A7cALPHA\u00A76]\u00A7a.";
 					break;
 				case 6:
-					description = "Makes \u00A76rain particles\u00A7a fancy.";
+					description = "Makes \u00A76weather particles\u00A7a fancy.";
 					break;
 				}
 			}

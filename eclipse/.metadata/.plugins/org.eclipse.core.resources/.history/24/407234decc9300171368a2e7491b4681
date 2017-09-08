@@ -1,0 +1,67 @@
+class List extends GuiSlot
+    {
+        /** A list containing the many different locale language codes. */
+        private final java.util.List<String> langCodeList = Lists.<String>newArrayList();
+        /** The map containing the Locale-Language pairs. */
+        private final Map<String, Language> languageMap = Maps.<String, Language>newHashMap();
+
+        public List(Minecraft mcIn)
+        {
+            super(mcIn, GuiLanguage.this.width, GuiLanguage.this.height, 32, GuiLanguage.this.height - 65 + 4, 18);
+
+            for (Language language : GuiLanguage.this.languageManager.getLanguages())
+            {
+                this.languageMap.put(language.getLanguageCode(), language);
+                this.langCodeList.add(language.getLanguageCode());
+            }
+        }
+
+        protected int getSize()
+        {
+            return this.langCodeList.size();
+        }
+
+        /**
+         * The element in the slot that was clicked, boolean for whether it was double clicked or not
+         */
+        protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
+        {
+            Language language = (Language)this.languageMap.get(this.langCodeList.get(slotIndex));
+            GuiLanguage.this.languageManager.setCurrentLanguage(language);
+            GuiLanguage.this.game_settings_3.language = language.getLanguageCode();
+            this.mc.refreshResources();
+            GuiLanguage.this.fontRendererObj.setUnicodeFlag(GuiLanguage.this.languageManager.isCurrentLocaleUnicode() || GuiLanguage.this.game_settings_3.forceUnicodeFont);
+            GuiLanguage.this.fontRendererObj.setBidiFlag(GuiLanguage.this.languageManager.isCurrentLanguageBidirectional());
+            GuiLanguage.this.confirmSettingsBtn.displayString = I18n.format("gui.done", new Object[0]);
+            GuiLanguage.this.forceUnicodeFontBtn.displayString = GuiLanguage.this.game_settings_3.getKeyBinding(GameSettings.Options.FORCE_UNICODE_FONT);
+            GuiLanguage.this.game_settings_3.saveOptions();
+        }
+
+        /**
+         * Returns true if the element passed in is currently selected
+         */
+        protected boolean isSelected(int slotIndex)
+        {
+            return ((String)this.langCodeList.get(slotIndex)).equals(GuiLanguage.this.languageManager.getCurrentLanguage().getLanguageCode());
+        }
+
+        /**
+         * Return the height of the content being scrolled
+         */
+        protected int getContentHeight()
+        {
+            return this.getSize() * 18;
+        }
+
+        protected void drawBackground()
+        {
+            GuiLanguage.this.drawDefaultBackground();
+        }
+
+        protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn)
+        {
+            GuiLanguage.this.fontRendererObj.setBidiFlag(true);
+            GuiLanguage.this.drawCenteredString(GuiLanguage.this.fontRendererObj, ((Language)this.languageMap.get(this.langCodeList.get(entryID))).toString(), this.width / 2, yPos + 1, 16777215);
+            GuiLanguage.this.fontRendererObj.setBidiFlag(GuiLanguage.this.languageManager.getCurrentLanguage().isBidirectional());
+        }
+    }

@@ -2,13 +2,14 @@ package com.TominoCZ.FBP.handler;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.block.FBPPlaceAnimationDummyBlock;
+import com.TominoCZ.FBP.entity.renderer.FBPEntityRenderer;
+import com.TominoCZ.FBP.node.BlockNode;
 import com.TominoCZ.FBP.particle.FBPBlockPlaceAnimationDummyParticle;
 import com.TominoCZ.FBP.particle.FBPParticleManager;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockFalling;
-import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockSlab.EnumBlockHalf;
 import net.minecraft.block.BlockStructure;
@@ -31,12 +32,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
-import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -48,8 +47,6 @@ public class FBPEventHandler {
 
 	BlockPos lastPos;
 
-	IWorldEventListener listener;
-
 	public FBPEventHandler() {
 		mc = Minecraft.getMinecraft();
 	}
@@ -57,20 +54,11 @@ public class FBPEventHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
-		if (e.getEntity() instanceof EntityPlayerSP)
+		if (e.getEntity() instanceof EntityPlayerSP) {
 			mc.effectRenderer = new FBPParticleManager(e.getWorld(), mc.getTextureManager(), new Factory());
-	}
-
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onWorldLoadEvent(WorldEvent.Load e) {
-
-	}
-
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onBreakBlockEvent(BlockEvent.BreakEvent e) {
-
+		
+			mc.entityRenderer = new FBPEntityRenderer(mc, mc.getResourceManager());
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -82,6 +70,9 @@ public class FBPEventHandler {
 
 	@SubscribeEvent
 	public void onInteractionEvent(RightClickBlock e) {
+		if (!FBP.enabled)
+			return;
+
 		EnumFacing facing = e.getFace();
 		EnumHand hand = e.getHand();
 
@@ -90,6 +81,8 @@ public class FBPEventHandler {
 		ItemStack itemStack = e.getItemStack();
 		World w = e.getWorld();
 		BlockPos pos = e.getPos().offset(facing);
+
+		Vec3d vec = e.getHitVec();
 
 		Block b = null;
 		IBlockState clickedBlockState = w.getBlockState(pos.offset(facing.getOpposite()));
@@ -100,8 +93,6 @@ public class FBPEventHandler {
 			if (b instanceof BlockSlab && w.getBlockState(pos.offset(facing.getOpposite()))
 					.getBlock() instanceof FBPPlaceAnimationDummyBlock)
 				return;
-
-			Vec3d vec = e.getHitVec();
 
 			if (b != null && canBlockBePlaced(plr, w, e.getPos(), facing, hand, e.getUseBlock(), e.getUseItem(),
 					e.getItemStack(), vec)) {
@@ -215,17 +206,20 @@ public class FBPEventHandler {
 			if (ret != EnumActionResult.PASS)
 				return false;
 
+			BlockNode node = FBP.FBPBlock.blockNodes.get(pos);
+
 			IBlockState iblockstate = w.getBlockState(pos);
+
 			boolean bypass = true;
 			for (ItemStack s : new ItemStack[] { plr.getHeldItemMainhand(), plr.getHeldItemOffhand() })
 				bypass = bypass && (s == null || s.getItem().doesSneakBypassUse(s, w, pos, plr));
 
-			if (!plr.isSneaking() || bypass || getUseBlock == Result.ALLOW) {
-				if (getUseBlock != Result.DENY && !(iblockstate.getBlock() instanceof BlockFence)) {
+			if ((!plr.isSneaking() || bypass || getUseBlock == Result.ALLOW)) {
+				if (getUseBlock != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
 					flag = iblockstate.getBlock().onBlockActivated(w, pos, iblockstate, plr, hand, stack, fc, f, f1,
 							f2);
-					return !flag;
-				}
+				if (flag)
+					return !(iblockstate.getBlock() instanceof BlockCommandBlock);
 			}
 
 			if (!flag && stack != null && stack.getItem() instanceof ItemBlock) {
@@ -252,10 +246,5 @@ public class FBPEventHandler {
 			}
 		}
 		return true;
-	}
-
-	protected <T extends Comparable<T>> IBlockState makeState(BlockSlab doubleSlab, IProperty<T> p_185055_1_,
-			Comparable<?> p_185055_2_) {
-		return doubleSlab.getDefaultState().withProperty(p_185055_1_, (T) p_185055_2_);
 	}
 }

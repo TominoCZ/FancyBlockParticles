@@ -2,12 +2,17 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="" key="selection"/>
+		<item value="EnableSnow" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="enableSnow"/>
+			<item value="snow"/>
+			<item value="getSnowEnabled()"/>
+			<item value="Snow"/>
+			<item value="setEnableSnow"/>
 			<item value="*"/>
 			<item value=" public IBlockState"/>
 			<item value="hooks"/>
@@ -18,11 +23,6 @@
 			<item value="drawEntityOnScreen"/>
 			<item value="item"/>
 			<item value="Setting"/>
-			<item value="mc = "/>
-			<item value="SPacket"/>
-			<item value="Cpacket"/>
-			<item value="remove"/>
-			<item value="expired"/>
 		</list>
 		<list key="replacehistory">
 			<item value=""/>

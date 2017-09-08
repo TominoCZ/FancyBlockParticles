@@ -2,6 +2,7 @@ package com.TominoCZ.FBP.gui;
 
 import java.io.IOException;
 
+import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 
 import net.minecraft.client.gui.GuiButton;
@@ -14,10 +15,10 @@ public class FBPGuiYesNo extends GuiScreen {
 
 	GuiButton yes, no;
 
-	GuiScreen backTo;
+	GuiScreen parent;
 
 	public FBPGuiYesNo(GuiScreen s) {
-		backTo = s;
+		parent = s;
 	}
 
 	public void initGui() {
@@ -39,7 +40,7 @@ public class FBPGuiYesNo extends GuiScreen {
 			FBPConfigHandler.defaults(true);
 			break;
 		}
-		this.mc.displayGuiScreen(backTo);
+		this.mc.displayGuiScreen(parent);
 
 		FBPConfigHandler.write();
 	}
@@ -51,12 +52,32 @@ public class FBPGuiYesNo extends GuiScreen {
 	public boolean doesGuiPauseGame() {
 		return false;
 	}
+	
+	@Override
+	protected void keyTyped(char c, int keyCode) throws IOException {
+		if (keyCode == 1) {
+			closeGui();
+			return;
+		}
 
+		super.keyTyped(c, keyCode);
+	}
+	
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.drawBackground(0);
+		parent.width = this.width;
+		parent.height = this.height;
+
+		parent.initGui();
+		parent.drawScreen(0, 0, partialTicks);
+
+		this.drawDefaultBackground();
 
 		this.drawCenteredString(fontRendererObj, "Are you sure?", this.width / 2, yes.yPosition - 30,
 				Integer.parseInt("FFAA00", 16));
 		super.drawScreen(mouseX, mouseY, partialTicks);
+	}
+	
+	void closeGui() {
+		mc.displayGuiScreen(parent);
 	}
 }
