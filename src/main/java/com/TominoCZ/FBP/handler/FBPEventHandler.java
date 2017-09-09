@@ -1,25 +1,30 @@
 package com.TominoCZ.FBP.handler;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.block.FBPPlaceAnimationDummyBlock;
-import com.TominoCZ.FBP.entity.renderer.FBPEntityRenderer;
+import com.TominoCZ.FBP.block.FBPAnimationDummyBlock;
 import com.TominoCZ.FBP.node.BlockNode;
-import com.TominoCZ.FBP.particle.FBPBlockPlaceAnimationDummyParticle;
+import com.TominoCZ.FBP.particle.FBPAnimationParticle;
 import com.TominoCZ.FBP.particle.FBPParticleManager;
+import com.TominoCZ.FBP.renderer.FBPEntityRenderer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockFalling;
+import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockSlab.EnumBlockHalf;
+import net.minecraft.block.BlockSnow;
 import net.minecraft.block.BlockStructure;
+import net.minecraft.block.BlockTorch;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.ParticleDigging.Factory;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSlab;
@@ -27,11 +32,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
+import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
@@ -46,9 +54,82 @@ public class FBPEventHandler {
 	Minecraft mc;
 
 	BlockPos lastPos;
-
+	
 	public FBPEventHandler() {
 		mc = Minecraft.getMinecraft();
+		
+		/*
+		IWorldEventListener listener = new IWorldEventListener() {
+			
+			@Override
+			public void spawnParticle(int particleID, boolean ignoreRange, double xCoord, double yCoord, double zCoord,
+					double xSpeed, double ySpeed, double zSpeed, int... parameters) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void playSoundToAllNearExcept(EntityPlayer player, SoundEvent soundIn, SoundCategory category, double x,
+					double y, double z, float volume, float pitch) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void playRecord(SoundEvent soundIn, BlockPos pos) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void playEvent(EntityPlayer player, int type, BlockPos blockPosIn, int data) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onEntityRemoved(Entity entityIn) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onEntityAdded(Entity entityIn) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void notifyLightSet(BlockPos pos) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void notifyBlockUpdate(World worldIn, BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {
+				// TODO Auto-generated method stub
+				//TODO try?
+			}
+			
+			@Override
+			public void markBlockRangeForRenderUpdate(int x1, int y1, int z1, int x2, int y2, int z2) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void broadcastSound(int soundID, BlockPos pos, int data) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+	*/
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -56,7 +137,7 @@ public class FBPEventHandler {
 	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
 		if (e.getEntity() instanceof EntityPlayerSP) {
 			mc.effectRenderer = new FBPParticleManager(e.getWorld(), mc.getTextureManager(), new Factory());
-		
+
 			mc.entityRenderer = new FBPEntityRenderer(mc, mc.getResourceManager());
 		}
 	}
@@ -64,7 +145,10 @@ public class FBPEventHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onPlayerPlaceBlockEvent(BlockEvent.PlaceEvent e) {
-		if (e.getPlacedBlock().getBlock() == FBP.FBPBlock)
+		IBlockState bs = e.getPlacedBlock();
+		Block placed = bs.getBlock();
+
+		if (placed == FBP.FBPBlock)
 			e.setCanceled(true);
 	}
 
@@ -90,8 +174,8 @@ public class FBPEventHandler {
 		if (w instanceof WorldClient && itemStack != null) {
 			b = Block.getBlockFromItem(itemStack.getItem());
 
-			if (b instanceof BlockSlab && w.getBlockState(pos.offset(facing.getOpposite()))
-					.getBlock() instanceof FBPPlaceAnimationDummyBlock)
+			if (b instanceof BlockSlab
+					&& w.getBlockState(pos.offset(facing.getOpposite())).getBlock() instanceof FBPAnimationDummyBlock)
 				return;
 
 			if (b != null && canBlockBePlaced(plr, w, e.getPos(), facing, hand, e.getUseBlock(), e.getUseItem(),
@@ -113,13 +197,21 @@ public class FBPEventHandler {
 				float f1 = (float) (vec.yCoord - (double) pos.getY());
 				float f2 = (float) (vec.zCoord - (double) pos.getZ());
 
-				IBlockState bs = b.getStateForPlacement(w, pos, facing, f, f1, f2, itemBlockMeta, plr, itemStack);
+				IBlockState stateForPlacement = b.getStateForPlacement(w, pos, facing, f, f1, f2, itemBlockMeta, plr,
+						itemStack);
 
-				IBlockState stateAtPos;
+				IBlockState stateAtPos = w.getBlockState(pos);
+				if (stateAtPos.getBlock() == FBP.FBPBlock) {
+					if (FBP.FBPBlock.blockNodes.containsKey(pos.offset(facing.getOpposite()))) {
+						BlockNode n = FBP.FBPBlock.blockNodes.get(pos.offset(facing.getOpposite()));
+						stateAtPos = n.state;
+					}
+				}
+
 				boolean becomesDoubleSlab = false;
-				boolean isSlabAtPos = (stateAtPos = w.getBlockState(pos)).getBlock() instanceof BlockSlab;
+				boolean isSlabAtPos = stateAtPos.getBlock() instanceof BlockSlab;
 
-				if (b instanceof BlockSlab || isSlabAtPos) {
+				if (b instanceof BlockSlab || (isSlabAtPos && b instanceof BlockSlab)) {
 					ItemSlab is = (ItemSlab) Item.getItemFromBlock(b);
 
 					BlockSlab toPlace = ((BlockSlab) b);
@@ -140,23 +232,23 @@ public class FBPEventHandler {
 						if (isSlabAtPos) {
 							half = stateAtPos.getValue(BlockSlab.HALF);
 
-							if (stateAtPos.getValue(iproperty) == bs.getValue(iproperty)
+							if (stateAtPos.getValue(iproperty) == stateForPlacement.getValue(iproperty)
 									&& ((half == EnumBlockHalf.TOP && f1 < 0.5)
 											|| half == EnumBlockHalf.BOTTOM && f1 > 0.5)) {
-								bs = doubleSlab.getStateFromMeta(itemBlockMeta);
+								stateForPlacement = doubleSlab.getStateFromMeta(itemBlockMeta);
 
-								b = bs.getBlock();
+								b = stateForPlacement.getBlock();
 
 								becomesDoubleSlab = true;
 							}
 						} else {
 							half = clickedBlockState.getValue(BlockSlab.HALF);
-							if (clickedBlockState.getValue(iproperty) == bs.getValue(iproperty)
+							if (clickedBlockState.getValue(iproperty) == stateForPlacement.getValue(iproperty)
 									&& ((facing == EnumFacing.DOWN && half == EnumBlockHalf.TOP)
 											|| (facing == EnumFacing.UP && half == EnumBlockHalf.BOTTOM))) {
-								bs = doubleSlab.getStateFromMeta(itemBlockMeta);
+								stateForPlacement = doubleSlab.getStateFromMeta(itemBlockMeta);
 
-								b = bs.getBlock();
+								b = stateForPlacement.getBlock();
 								pos = pos.offset(facing.getOpposite());
 
 								becomesDoubleSlab = true;
@@ -167,28 +259,102 @@ public class FBPEventHandler {
 					}
 				}
 
-				bs = bs.getActualState(w, pos);
-
-				long seed = MathHelper.getPositionRandom(pos);
-
-				AxisAlignedBB bb1 = bs.getBoundingBox(w, pos).offset(pos);
+				AxisAlignedBB bb1 = stateForPlacement.getBoundingBox(w, pos).offset(pos);
 				AxisAlignedBB bb2 = plr.getEntityBoundingBox();
 
 				if (b instanceof BlockFalling) {
 					BlockFalling bf = (BlockFalling) b;
 					if (bf.canFallThrough(w.getBlockState(pos.offset(EnumFacing.DOWN))))
 						return;
+				} else if (b instanceof BlockTorch && clickedBlockState.getBlock() instanceof FBPAnimationDummyBlock) {
+					if (stateAtPos.getBlock() instanceof BlockTorch) {
+						for (EnumFacing fc : EnumFacing.VALUES) {
+							BlockPos p = pos.offset(fc);
+							Block bl = w.getBlockState(p).getBlock();
+
+							boolean canBePlaced = false;
+
+							if (!(bl instanceof FBPAnimationDummyBlock)) {
+								if (bl.isSideSolid(bl.getDefaultState(), w, pos, fc)) {
+									canBePlaced = true;
+								}
+							}
+
+							if (!canBePlaced)
+								return;
+						}
+					}
 				}
 
+				if (stateForPlacement.getBlock().canReplace(w, pos.offset(facing.getOpposite()), facing, itemStack)) {
+					try {
+						if (stateForPlacement.getBlock() != clickedBlockState.getBlock()
+								&& clickedBlockState.getBlock().isReplaceable(w, pos.offset(facing.getOpposite()))) {
+							pos = pos.offset(facing.getOpposite());
+						}
+					} catch (Throwable t) {
+
+					}
+				}
+				
+				stateForPlacement = stateForPlacement.getActualState(w, pos);
+/*
+				IBlockState snowLayer = null;
+				boolean snowLayerChanges = false;
+
+				
+
+				if (b == Blocks.SNOW_LAYER) {
+					boolean layerInFront = stateAtPos.getBlock() == Blocks.SNOW_LAYER;
+					boolean layerClicked = clickedBlockState.getBlock() == Blocks.SNOW_LAYER;
+					
+						IProperty<Integer> iproperty = BlockSnow.LAYERS;
+						int l = snowLayer.getValue(iproperty);
+
+						if (l < 8) {
+							
+							
+							
+						}
+							boolean canEditFromSide = l == 1;
+
+							if (!canEditFromSide && facing != EnumFacing.UP) {
+								if (stateAtPos.getBlock() != Blocks.SNOW_LAYER
+										&& !stateAtPos.getBlock().isReplaceable(w, pos)
+										|| (snowLayer != clickedBlockState && snowLayer.getBlock() != Blocks.SNOW_LAYER
+												&& (snowLayer.getValue(iproperty) == 8)))
+									return;
+							}
+
+							if (snowLayer == stateAtPos || clickedBlockState.getBlock().isReplaceable(w, pos.offset(facing.getOpposite()))) {
+								stateForPlacement = stateAtPos.withProperty(iproperty, ++l);
+								snowLayerChanges = true;
+							} else if (facing == EnumFacing.UP) {
+								stateForPlacement = snowLayer.withProperty(iproperty, ++l);
+								snowLayerChanges = true;
+							}
+
+							if ((snowLayer == clickedBlockState 
+									&& facing == EnumFacing.UP)
+									|| (!clickedBlockState.getBlock().isReplaceable(w, pos.offset(facing.getOpposite()))
+									&& snowLayer == stateAtPos))
+								pos = pos.offset(facing.getOpposite()); // edit the block clicked
+						
+					}
+				}
+				}*/
+				long seed = MathHelper.getPositionRandom(pos);
+
 				if ((b.canPlaceBlockAt(w, pos) || becomesDoubleSlab) && !bb1.intersectsWith(bb2)
-						&& FBP.canBlockBeAnimated(bs.getBlock())) {
-					FBPBlockPlaceAnimationDummyParticle p = new FBPBlockPlaceAnimationDummyParticle(mc.theWorld,
-							pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, bs, e.getEntityPlayer(), seed);
+						&& FBP.canBlockBeAnimated(stateForPlacement.getBlock())) {
+					FBPAnimationParticle p = new FBPAnimationParticle(mc.theWorld, pos.getX() + 0.5f, pos.getY() + 0.5f,
+							pos.getZ() + 0.5f, stateForPlacement, e.getEntityPlayer(), seed);
 
 					mc.effectRenderer.addEffect(p);
 				}
 			}
 		}
+
 	}
 
 	boolean canBlockBePlaced(EntityPlayer plr, World w, BlockPos pos, EnumFacing fc, EnumHand hand, Result getUseBlock,
@@ -210,6 +376,11 @@ public class FBPEventHandler {
 
 			IBlockState iblockstate = w.getBlockState(pos);
 
+			if (iblockstate.getBlock() == FBP.FBPBlock) {
+				if (node != null)
+					iblockstate = node.state;
+			}
+
 			boolean bypass = true;
 			for (ItemStack s : new ItemStack[] { plr.getHeldItemMainhand(), plr.getHeldItemOffhand() })
 				bypass = bypass && (s == null || s.getItem().doesSneakBypassUse(s, w, pos, plr));
@@ -218,8 +389,10 @@ public class FBPEventHandler {
 				if (getUseBlock != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
 					flag = iblockstate.getBlock().onBlockActivated(w, pos, iblockstate, plr, hand, stack, fc, f, f1,
 							f2);
+
 				if (flag)
-					return !(iblockstate.getBlock() instanceof BlockCommandBlock);
+					return (iblockstate.getBlock() instanceof BlockFence
+							|| iblockstate.getBlock() instanceof BlockStructure);
 			}
 
 			if (!flag && stack != null && stack.getItem() instanceof ItemBlock) {

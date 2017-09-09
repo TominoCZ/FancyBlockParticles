@@ -11,6 +11,7 @@
 	<list key="SearchScopeActionGroup.working_set">
 	</list>
 	<section name="org.eclipse.ltk.ui.refactoring.settings">
+		<item value="true" key="renameSubpackages"/>
 		<item value="false" key="updateQualifiedNames"/>
 		<item value="*" key="patterns"/>
 		<item value="false" key="updateSimilarElements"/>
@@ -72,6 +73,8 @@
 	<section name="completion_proposal_size">
 		<item value="420" key="size.y"/>
 		<item value="755" key="size.x"/>
+		<item value="221" key="contextSelector.size.y"/>
+		<item value="331" key="contextSelector.size.x"/>
 	</section>
 	<section name="JavaElementSearchActions">
 	</section>

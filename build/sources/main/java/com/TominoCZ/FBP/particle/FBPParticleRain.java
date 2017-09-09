@@ -1,22 +1,22 @@
 package com.TominoCZ.FBP.particle;
 
-import java.util.Random;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleRain;
+import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
@@ -24,16 +24,23 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import scala.reflect.internal.Trees.ThisSubstituter;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleRain extends ParticleRain {
+public class FBPParticleRain extends ParticleDigging {
 	private final IBlockState sourceState;
 
 	Minecraft mc;
 
-	double scaleAlpha, prevParticleScale, prevParticleAlpha;
+	double particleHeight;
+
+	double scaleAlpha, prevParticleScale, prevParticleHeight, prevParticleAlpha;
+
+	double angleX, angleY, angleZ, prevAngleX, prevAngleY, prevAngleZ, randomXd, randomYd, randomZd;
 
 	boolean modeDebounce = false;
+	
+	double scaleMult = 1.45;
 
 	double endMult = 1;
 
@@ -41,41 +48,42 @@ public class FBPParticleRain extends ParticleRain {
 
 	float brightness = 1;
 
-	Vec3d[] cube;
-
-	Vec2f par;
-
+	Vec2f[] par;
+	
 	public FBPParticleRain(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
 			double ySpeedIn, double zSpeedIn, IBlockState state) {
-		super(worldIn, xCoordIn, yCoordIn, zCoordIn);
+		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, state);
+
+		try {
+			FBP.setSourcePos.invokeExact((ParticleDigging) this, new BlockPos(xCoordIn, yCoordIn, zCoordIn));
+		} catch (Throwable e1) {
+			e1.printStackTrace();
+		}
+
+		angleY = FBP.random.nextDouble() * 45;
 
 		this.motionX = xSpeedIn;
-		this.motionY = ySpeedIn;
+		this.motionY = -ySpeedIn;
 		this.motionZ = zSpeedIn;
-		this.particleGravity = 1.125f;
+
+		this.particleGravity = 0.025f;
 		sourceState = state;
 
 		mc = Minecraft.getMinecraft();
 		this.particleTexture = mc.getBlockRendererDispatcher().getModelForState(state).getParticleTexture();
 
-		particleScale *= FBP.scaleMult * 2.0F;
-		particleMaxAge = (int) FBP.random.nextDouble(10, 13);
-		this.particleRed = this.particleGreen = this.particleBlue = 0.7F + (0.25F * mc.gameSettings.gammaSetting);
-
+		particleMaxAge = (int) FBP.random.nextDouble(95, 115);
+		
+		//this.particleRed = 0.35f;
+		//this.particleGreen = 0.65f;
+		//this.particleBlue = 1;
+		
 		scaleAlpha = particleScale * 0.75;
 
-		AngleY = rand.nextFloat() * 80;
+		this.particleAlpha = 0f;
+		this.particleScale = 0f;
 
-		cube = new Vec3d[FBP.CUBE.length];
-
-		for (int i = 0; i < FBP.CUBE.length; i++) {
-			Vec3d vec = FBP.CUBE[i];
-			cube[i] = rotatef(vec, 0, AngleY, 0);
-		}
-
-		particleMaxAge = 13;
-
-		particleAlpha = 0.5f;
+		this.canCollide = true;
 	}
 
 	@Override
@@ -103,38 +111,120 @@ public class FBPParticleRain extends ParticleRain {
 
 	@Override
 	public void onUpdate() {
+		prevAngleX = angleX;
+		prevAngleY = angleY;
+		prevAngleZ = angleZ;
+
 		prevPosX = posX;
 		prevPosY = posY;
 		prevPosZ = posZ;
 
 		prevParticleAlpha = particleAlpha;
 		prevParticleScale = particleScale;
+		prevParticleHeight = particleHeight;
 
 		if (!mc.isGamePaused()) {
 			particleAge++;
 
-			if (this.particleAge >= this.particleMaxAge) {
-				if (FBP.randomFadingSpeed)
-					particleScale *= 0.75F * endMult;
-				else
-					particleScale *= 0.75F;
+			if (this.particleAge < this.particleMaxAge) {
+				if (!isCollided) {
+					if (particleScale < FBP.scaleMult * 1.5f) {
+						if (FBP.randomFadingSpeed)
+							particleScale += 0.75F * endMult;
+						else
+							particleScale += 0.75F;
 
-				if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
+						if (particleScale > 1)
+							particleScale = 1;
+
+						particleHeight = particleScale;
+					}
+
+					if (particleAlpha < 0.625f) {
+						if (FBP.randomFadingSpeed)
+							particleAlpha += 0.085F * endMult;
+						else
+							particleAlpha += 0.085F;
+
+						if (particleAlpha > 0.625f)
+							particleAlpha = 0.625f;
+					}
+				}
+			} else
+				setExpired();
+
+			motionY -= 0.04D * (double) this.particleGravity;
+
+			moveEntity(motionX, motionY, motionZ);
+
+			motionY *= 1.00025000190734863D;
+
+			if (isCollided) {
+				motionX = 0;
+				motionY = -0.25f;
+				motionZ = 0;
+
+				if (particleHeight > 0.075f)
+					particleHeight *= 0.875f;
+
+				if (particleScale < FBP.scaleMult * 4.5f) {
+					particleScale *= scaleMult;
+					
+					if (scaleMult > 1)
+						scaleMult *= 0.95;
+					if (scaleMult < 1)
+						scaleMult = 1;
+				}
+				
+				if (particleScale >= FBP.scaleMult * 2) {
 					if (FBP.randomFadingSpeed)
 						particleAlpha *= 0.65F * endMult;
 					else
 						particleAlpha *= 0.65F;
 				}
 
-				if (particleAlpha <= 0.01)
+				if (particleAlpha <= 0.001f)
 					setExpired();
 			}
+		}
+		
+		Vec3d rgb = mc.theWorld.getSkyColor(mc.thePlayer, mc.getRenderPartialTicks());
+		
+		this.particleRed = (float) rgb.xCoord;
+		this.particleGreen = (float) rgb.yCoord * 1.5f;
+		this.particleBlue = (float) rgb.zCoord * 1.75f;
+	}
 
-			motionY -= 0.04D * (double) this.particleGravity;
-			moveEntity(motionX, motionY, motionZ);
-			motionX *= 0.7800000190734863D;
-			motionY *= 0.7800000190734863D;
-			motionZ *= 0.7800000190734863D;
+	@Override
+	public void moveEntity(double x, double y, double z) {
+		double X = x;
+		double Y = y;
+		double Z = z;
+		double d0 = y;
+
+		if (this.canCollide) {
+			List<AxisAlignedBB> list = this.worldObj.getCollisionBoxes(null,
+					this.getEntityBoundingBox().addCoord(x, y, z));
+
+			for (AxisAlignedBB aabb : list) {
+				x = aabb.calculateXOffset(this.getEntityBoundingBox(), x);
+				y = aabb.calculateYOffset(this.getEntityBoundingBox(), y);
+				z = aabb.calculateZOffset(this.getEntityBoundingBox(), z);
+			}
+
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
+		} else
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
+
+		this.resetPositionToBB();
+
+		this.isCollided = y != Y && d0 < 0.0D;
+
+		if (!FBP.rollParticles && !FBP.bounceOffWalls) {
+			if (x != X)
+				motionX *= 0.699999988079071D;
+			if (z != Z)
+				motionZ *= 0.699999988079071D;
 		}
 	}
 
@@ -142,13 +232,23 @@ public class FBPParticleRain extends ParticleRain {
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
-		if (FBPKeyBindings.FBPSweep.isKeyDown()) {
-			this.isExpired = true;
-			return;
-		}
 
-		float f = particleTexture.getInterpolatedU((double) ((0.1f + 1) / 4 * 16));
-		float f1 = particleTexture.getInterpolatedV((double) ((0.1f + 1) / 4 * 16));
+		float f = 0, f1 = 0, f2 = 0, f3 = 0;
+
+		if (particleTexture != null) {
+			if (!FBP.cartoonMode) {
+				f = particleTexture.getInterpolatedU((double) (particleTextureJitterX / 4 * 16));
+				f2 = particleTexture.getInterpolatedV((double) (particleTextureJitterY / 4 * 16));
+			}
+
+			f1 = particleTexture.getInterpolatedU((double) ((particleTextureJitterX + 1) / 4 * 16));
+			f3 = particleTexture.getInterpolatedV((double) ((particleTextureJitterY + 1) / 4 * 16));
+		} else {
+			f = ((float) particleTextureIndexX + particleTextureJitterX / 4) / 16;
+			f1 = f + 0.015609375F;
+			f2 = ((float) particleTextureIndexY + particleTextureJitterY / 4) / 16;
+			f3 = f2 + 0.015609375F;
+		}
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * (double) partialTicks - interpPosX);
 		float f6 = (float) (prevPosY + (posY - prevPosY) * (double) partialTicks - interpPosY) + 0.01275F;
@@ -160,51 +260,66 @@ public class FBPParticleRain extends ParticleRain {
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
+		float height = (float) (prevParticleHeight + (particleHeight - prevParticleHeight) * partialTicks);
 
+		
 		// RENDER
 		GlStateManager.enableCull();
 		GlStateManager.enableBlend();
 		GlStateManager.enableAlpha();
-
-		par = new Vec2f(f, f1);
+		
+		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
 		worldRendererIn.setTranslation(f5, f6, f7);
-		putCube(worldRendererIn, f4 / 80, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue, alpha);
+		putCube(worldRendererIn, f4 / 20, height / 20, 0, angleY, 0, i >> 16 & 65535,
+				i & 65535, particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
+
 		worldRendererIn.setTranslation(0, 0, 0);
 	}
 
-	public void putCube(VertexBuffer buff, double scale, int j, int k, float r, float g, float b, float a) {
-		brightness = 1f;
+	public void putCube(VertexBuffer buff, double width, double height, double rotX, double rotY, double rotZ, int j,
+			int k, float r, float g, float b, float a, boolean cartoon) {
+		brightness = 1;
 
 		float R = 0;
 		float G = 0;
 		float B = 0;
 
-		for (int i = 0; i < cube.length; i += 4) {
-			Vec3d v1 = cube[i];
-			Vec3d v2 = cube[i + 1];
-			Vec3d v3 = cube[i + 2];
-			Vec3d v4 = cube[i + 3];
+		for (int i = 0; i < FBP.CUBE.length; i += 4) {
+			Vec3d v1 = FBP.CUBE[i];
+			Vec3d v2 = FBP.CUBE[i + 1];
+			Vec3d v3 = FBP.CUBE[i + 2];
+			Vec3d v4 = FBP.CUBE[i + 3];
+
+			v1 = rotatef(v1, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
+			v2 = rotatef(v2, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
+			v3 = rotatef(v3, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
+			v4 = rotatef(v4, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
 
 			R = r * brightness;
 			G = g * brightness;
 			B = b * brightness;
 
-			brightness *= 0.875;
+			brightness *= 0.935;
 
-			addVt(buff, scale, v1, par.x, par.y, j, k, R, G, B, a);
-			addVt(buff, scale, v2, par.x, par.y, j, k, R, G, B, a);
-			addVt(buff, scale, v3, par.x, par.y, j, k, R, G, B, a);
-			addVt(buff, scale, v4, par.x, par.y, j, k, R, G, B, a);
+			if (!cartoon) {
+				addVt(buff, width, height, v1, par[0].x, par[0].y, j, k, R, G, B, a);
+				addVt(buff, width, height, v2, par[1].x, par[1].y, j, k, R, G, B, a);
+				addVt(buff, width, height, v3, par[2].x, par[2].y, j, k, R, G, B, a);
+				addVt(buff, width, height, v4, par[3].x, par[3].y, j, k, R, G, B, a);
+			} else {
+				addVt(buff, width, height, v1, par[0].x, par[0].y, j, k, R, G, B, a);
+				addVt(buff, width, height, v2, par[0].x, par[0].y, j, k, R, G, B, a);
+				addVt(buff, width, height, v3, par[0].x, par[0].y, j, k, R, G, B, a);
+				addVt(buff, width, height, v4, par[0].x, par[0].y, j, k, R, G, B, a);
+			}
 		}
 	}
 
-	private void addVt(VertexBuffer buff, double scale, Vec3d pos, double u, double v, int j, int k, float r, float g,
-			float b, float a) { // add vertex to buffer
-		buff.pos(pos.xCoord * scale, pos.yCoord * scale * 0.85, pos.zCoord * scale).tex(u, v).color(0, 0, b, a)
-				// .normal((float) normal.xCoord, (float) normal.yCoord, (float)
-				// normal.zCoord)
-				.lightmap(j, k).endVertex();
+	private void addVt(VertexBuffer buff, double width, double height, Vec3d pos, double u, double v, int j, int k,
+			float r, float g, float b, float a) {
+		buff.pos(pos.xCoord * width, pos.yCoord * height, pos.zCoord * width).tex(u, v).color(r, g, b, a).lightmap(j, k)
+				.endVertex();
 	}
 
 	Vec3d rotatef(Vec3d vec, float AngleX, float AngleY, float AngleZ) {
@@ -235,14 +350,5 @@ public class FBPParticleRain extends ParticleRain {
 		}
 
 		return i == 0 ? j : i;
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static class Factory implements IParticleFactory {
-		public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn,
-				double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_) {
-			return (new FBPParticleRain(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn,
-					Blocks.AIR.getDefaultState()));
-		}
 	}
 }

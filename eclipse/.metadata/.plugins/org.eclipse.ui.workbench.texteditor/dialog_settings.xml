@@ -2,12 +2,18 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="EnableSnow" key="selection"/>
+		<item value="ItemUse" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="Itemuse"/>
+			<item value="Item"/>
+			<item value="item"/>
+			<item value="FBP.last"/>
+			<item value="canPlaceBlockAt"/>
+			<item value="this.random"/>
 			<item value="enableSnow"/>
 			<item value="snow"/>
 			<item value="getSnowEnabled()"/>
@@ -17,14 +23,9 @@
 			<item value=" public IBlockState"/>
 			<item value="hooks"/>
 			<item value="smooth"/>
-			<item value="close"/>
-			<item value="block¨"/>
-			<item value="block"/>
-			<item value="drawEntityOnScreen"/>
-			<item value="item"/>
-			<item value="Setting"/>
 		</list>
 		<list key="replacehistory">
+			<item value="world.rand"/>
 			<item value=""/>
 			<item value="randomRotation"/>
 		</list>

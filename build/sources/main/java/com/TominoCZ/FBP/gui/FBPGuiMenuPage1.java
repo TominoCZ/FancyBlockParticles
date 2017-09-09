@@ -10,7 +10,7 @@ import javax.vecmath.Vector2d;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
-import com.TominoCZ.FBP.math.FBPMathHelper;
+import com.TominoCZ.FBP.util.FBPMathUtil;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -137,22 +137,22 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 			FBP.maxAge -= 5;
 			break;
 		case 5:
-			FBP.scaleMult = FBPMathHelper.round(FBP.scaleMult += 0.05D, 2);
+			FBP.scaleMult = FBPMathUtil.round(FBP.scaleMult += 0.05D, 2);
 			break;
 		case 6:
-			FBP.scaleMult = FBPMathHelper.round(FBP.scaleMult -= 0.05D, 2);
+			FBP.scaleMult = FBPMathUtil.round(FBP.scaleMult -= 0.05D, 2);
 			break;
 		case 7:
-			FBP.gravityMult = FBPMathHelper.round(FBP.gravityMult += 0.1D, 1);
+			FBP.gravityMult = FBPMathUtil.round(FBP.gravityMult += 0.1D, 1);
 			break;
 		case 8:
-			FBP.gravityMult = FBPMathHelper.round(FBP.gravityMult -= 0.1D, 1);
+			FBP.gravityMult = FBPMathUtil.round(FBP.gravityMult -= 0.1D, 1);
 			break;
 		case 9:
-			FBP.rotationMult = FBPMathHelper.round(FBP.rotationMult += 0.1D, 1);
+			FBP.rotationMult = FBPMathUtil.round(FBP.rotationMult += 0.1D, 1);
 			break;
 		case 10:
-			FBP.rotationMult = FBPMathHelper.round(FBP.rotationMult -= 0.1D, 1);
+			FBP.rotationMult = FBPMathUtil.round(FBP.rotationMult -= 0.1D, 1);
 			break;
 		case 11:
 			InfiniteDuration.displayString = ((FBP.infiniteDuration = !FBP.infiniteDuration) ? "\u00A7a" : "\u00A7c")
@@ -338,14 +338,14 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 				fontRendererObj.getColorCode('f'));
 
 		this.drawCenteredString(fontRendererObj,
-				"Scale Mult. [\u00A76" + FBPMathHelper.round(FBP.scaleMult, 2) + "\u00A7f]", this.width / 2,
+				"Scale Mult. [\u00A76" + FBPMathUtil.round(FBP.scaleMult, 2) + "\u00A7f]", this.width / 2,
 				ScaleMultMinus.yPosition + 6, fontRendererObj.getColorCode('f'));
 		this.drawCenteredString(fontRendererObj,
-				"Gravity Force Mult. [\u00A76" + FBPMathHelper.round(FBP.gravityMult, 1) + "\u00A7f]", this.width / 2,
+				"Gravity Force Mult. [\u00A76" + FBPMathUtil.round(FBP.gravityMult, 1) + "\u00A7f]", this.width / 2,
 				GravitiyForcePlus.yPosition + 6, fontRendererObj.getColorCode('f'));
 		this.drawCenteredString(fontRendererObj,
 				"Rotation Speed Mult. [\u00A76" + (FBP.rotationMult != 0
-						? String.valueOf(FBPMathHelper.round(FBP.rotationMult, 1)) : FBPGuiHelper.off) + "\u00A7f]",
+						? String.valueOf(FBPMathUtil.round(FBP.rotationMult, 1)) : FBPGuiHelper.off) + "\u00A7f]",
 				this.width / 2, RotSpeedPlus.yPosition + 6, fontRendererObj.getColorCode('f'));
 	}
 

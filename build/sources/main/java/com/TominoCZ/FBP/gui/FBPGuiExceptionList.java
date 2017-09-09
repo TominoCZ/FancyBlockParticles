@@ -82,9 +82,11 @@ public class FBPGuiExceptionList extends GuiScreen {
 			ID = Integer.parseInt(search.getText());
 
 			if (keyCode == 200 && ID < Integer.MAX_VALUE - 1)
-				search.setText((ID = ID + 1) + "");
+				search.setText(++ID + "");
 			else if (keyCode == 208 && ID > 0)
-				search.setText((ID = ID - 1) + "");
+				search.setText(--ID + "");
+			
+			FBP.lastIDAdded = ID;
 		} catch (Exception e) {
 
 		}
@@ -167,7 +169,7 @@ public class FBPGuiExceptionList extends GuiScreen {
 		switch (button.id) {
 		case 1:
 			if (!FBP.blockExceptions.contains(ID))
-				FBP.blockExceptions.add(FBP.lastIDAdded = ID);
+				FBP.blockExceptions.add(ID);
 
 			FBPConfigHandler.writeExceptions();
 			break;

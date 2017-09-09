@@ -1,33 +1,34 @@
-[04:11:30] [Client thread/INFO]: Setting user: Player500
-[04:11:37] [Client thread/INFO]: LWJGL Version: 2.9.4
-[04:11:44] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Fancy Block Particles
-[04:11:49] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[04:11:49] [Thread-8/INFO]: Initializing LWJGL OpenAL
-[04:11:49] [Thread-8/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[04:11:49] [Thread-8/INFO]: OpenAL initialized.
-[04:11:49] [Sound Library Loader/INFO]: Sound engine started
-[04:11:55] [Client thread/INFO]: Created: 16x16 textures-atlas
-[04:11:58] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Fancy Block Particles
-[04:12:02] [Client thread/INFO]: SoundSystem shutting down...
-[04:12:02] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
-[04:12:02] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[04:12:02] [Thread-10/INFO]: Initializing LWJGL OpenAL
-[04:12:02] [Thread-10/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[04:12:02] [Thread-10/INFO]: OpenAL initialized.
-[04:12:02] [Sound Library Loader/INFO]: Sound engine started
-[04:12:07] [Client thread/INFO]: Created: 512x512 textures-atlas
-[04:12:17] [Server thread/INFO]: Starting integrated minecraft server version 1.10.2
-[04:12:17] [Server thread/INFO]: Generating keypair
-[04:12:18] [Server thread/INFO]: Preparing start region for level 0
-[04:12:19] [Server thread/INFO]: Changing view distance to 2, from 10
-[04:12:20] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
-[04:12:21] [Server thread/INFO]: ILikeMyMommy[local:E:106938ab] logged in with entity id 26 at (431.0854365922043, 4.0, -1352.6505681592123)
-[04:12:21] [Server thread/INFO]: ILikeMyMommy joined the game
-[04:12:21] [Server thread/INFO]: Saving and pausing game...
-[04:12:22] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:12:22] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:12:22] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:12:22] [pool-2-thread-1/WARN]: Couldn't look up profile properties for com.mojang.authlib.GameProfile@54ab9b33[id=e48721c3-c918-3321-a62c-50c74b04ccdf,name=ILikeMyMommy,properties={},legacy=false]
+[01:10:55] [Client thread/INFO]: Setting user: Player796
+[01:11:08] [Client thread/INFO]: LWJGL Version: 2.9.4
+[01:11:17] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Fancy Block Particles
+[01:11:24] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[01:11:24] [Thread-8/INFO]: Initializing LWJGL OpenAL
+[01:11:24] [Thread-8/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[01:11:25] [Thread-8/INFO]: OpenAL initialized.
+[01:11:25] [Sound Library Loader/INFO]: Sound engine started
+[01:11:35] [Client thread/INFO]: Created: 16x16 textures-atlas
+[01:11:40] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Fancy Block Particles
+[01:11:44] [Client thread/INFO]: SoundSystem shutting down...
+[01:11:45] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[01:11:45] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[01:11:45] [Thread-10/INFO]: Initializing LWJGL OpenAL
+[01:11:45] [Thread-10/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[01:11:45] [Thread-10/INFO]: OpenAL initialized.
+[01:11:45] [Sound Library Loader/INFO]: Sound engine started
+[01:11:52] [Client thread/INFO]: Created: 512x512 textures-atlas
+[01:12:07] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[01:12:21] [Server thread/INFO]: Starting integrated minecraft server version 1.10.2
+[01:12:21] [Server thread/INFO]: Generating keypair
+[01:12:24] [Server thread/INFO]: Preparing start region for level 0
+[01:12:25] [Server thread/INFO]: Preparing spawn area: 30%
+[01:12:25] [Server thread/INFO]: Changing view distance to 2, from 10
+[01:12:28] [Server thread/INFO]: ILikeMyMommy[local:E:c3e2ec56] logged in with entity id 29 at (455.49815500425836, 4.0, -1262.2291966388325)
+[01:12:28] [Server thread/INFO]: ILikeMyMommy joined the game
+[01:12:29] [Server thread/INFO]: Saving and pausing game...
+[01:12:30] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:12:30] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:12:30] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:12:31] [pool-2-thread-1/WARN]: Couldn't look up profile properties for com.mojang.authlib.GameProfile@30101eef[id=e48721c3-c918-3321-a62c-50c74b04ccdf,name=ILikeMyMommy,properties={},legacy=false]
 com.mojang.authlib.exceptions.AuthenticationException: The client has sent too many requests within a certain amount of time
 	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:65) ~[YggdrasilAuthenticationService.class:?]
 	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillGameProfile(YggdrasilMinecraftSessionService.java:175) [YggdrasilMinecraftSessionService.class:?]
@@ -49,72 +50,57 @@ com.mojang.authlib.exceptions.AuthenticationException: The client has sent too m
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source) [?:1.8.0_144]
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source) [?:1.8.0_144]
 	at java.lang.Thread.run(Unknown Source) [?:1.8.0_144]
-[04:12:25] [Server thread/INFO]: Saving and pausing game...
-[04:12:25] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:12:25] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:12:25] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:12:32] [Server thread/INFO]: [ILikeMyMommy: Toggled downfall]
-[04:12:32] [Client thread/INFO]: [CHAT] Toggled downfall
-[04:12:35] [Server thread/INFO]: Saving and pausing game...
-[04:12:35] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:12:35] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:12:35] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:12:38] [Server thread/INFO]: Saving and pausing game...
-[04:12:38] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:12:38] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:12:38] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:12:43] [Server thread/INFO]: Saving and pausing game...
-[04:12:43] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:12:43] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:12:43] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:12:43] [Server thread/INFO]: Stopping server
-[04:12:43] [Server thread/INFO]: Saving players
-[04:12:44] [Server thread/INFO]: Saving worlds
-[04:12:44] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:12:44] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:12:44] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:13:01] [Server thread/INFO]: Starting integrated minecraft server version 1.10.2
-[04:13:01] [Server thread/INFO]: Generating keypair
-[04:13:01] [Server thread/INFO]: Preparing start region for level 0
-[04:13:02] [Server thread/INFO]: Changing view distance to 2, from 10
-[04:13:02] [Server thread/INFO]: ILikeMyMommy[local:E:389f2fc9] logged in with entity id 9822 at (431.3622056604608, 4.0, -1349.6566954501561)
-[04:13:02] [Server thread/INFO]: ILikeMyMommy joined the game
-[04:13:03] [Server thread/INFO]: Saving and pausing game...
-[04:13:03] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:13:03] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:13:03] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:13:04] [Server thread/INFO]: Saving and pausing game...
-[04:13:04] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:13:04] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:13:04] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:13:05] [Server thread/INFO]: Stopping server
-[04:13:05] [Server thread/INFO]: Saving players
-[04:13:05] [Server thread/INFO]: Saving worlds
-[04:13:05] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:13:05] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:13:05] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:13:10] [Server thread/INFO]: Starting integrated minecraft server version 1.10.2
-[04:13:10] [Server thread/INFO]: Generating keypair
-[04:13:10] [Server thread/INFO]: Preparing start region for level 0
-[04:13:11] [Server thread/INFO]: Preparing spawn area: 36%
-[04:13:12] [Server thread/INFO]: Preparing spawn area: 95%
-[04:13:12] [Server thread/INFO]: Changing view distance to 2, from 10
-[04:13:13] [Server thread/INFO]: ILikeMyMommy[local:E:b6df5ae9] logged in with entity id 11425 at (-232.877347112444, 73.87040771775065, 462.42762603796103)
-[04:13:13] [Server thread/INFO]: ILikeMyMommy joined the game
-[04:13:14] [Server thread/INFO]: Saving and pausing game...
-[04:13:14] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:13:14] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:13:14] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:19:31] [Client thread/INFO]: Stopping!
-[04:19:32] [Client thread/INFO]: SoundSystem shutting down...
-[04:19:32] [Server thread/INFO]: Stopping server
-[04:19:32] [Server thread/INFO]: Saving players
-[04:19:32] [Server thread/INFO]: Saving worlds
-[04:19:32] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[04:19:32] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[04:19:32] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[04:19:32] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
-[04:19:32] [Client Shutdown Thread/INFO]: Stopping server
-[04:19:32] [Client Shutdown Thread/INFO]: Saving players
-[04:19:32] [Client Shutdown Thread/INFO]: Saving worlds
-[04:19:32] [Client Shutdown Thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:12:38] [Server thread/INFO]: Saving and pausing game...
+[01:12:38] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:12:38] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:12:38] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:16:31] [Server thread/INFO]: [ILikeMyMommy: Set the time to 600]
+[01:16:31] [Client thread/INFO]: [CHAT] Set the time to 600
+[01:18:56] [Server thread/INFO]: Saving and pausing game...
+[01:18:56] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:18:56] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:18:56] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:20:34] [Server thread/INFO]: Saving and pausing game...
+[01:20:34] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:20:34] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:20:34] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:21:36] [Server thread/INFO]: Saving and pausing game...
+[01:21:36] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:21:36] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:21:36] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:24:42] [Server thread/INFO]: Saving and pausing game...
+[01:24:42] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:24:42] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:24:42] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:25:06] [Server thread/INFO]: Saving and pausing game...
+[01:25:06] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:25:06] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:25:06] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:25:09] [Thread-10/ERROR]: Error in class 'LibraryLWJGLOpenAL'
+[01:25:09] [Thread-10/ERROR]: Source '4703303f-05c7-4a66-9afb-2681123fe97d' not found in method 'play'
+[01:25:17] [Server thread/INFO]: Saving and pausing game...
+[01:25:17] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:25:17] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:25:17] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:26:04] [Server thread/INFO]: Saving and pausing game...
+[01:26:04] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:26:04] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:26:04] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:26:23] [Server thread/INFO]: Saving and pausing game...
+[01:26:23] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:26:23] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:26:23] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:27:17] [Server thread/INFO]: [ILikeMyMommy: Set the time to 600]
+[01:27:17] [Client thread/INFO]: [CHAT] Set the time to 600
+[01:30:28] [Client thread/INFO]: Stopping!
+[01:30:28] [Client thread/INFO]: SoundSystem shutting down...
+[01:30:28] [Server thread/INFO]: Stopping server
+[01:30:28] [Server thread/INFO]: Saving players
+[01:30:28] [Server thread/INFO]: Saving worlds
+[01:30:28] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:30:28] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:30:28] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:30:28] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[01:30:29] [Client Shutdown Thread/INFO]: Stopping server
+[01:30:29] [Client Shutdown Thread/INFO]: Saving players
+[01:30:29] [Client Shutdown Thread/INFO]: Saving worlds

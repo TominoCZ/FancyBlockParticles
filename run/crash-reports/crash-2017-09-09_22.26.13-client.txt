@@ -1,0 +1,123 @@
+---- Minecraft Crash Report ----
+// This doesn't make any sense!
+
+Time: 9/9/17 10:26 PM
+Description: Unexpected error
+
+java.lang.IllegalArgumentException: Cannot get property PropertyInteger{name=layers, clazz=class java.lang.Integer, values=[1, 2, 3, 4, 5, 6, 7, 8]} as it does not exist in BlockStateContainer{block=minecraft:air, properties=[]}
+	at net.minecraft.block.state.BlockStateContainer$StateImplementation.getValue(BlockStateContainer.java:199)
+	at net.minecraft.block.BlockSnow.isReplaceable(BlockSnow.java:168)
+	at com.TominoCZ.FBP.handler.FBPEventHandler.onInteractionEvent(FBPEventHandler.java:221)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_8_FBPEventHandler_onInteractionEvent_RightClickBlock.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:90)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:185)
+	at net.minecraftforge.common.ForgeHooks.onRightClickBlock(ForgeHooks.java:1026)
+	at net.minecraft.client.multiplayer.PlayerControllerMP.processRightClickBlock(PlayerControllerMP.java:419)
+	at net.minecraft.client.Minecraft.rightClickMouse(Minecraft.java:1603)
+	at net.minecraft.client.Minecraft.processKeyBinds(Minecraft.java:2281)
+	at net.minecraft.client.Minecraft.runTickKeyboard(Minecraft.java:2058)
+	at net.minecraft.client.Minecraft.runTick(Minecraft.java:1846)
+	at net.minecraft.client.Minecraft.runGameLoop(Minecraft.java:1118)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:406)
+	at net.minecraft.client.main.Main.main(Main.java:118)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at net.minecraft.launchwrapper.Launch.launch(Launch.java:135)
+	at net.minecraft.launchwrapper.Launch.main(Launch.java:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at net.minecraftforge.gradle.GradleStartCommon.launch(GradleStartCommon.java:97)
+	at GradleStart.main(GradleStart.java:26)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Client thread
+Stacktrace:
+	at net.minecraft.block.state.BlockStateContainer$StateImplementation.getValue(BlockStateContainer.java:199)
+	at net.minecraft.block.BlockSnow.isReplaceable(BlockSnow.java:168)
+	at com.TominoCZ.FBP.handler.FBPEventHandler.onInteractionEvent(FBPEventHandler.java:221)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_8_FBPEventHandler_onInteractionEvent_RightClickBlock.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:90)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:185)
+	at net.minecraftforge.common.ForgeHooks.onRightClickBlock(ForgeHooks.java:1026)
+	at net.minecraft.client.multiplayer.PlayerControllerMP.processRightClickBlock(PlayerControllerMP.java:419)
+	at net.minecraft.client.Minecraft.rightClickMouse(Minecraft.java:1603)
+	at net.minecraft.client.Minecraft.processKeyBinds(Minecraft.java:2281)
+	at net.minecraft.client.Minecraft.runTickKeyboard(Minecraft.java:2058)
+
+-- Affected level --
+Details:
+	Level name: MpServer
+	All players: 1 total; [EntityPlayerSP['ILikeMyMommy'/252, l='MpServer', x=-127.30, y=69.00, z=-844.30]]
+	Chunk stats: MultiplayerChunkCache: 49, 49
+	Level seed: 0
+	Level generator: ID 00 - default, ver 1. Features enabled: false
+	Level generator options: 
+	Level spawn location: World: (52,64,23), Chunk: (at 4,4,7 in 3,1; contains blocks 48,0,16 to 63,255,31), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,0,0 to 511,255,511)
+	Level time: 368491 game time, 115597 day time
+	Level dimension: 0
+	Level storage version: 0x00000 - Unknown?
+	Level weather: Rain time: 0 (now: true), thunder time: 0 (now: false)
+	Level game mode: Game mode: creative (ID 1). Hardcore: false. Cheats: false
+	Forced entities: 3 total; [EntityPlayerSP['ILikeMyMommy'/252, l='MpServer', x=-127.30, y=69.00, z=-844.30], EntityBat['Bat'/279, l='MpServer', x=-124.81, y=49.10, z=-828.66], EntityBat['Bat'/21939, l='MpServer', x=-131.33, y=48.10, z=-830.32]]
+	Retry entities: 0 total; []
+	Server brand: fml,forge
+	Server type: Integrated singleplayer server
+Stacktrace:
+	at net.minecraft.client.multiplayer.WorldClient.addWorldInfoToCrashReport(WorldClient.java:456)
+	at net.minecraft.client.Minecraft.addGraphicsAndWorldToCrashReport(Minecraft.java:2779)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:435)
+	at net.minecraft.client.main.Main.main(Main.java:118)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at net.minecraft.launchwrapper.Launch.launch(Launch.java:135)
+	at net.minecraft.launchwrapper.Launch.main(Launch.java:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at net.minecraftforge.gradle.GradleStartCommon.launch(GradleStartCommon.java:97)
+	at GradleStart.main(GradleStart.java:26)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.10.2
+	Operating System: Windows 10 (amd64) version 10.0
+	Java Version: 1.8.0_144, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 472729544 bytes (450 MB) / 1038876672 bytes (990 MB) up to 1038876672 bytes (990 MB)
+	JVM Flags: 3 total; -Xincgc -Xmx1024M -Xms1024M
+	IntCache: cache: 1, tcache: 1, allocated: 12, tallocated: 94
+	FML: MCP 9.32 Powered by Forge 12.18.3.2185 4 mods loaded, 4 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+	UCHIJAAAA	mcp{9.19} [Minecraft Coder Pack] (minecraft.jar) 
+	UCHIJAAAA	FML{8.0.99.99} [Forge Mod Loader] (forgeSrc-1.10.2-12.18.3.2185.jar) 
+	UCHIJAAAA	Forge{12.18.3.2185} [Minecraft Forge] (forgeSrc-1.10.2-12.18.3.2185.jar) 
+	UCHIJAAAA	fbp{2.3.0_indev_NON-PUBLIC_RELEASE} [Fancy Block Particles] (bin) 
+	Loaded coremods (and transformers): 
+	GL info: ' Vendor: 'ATI Technologies Inc.' Version: '4.5.13492 Compatibility Profile Context 22.19.673.0' Renderer: 'AMD Radeon R9 200 Series'
+	Launched Version: 1.10.2
+	LWJGL: 2.9.4
+	OpenGL: AMD Radeon R9 200 Series GL version 4.5.13492 Compatibility Profile Context 22.19.673.0, ATI Technologies Inc.
+	GL Caps: Using GL 1.3 multitexturing.
+Using GL 1.3 texture combiners.
+Using framebuffer objects because OpenGL 3.0 is supported and separate blending is supported.
+Shaders are available because OpenGL 2.1 is supported.
+VBOs are available because OpenGL 1.5 is supported.
+
+	Using VBOs: No
+	Is Modded: Definitely; Client brand changed to 'fml,forge'
+	Type: Client (map_client.txt)
+	Resource Packs: 
+	Current Language: English (US)
+	Profiler Position: N/A (disabled)
+	CPU: 4x Intel(R) Core(TM)2 Quad CPU Q6600 @ 2.40GHz

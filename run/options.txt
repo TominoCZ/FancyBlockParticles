@@ -11,7 +11,7 @@ bobView:true
 anaglyph3d:false
 maxFps:260
 fboEnable:true
-difficulty:2
+difficulty:0
 fancyGraphics:false
 ao:0
 renderClouds:false
@@ -30,7 +30,7 @@ enableVsync:true
 useVbo:false
 hideServerAddress:false
 advancedItemTooltips:true
-pauseOnLostFocus:true
+pauseOnLostFocus:false
 touchscreen:false
 overrideWidth:0
 overrideHeight:0
@@ -85,7 +85,7 @@ key_Open Menu:25
 key_Toggle Freeze Effect:19
 key_Enable/Disable:0
 key_Kill Particles:45
-soundCategory_master:0.04304636
+soundCategory_master:0.6192053
 soundCategory_music:0.0
 soundCategory_record:1.0
 soundCategory_weather:1.0
