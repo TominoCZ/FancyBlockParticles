@@ -1,6 +1,5 @@
 package com.TominoCZ.FBP.particle;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -8,6 +7,7 @@ import javax.annotation.Nullable;
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
 import com.TominoCZ.FBP.util.FBPMathUtil;
+import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -17,9 +17,9 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -43,11 +43,16 @@ public class FBPParticleDigging extends ParticleDigging {
 
 	double scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
 
-	double angleX, angleY, angleZ, prevAngleX, prevAngleY, prevAngleZ, randomXd, randomYd, randomZd;
+	// double angleX, angleY, angleZ, prevAngleX, prevAngleY, prevAngleZ;
 
 	boolean modeDebounce = false, wasFrozen = false, destroyed = false;
 
 	boolean spawned = false, dying = false, killToggle = false;
+
+	FBPVector3d rotStep;
+
+	FBPVector3d rot;
+	FBPVector3d prevRot;
 
 	Vec2f[] par;
 
@@ -58,37 +63,22 @@ public class FBPParticleDigging extends ParticleDigging {
 	long tick = 2;
 
 	protected FBPParticleDigging(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
-			double ySpeedIn, double zSpeedIn, IBlockState state, @Nullable EnumFacing facing, float scale) {
+			double ySpeedIn, double zSpeedIn, IBlockState state, @Nullable EnumFacing facing, float scale,
+			@Nullable TextureAtlasSprite texture) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, state);
 		mc = Minecraft.getMinecraft();
-
-		randomXd = FBP.random.nextDouble();
-		randomYd = FBP.random.nextDouble();
-		randomZd = FBP.random.nextDouble();
 
 		try {
 			FBP.setSourcePos.invokeExact((ParticleDigging) this, new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 		} catch (Throwable e1) {
 			e1.printStackTrace();
 		}
+		
+		rot = new FBPVector3d();
+		prevRot = new FBPVector3d();
 
-		double step = FBP.rotationMult * getMult();
-
-		if (randomXd <= 0.5)
-			angleX += step;
-		else
-			angleX -= step;
-
-		if (randomYd <= 0.5)
-			angleY += step;
-		else
-			angleY -= step;
-
-		if (randomZd <= 0.5)
-			angleZ += step;
-		else
-			angleZ -= step;
-
+		createRotationMatrix(FBP.rotationMult * getMult());
+		
 		if (scale > -1)
 			particleScale = scale;
 
@@ -112,7 +102,7 @@ public class FBPParticleDigging extends ParticleDigging {
 		}
 
 		if (modeDebounce = !FBP.randomRotation) {
-			angleX = angleZ = angleY = 0;
+			this.rot.zero();
 			calculateYAngle();
 		}
 
@@ -126,33 +116,36 @@ public class FBPParticleDigging extends ParticleDigging {
 		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
 		this.particleRed = this.particleGreen = this.particleBlue = 0.7F + (0.25F * mc.gameSettings.gammaSetting);
 
-		scaleAlpha = particleScale * 0.75;
+		scaleAlpha = particleScale * 0.9;
 
-		BlockModelShapes blockModelShapes = mc.getBlockRendererDispatcher().getBlockModelShapes();
-		
-		// GET THE TEXTURE OF THE BLOCK FACE
-		if (!(destroyed = (facing == null))) {
-			try {
-				List<BakedQuad> quads = blockModelShapes.getModelForState(state).getQuads(state, facing, 0);
+		if (texture == null) {
+			BlockModelShapes blockModelShapes = mc.getBlockRendererDispatcher().getBlockModelShapes();
 
-				if (quads != null && !quads.isEmpty()) {
-					this.particleTexture = quads.get(0).getSprite();
+			// GET THE TEXTURE OF THE BLOCK FACE
+			if (!(destroyed = (facing == null))) {
+				try {
+					List<BakedQuad> quads = blockModelShapes.getModelForState(state).getQuads(state, facing, 0);
 
-					if (!state.isNormalCube() || (b.equals(Blocks.GRASS) && facing.equals(EnumFacing.UP)))
-						multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
+					if (quads != null && !quads.isEmpty()) {
+						this.particleTexture = quads.get(0).getSprite();
+
+						if (!state.isNormalCube() || (b.equals(Blocks.GRASS) && facing.equals(EnumFacing.UP)))
+							multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
+					}
+				} catch (Exception e) {
 				}
-			} catch (Exception e) {
 			}
-		}
 
-		if (particleTexture == null || particleTexture.getIconName() == "missingno")
-			this.setParticleTexture(blockModelShapes.getTexture(state));
+			if (particleTexture == null || particleTexture.getIconName() == "missingno")
+				this.setParticleTexture(blockModelShapes.getTexture(state));
+		} else
+			this.particleTexture = texture;
 
 		if (!state.isNormalCube())
 			multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 
 		if (FBP.randomFadingSpeed)
-			endMult *= FBP.random.nextDouble(0.925, 1.21);
+			endMult *= FBP.random.nextDouble(0.5, 1);
 	}
 
 	public Particle MultiplyVelocity(float multiplier) {
@@ -200,9 +193,7 @@ public class FBPParticleDigging extends ParticleDigging {
 		prevPosY = posY;
 		prevPosZ = posZ;
 
-		prevAngleX = angleX;
-		prevAngleY = angleY;
-		prevAngleZ = angleZ;
+		prevRot.copyFrom(rot);
 
 		prevParticleAlpha = particleAlpha;
 		prevParticleScale = particleScale;
@@ -215,51 +206,40 @@ public class FBPParticleDigging extends ParticleDigging {
 					if (!modeDebounce) {
 						modeDebounce = true;
 
-						angleZ = 0;
+						rot.z = 0;
 
 						calculateYAngle();
 					}
 
 					if (allowedToMove) {
-						double step = FBP.rotationMult * getMult();
-
-						if (motionX > 0) { // CHANGE ANGLES
+						rotStep.zero();
+						rotStep.add(FBP.rotationMult * getMult());
+						
+						if (motionX > 0) {
 							if (motionZ > 0)
-								angleX -= step;
+								rot.x -= rotStep.x;
 							else if (motionZ < 0)
-								angleX += step;
+								rot.x += rotStep.x;
 						} else if (motionX < 0) {
 							if (motionZ < 0)
-								angleX += step;
+								rot.x += rotStep.x;
 							else if (motionZ > 0) {
-								angleX -= step;
+								rot.x -= rotStep.x;
 							}
 						}
 					}
 				} else {
 					if (modeDebounce) {
 						modeDebounce = false;
-						randomYd = FBP.random.nextDouble();
-						randomZd = FBP.random.nextDouble();
+
+						createRotationMatrix(FBP.rotationMult * getMult());
 					}
 
 					if (allowedToMove) {
-						double step = FBP.rotationMult * getMult();
-
-						if (randomXd <= 0.5)
-							angleX += step;
-						else
-							angleX -= step;
-
-						if (randomYd <= 0.5)
-							angleY += step;
-						else
-							angleY -= step;
-
-						if (randomZd <= 0.5)
-							angleZ += step;
-						else
-							angleZ -= step;
+						rotStep.zero();
+						rotStep.add(FBP.rotationMult * getMult());
+						
+						rot.add(rotStep);
 					}
 				}
 			}
@@ -272,9 +252,9 @@ public class FBPParticleDigging extends ParticleDigging {
 					dying = true;
 
 				if (FBP.randomFadingSpeed)
-					particleScale *= 0.75F * endMult;
+					particleScale *= 0.95F * endMult;
 				else
-					particleScale *= 0.75F;
+					particleScale *= 0.95F;
 
 				if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
 					if (FBP.randomFadingSpeed)
@@ -294,13 +274,10 @@ public class FBPParticleDigging extends ParticleDigging {
 					motionY -= 0.04D * (double) particleGravity;
 
 				if (allowedToMove)
-					moveEntity(motionX, motionY, motionZ, false); // <<-- THIS
+					moveEntity(motionX, motionY, motionZ, false);
 				else
 					moveEntity(0, motionY, 0, true);
-
-				// CAN SET
-				// MOTION
-				// TO ZERO
+				
 				if (MathHelper.abs((float) motionX) > 0.00001D) {
 					prevMotionX = motionX;
 					prevMotionZ = motionZ;
@@ -428,11 +405,7 @@ public class FBPParticleDigging extends ParticleDigging {
 
 		int i = getBrightnessForRender(partialTicks);
 
-		par = new Vec2f[] { 
-				new Vec2f(f1, f3),
-				new Vec2f(f1, f2),
-				new Vec2f(f, f2),
-				new Vec2f(f, f3) };
+		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
 		float alpha = particleAlpha;
 
@@ -443,23 +416,25 @@ public class FBPParticleDigging extends ParticleDigging {
 			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 		}
 
-		double AngleX = 0, AngleY = 0, AngleZ = 0;
+		FBPVector3d smoothRot = new FBPVector3d(0, 0, 0);
 
 		if (FBP.rotationMult > 0) {
-			AngleY = angleY;
-			AngleZ = angleZ;
+			smoothRot.y = rot.y;
+			smoothRot.z = rot.z;
 
 			if (!FBP.randomRotation)
-				AngleX = angleX;
+				smoothRot.x = rot.x;
 
 			// SMOOTH ROTATION
 			if (FBP.smoothTransitions && !FBP.frozen) {
-				if (FBP.randomRotation) {
-					AngleY = prevAngleY + (angleY - prevAngleY) * partialTicks;
+				FBPVector3d vec = rot.partialVec(prevRot, partialTicks);
 
-					AngleZ = prevAngleZ + (angleZ - prevAngleZ) * partialTicks;
-				} else
-					AngleX = prevAngleX + (angleX - prevAngleX) * partialTicks;
+				if (FBP.randomRotation) {
+					smoothRot.y = vec.y;
+					smoothRot.z = vec.z;
+				} else {
+					smoothRot.x = vec.x;
+				}
 			}
 		}
 
@@ -471,19 +446,23 @@ public class FBPParticleDigging extends ParticleDigging {
 		worldRendererIn.setTranslation(f5, f6, f7);
 
 		if (spawned)
-			putCube(worldRendererIn, f4 / 20, (float) AngleX, (float) AngleY, (float) AngleZ, i >> 16 & 65535,
-					i & 65535, particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
+			putCube(worldRendererIn, f4 / 20, smoothRot, i >> 16 & 65535, i & 65535, particleRed, particleGreen,
+					particleBlue, alpha, FBP.cartoonMode);
 
 		worldRendererIn.setTranslation(0, 0, 0);
 	}
 
-	public void putCube(VertexBuffer buff, double scale, double rotX, double rotY, double rotZ, int j, int k, float r,
-			float g, float b, float a, boolean cartoon) {
+	public void putCube(VertexBuffer buff, double scale, FBPVector3d rotVec, int j, int k, float r, float g, float b,
+			float a, boolean cartoon) {
 		brightness = 1;
 
 		float R = 0;
 		float G = 0;
 		float B = 0;
+
+		float radsX = (float) Math.toRadians(rotVec.x);
+		float radsY = (float) Math.toRadians(rotVec.y);
+		float radsZ = (float) Math.toRadians(rotVec.z);
 
 		for (int i = 0; i < FBP.CUBE.length; i += 4) {
 			Vec3d v1 = FBP.CUBE[i];
@@ -491,10 +470,10 @@ public class FBPParticleDigging extends ParticleDigging {
 			Vec3d v3 = FBP.CUBE[i + 2];
 			Vec3d v4 = FBP.CUBE[i + 3];
 
-			v1 = rotatef(v1, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
-			v2 = rotatef(v2, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
-			v3 = rotatef(v3, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
-			v4 = rotatef(v4, (float) Math.toRadians(rotX), (float) Math.toRadians(rotY), (float) Math.toRadians(rotZ));
+			v1 = rotatef(v1, radsX, radsY, radsZ);
+			v2 = rotatef(v2, radsX, radsY, radsZ);
+			v3 = rotatef(v3, radsX, radsY, radsZ);
+			v4 = rotatef(v4, radsX, radsY, radsZ);
 
 			R = r * brightness;
 			G = g * brightness;
@@ -518,29 +497,34 @@ public class FBPParticleDigging extends ParticleDigging {
 
 	private void addVt(VertexBuffer buff, double scale, Vec3d pos, double u, double v, int j, int k, float r, float g,
 			float b, float a) {
-		buff.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a)
-				.lightmap(j, k).endVertex();
+		buff.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a).lightmap(j, k)
+				.endVertex();
 	}
-	
+
 	Vec3d rotatef(Vec3d vec, float AngleX, float AngleY, float AngleZ) {
-		double sinAngleX = MathHelper.sin(AngleX);
-		double sinAngleY = MathHelper.sin(AngleY);
-		double sinAngleZ = MathHelper.sin(AngleZ);
+		FBPVector3d sin = new FBPVector3d(MathHelper.sin(AngleX), MathHelper.sin(AngleY), MathHelper.sin(AngleZ));
+		FBPVector3d cos = new FBPVector3d(MathHelper.cos(AngleX), MathHelper.cos(AngleY), MathHelper.cos(AngleZ));
 
-		double cosAngleX = MathHelper.cos(AngleX);
-		double cosAngleY = MathHelper.cos(AngleY);
-		double cosAngleZ = MathHelper.cos(AngleZ);
-
-		vec = new Vec3d(vec.xCoord, vec.yCoord * cosAngleX - vec.zCoord * sinAngleX,
-				vec.yCoord * sinAngleX + vec.zCoord * cosAngleX);
-		vec = new Vec3d(vec.xCoord * cosAngleY + vec.zCoord * sinAngleY, vec.yCoord,
-				vec.xCoord * sinAngleY - vec.zCoord * cosAngleY);
-		vec = new Vec3d(vec.xCoord * cosAngleZ - vec.yCoord * sinAngleZ,
-				vec.xCoord * sinAngleZ + vec.yCoord * cosAngleZ, vec.zCoord);
-
+		vec = new Vec3d(vec.xCoord, vec.yCoord * cos.x - vec.zCoord * sin.x,
+				vec.yCoord * sin.x + vec.zCoord * cos.x);
+		vec = new Vec3d(vec.xCoord * cos.y + vec.zCoord * sin.y, vec.yCoord,
+				vec.xCoord * sin.y - vec.zCoord * cos.y);
+		vec = new Vec3d(vec.xCoord * cos.z - vec.yCoord * sin.z,
+				vec.xCoord * sin.z + vec.yCoord * cos.z, vec.zCoord);
+		
 		return vec;
 	}
 
+	private void createRotationMatrix(double d) {
+		double rx = FBP.random.nextDouble();
+		double ry = FBP.random.nextDouble();
+		double rz = FBP.random.nextDouble();
+
+		rotStep = new FBPVector3d(rx > 0.5 ? d : -d, ry > 0.5 ? d : -d, rz > 0.5 ? d : -d);
+
+		rot.copyFrom(rotStep);
+	}
+	
 	public int getBrightnessForRender(float p_189214_1_) {
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
@@ -557,7 +541,7 @@ public class FBPParticleDigging extends ParticleDigging {
 		public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn,
 				double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_) {
 			return (new FBPParticleDigging(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn,
-					Block.getStateById(p_178902_15_[0]), null, -1)).init();
+					Block.getStateById(p_178902_15_[0]), null, -1, null)).init();
 		}
 	}
 
@@ -566,14 +550,14 @@ public class FBPParticleDigging extends ParticleDigging {
 
 		if (motionX > 0) {
 			if (motionZ > 0)
-				angleY = -angleSin;
+				rot.y = -angleSin;
 			else
-				angleY = angleSin;
+				rot.y = angleSin;
 		} else {
 			if (motionZ > 0)
-				angleY = -angleSin;
+				rot.y = -angleSin;
 			else
-				angleY = angleSin;
+				rot.y = angleSin;
 		}
 	}
 

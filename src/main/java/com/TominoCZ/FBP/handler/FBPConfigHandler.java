@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -112,11 +110,10 @@ public class FBPConfigHandler {
 	public static void writeExceptions() {
 		try {
 			PrintWriter writer = new PrintWriter(exceptionsFile.getPath(), "UTF-8");
-			for (int i = 0; i < FBP.blockExceptions.size() - 1; i++)
-				writer.println(FBP.blockExceptions.get(i));
 
-			writer.print(FBP.blockExceptions.get(FBP.blockExceptions.size() - 1));
-
+			for (String ex : FBP.INSTANCE.blockExceptions)
+				writer.println(ex);
+			
 			writer.close();
 		} catch (Exception e) {
 			closeStreams();
@@ -213,22 +210,9 @@ public class FBPConfigHandler {
 
 			String line;
 
-			List<Integer> toAdd = new ArrayList<Integer>();
-
 			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line)) {
-				try {
-					int ID = Integer.parseInt(line.replaceAll(" ", ""));
-					toAdd.add(ID);
-				} catch (Exception e) {
-
-				}
+				FBP.INSTANCE.addException(line.replaceAll(" ", "").toLowerCase());
 			}
-
-			if (toAdd.size() > 0) {
-				FBP.blockExceptions.clear();
-				FBP.blockExceptions.addAll(toAdd);
-			}
-
 			closeStreams();
 
 			check();
@@ -272,9 +256,8 @@ public class FBPConfigHandler {
 		FBP.fancyWeather = true;
 		FBP.fancySmoke = true;
 		FBP.fancyFlame = true;
-		
-		FBP.blockExceptions.clear();
-		FBP.blockExceptions.addAll(FBP.defaultBlockExceptions);
+
+		FBP.INSTANCE.resetExceptions();
 
 		if (write) {
 			write();

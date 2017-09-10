@@ -1,0 +1,121 @@
+---- Minecraft Crash Report ----
+// Ouch. That hurt :(
+
+Time: 9/10/17 4:38 AM
+Description: Rendering Particle
+
+java.lang.NullPointerException: Rendering Particle
+	at net.minecraft.entity.player.EntityPlayer.<init>(EntityPlayer.java:185)
+	at net.minecraft.entity.player.EntityPlayerMP.<init>(EntityPlayerMP.java:166)
+	at net.minecraftforge.common.util.FakePlayer.<init>(FakePlayer.java:42)
+	at com.TominoCZ.FBP.particle.FBPAnimationParticle.renderParticle(FBPAnimationParticle.java:221)
+	at net.minecraft.client.particle.ParticleManager.renderParticles(ParticleManager.java:315)
+	at net.minecraft.client.renderer.EntityRenderer.renderWorldPass(EntityRenderer.java:1408)
+	at net.minecraft.client.renderer.EntityRenderer.renderWorld(EntityRenderer.java:1282)
+	at net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender(EntityRenderer.java:1091)
+	at net.minecraft.client.Minecraft.runGameLoop(Minecraft.java:1139)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:406)
+	at net.minecraft.client.main.Main.main(Main.java:118)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at net.minecraft.launchwrapper.Launch.launch(Launch.java:135)
+	at net.minecraft.launchwrapper.Launch.main(Launch.java:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at net.minecraftforge.gradle.GradleStartCommon.launch(GradleStartCommon.java:97)
+	at GradleStart.main(GradleStart.java:26)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Client thread
+Stacktrace:
+	at net.minecraft.entity.player.EntityPlayer.<init>(EntityPlayer.java:185)
+	at net.minecraft.entity.player.EntityPlayerMP.<init>(EntityPlayerMP.java:166)
+	at net.minecraftforge.common.util.FakePlayer.<init>(FakePlayer.java:42)
+	at com.TominoCZ.FBP.particle.FBPAnimationParticle.renderParticle(FBPAnimationParticle.java:221)
+
+-- Particle being rendered --
+Details:
+	Particle: FBPAnimationParticle, Pos (5114.5,66.5,4946.5), RGBA (1.0,1.0,1.0,1.0), Age 0
+	Particle Type: MISC_TEXTURE
+Stacktrace:
+	at net.minecraft.client.particle.ParticleManager.renderParticles(ParticleManager.java:315)
+	at net.minecraft.client.renderer.EntityRenderer.renderWorldPass(EntityRenderer.java:1408)
+	at net.minecraft.client.renderer.EntityRenderer.renderWorld(EntityRenderer.java:1282)
+
+-- Affected level --
+Details:
+	Level name: MpServer
+	All players: 1 total; [EntityPlayerSP['ILikeMyMommy'/13844, l='MpServer', x=5114.56, y=66.00, z=4943.68]]
+	Chunk stats: MultiplayerChunkCache: 225, 225
+	Level seed: 0
+	Level generator: ID 00 - default, ver 1. Features enabled: false
+	Level generator options: 
+	Level spawn location: World: (5114,66,4943), Chunk: (at 10,4,15 in 319,308; contains blocks 5104,0,4928 to 5119,255,4943), Region: (9,9; contains chunks 288,288 to 319,319, blocks 4608,0,4608 to 5119,255,5119)
+	Level time: 167762631 game time, 173361930 day time
+	Level dimension: 0
+	Level storage version: 0x00000 - Unknown?
+	Level weather: Rain time: 0 (now: false), thunder time: 0 (now: false)
+	Level game mode: Game mode: survival (ID 0). Hardcore: false. Cheats: false
+	Forced entities: 73 total; [EntityItemFrame['entity.ItemFrame.name'/3587, l='MpServer', x=5127.97, y=66.50, z=4971.50], EntityItemFrame['entity.ItemFrame.name'/3588, l='MpServer', x=5127.97, y=66.50, z=4972.50], EntityItemFrame['entity.ItemFrame.name'/3589, l='MpServer', x=5127.97, y=66.50, z=4973.50], EntityPlayerSP['ILikeMyMommy'/13844, l='MpServer', x=5114.56, y=66.00, z=4943.68], EntityItemFrame['entity.ItemFrame.name'/3486, l='MpServer', x=5103.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3487, l='MpServer', x=5103.03, y=66.50, z=4974.50], EntityItemFrame['entity.ItemFrame.name'/3488, l='MpServer', x=5103.03, y=65.50, z=4974.50], EntityItemFrame['entity.ItemFrame.name'/3489, l='MpServer', x=5103.03, y=64.50, z=4974.50], EntityItemFrame['entity.ItemFrame.name'/3490, l='MpServer', x=5103.03, y=66.50, z=4969.50], EntityItemFrame['entity.ItemFrame.name'/3491, l='MpServer', x=5103.03, y=65.50, z=4969.50], EntityItemFrame['entity.ItemFrame.name'/3492, l='MpServer', x=5103.03, y=64.50, z=4969.50], EntityArmorStand['Armor Stand'/3494, l='MpServer', x=5102.50, y=65.00, z=4971.50], EntityArmorStand['Armor Stand'/3495, l='MpServer', x=5102.50, y=65.00, z=4970.50], EntityArmorStand['Armor Stand'/3496, l='MpServer', x=5102.50, y=65.00, z=4972.50], EntityZombie['Zombie'/3503, l='MpServer', x=5117.29, y=43.00, z=4938.51], EntityItemFrame['entity.ItemFrame.name'/3504, l='MpServer', x=5117.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3505, l='MpServer', x=5118.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3506, l='MpServer', x=5119.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3507, l='MpServer', x=5119.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3508, l='MpServer', x=5118.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3509, l='MpServer', x=5117.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3510, l='MpServer', x=5116.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3511, l='MpServer', x=5113.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3512, l='MpServer', x=5112.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3513, l='MpServer', x=5111.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3514, l='MpServer', x=5110.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3515, l='MpServer', x=5109.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3516, l='MpServer', x=5108.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3517, l='MpServer', x=5107.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3518, l='MpServer', x=5112.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3519, l='MpServer', x=5111.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3520, l='MpServer', x=5110.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3521, l='MpServer', x=5109.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3522, l='MpServer', x=5108.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3523, l='MpServer', x=5107.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3524, l='MpServer', x=5106.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3525, l='MpServer', x=5105.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3526, l='MpServer', x=5104.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3527, l='MpServer', x=5106.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3528, l='MpServer', x=5105.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3529, l='MpServer', x=5105.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3530, l='MpServer', x=5106.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3531, l='MpServer', x=5107.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3532, l='MpServer', x=5108.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3533, l='MpServer', x=5109.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3534, l='MpServer', x=5110.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3535, l='MpServer', x=5111.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3536, l='MpServer', x=5112.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3537, l='MpServer', x=5113.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3538, l='MpServer', x=5116.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3539, l='MpServer', x=5117.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3540, l='MpServer', x=5119.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3541, l='MpServer', x=5118.50, y=66.50, z=4972.03], EntityWolf['Wolf'/3558, l='MpServer', x=5111.30, y=64.00, z=4961.01], EntitySkeleton['Skeleton'/3564, l='MpServer', x=5132.48, y=61.00, z=4935.69], EntityItemFrame['entity.ItemFrame.name'/3565, l='MpServer', x=5120.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3566, l='MpServer', x=5121.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3567, l='MpServer', x=5122.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3568, l='MpServer', x=5123.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3569, l='MpServer', x=5124.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3570, l='MpServer', x=5125.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3571, l='MpServer', x=5126.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3572, l='MpServer', x=5127.50, y=66.50, z=4967.03], EntityItemFrame['entity.ItemFrame.name'/3573, l='MpServer', x=5124.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3574, l='MpServer', x=5123.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3575, l='MpServer', x=5122.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3576, l='MpServer', x=5121.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3577, l='MpServer', x=5120.50, y=66.50, z=4970.97], EntityItemFrame['entity.ItemFrame.name'/3578, l='MpServer', x=5120.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3579, l='MpServer', x=5121.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3580, l='MpServer', x=5122.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3581, l='MpServer', x=5123.50, y=66.50, z=4972.03], EntityItemFrame['entity.ItemFrame.name'/3582, l='MpServer', x=5124.50, y=66.50, z=4972.03]]
+	Retry entities: 0 total; []
+	Server brand: Spigot
+	Server type: Non-integrated multiplayer server
+Stacktrace:
+	at net.minecraft.client.multiplayer.WorldClient.addWorldInfoToCrashReport(WorldClient.java:456)
+	at net.minecraft.client.Minecraft.addGraphicsAndWorldToCrashReport(Minecraft.java:2779)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:427)
+	at net.minecraft.client.main.Main.main(Main.java:118)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at net.minecraft.launchwrapper.Launch.launch(Launch.java:135)
+	at net.minecraft.launchwrapper.Launch.main(Launch.java:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at net.minecraftforge.gradle.GradleStartCommon.launch(GradleStartCommon.java:97)
+	at GradleStart.main(GradleStart.java:26)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.10.2
+	Operating System: Windows 10 (amd64) version 10.0
+	Java Version: 1.8.0_144, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 341129408 bytes (325 MB) / 709558272 bytes (676 MB) up to 709558272 bytes (676 MB)
+	JVM Flags: 3 total; -Xincgc -Xmx700M -Xms700M
+	IntCache: cache: 0, tcache: 0, allocated: 13, tallocated: 95
+	FML: MCP 9.32 Powered by Forge 12.18.3.2185 4 mods loaded, 4 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+	UCHIJAAAAAA	mcp{9.19} [Minecraft Coder Pack] (minecraft.jar) 
+	UCHIJAAAAAA	FML{8.0.99.99} [Forge Mod Loader] (forgeSrc-1.10.2-12.18.3.2185.jar) 
+	UCHIJAAAAAA	Forge{12.18.3.2185} [Minecraft Forge] (forgeSrc-1.10.2-12.18.3.2185.jar) 
+	UCHIJAAAAAA	fbp{2.3.0_indev_NON-PUBLIC_RELEASE} [Fancy Block Particles] (bin) 
+	Loaded coremods (and transformers): 
+	GL info: ' Vendor: 'ATI Technologies Inc.' Version: '4.5.13492 Compatibility Profile Context 22.19.673.0' Renderer: 'AMD Radeon R9 200 Series'
+	Launched Version: 1.10.2
+	LWJGL: 2.9.4
+	OpenGL: AMD Radeon R9 200 Series GL version 4.5.13492 Compatibility Profile Context 22.19.673.0, ATI Technologies Inc.
+	GL Caps: Using GL 1.3 multitexturing.
+Using GL 1.3 texture combiners.
+Using framebuffer objects because OpenGL 3.0 is supported and separate blending is supported.
+Shaders are available because OpenGL 2.1 is supported.
+VBOs are available because OpenGL 1.5 is supported.
+
+	Using VBOs: No
+	Is Modded: Definitely; Client brand changed to 'fml,forge'
+	Type: Client (map_client.txt)
+	Resource Packs: 
+	Current Language: English (US)
+	Profiler Position: N/A (disabled)
+	CPU: 4x Intel(R) Core(TM)2 Quad CPU Q6600 @ 2.40GHz

@@ -34,14 +34,15 @@ public class FBPAnimationDummyBlock extends Block {
 
 	public FBPAnimationDummyBlock() {
 		super(Material.BARRIER);
-
-		this.setRegistryName("FBPPlaceAnimationCollisionBoundingBoxPlaceholderBlock");
+		
+		this.setRegistryName("FBPPlaceholderBlock");
 	}
 
 	public void copyState(World w, BlockPos pos, IBlockState state, FBPAnimationParticle p) {
 		if (blockNodes.containsKey(pos))
 			return;
-
+		this.getRegistryName();
+		
 		blockNodes.put(pos, new BlockNode(state, p));
 	}
 
@@ -109,12 +110,14 @@ public class FBPAnimationDummyBlock extends Block {
 	@Override
 	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
 		BlockNode node = FBP.FBPBlock.blockNodes.get(pos);
-
+		
 		if (node == null)
 			return;
 
-		if (worldIn.isRemote && state.getBlock() != node.originalBlock
-				&& state.getBlock() instanceof FBPAnimationDummyBlock)
+		if (worldIn.isRemote 
+				&& state.getBlock() != node.originalBlock
+				&& (worldIn.getBlockState(pos).getBlock() instanceof FBPAnimationDummyBlock 
+						|| state.getBlock() instanceof FBPAnimationDummyBlock))
 			Minecraft.getMinecraft().effectRenderer.addBlockDestroyEffects(pos,
 					node.originalBlock.getStateFromMeta(node.meta));
 
@@ -187,11 +190,10 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean canPlaceTorchOnTop(IBlockState state, IBlockAccess world, BlockPos pos)
-	{
+	public boolean canPlaceTorchOnTop(IBlockState state, IBlockAccess world, BlockPos pos) {
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.canPlaceTorchOnTop(state, world, pos);
-		
+
 		return true;
 	}
 
@@ -210,7 +212,7 @@ public class FBPAnimationDummyBlock extends Block {
 
 		return false;
 	}
-	
+
 	public IBlockState getExtendedState(IBlockState s, IBlockAccess w, BlockPos p) {
 		if (blockNodes.containsKey(p))
 			return blockNodes.get(p).originalBlock.getExtendedState(s, w, p);

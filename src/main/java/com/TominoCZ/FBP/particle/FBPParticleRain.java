@@ -67,17 +67,13 @@ public class FBPParticleRain extends ParticleDigging {
 		this.motionZ = zSpeedIn;
 
 		this.particleGravity = 0.025f;
+		
 		sourceState = state;
 
 		mc = Minecraft.getMinecraft();
-		this.particleTexture = mc.getBlockRendererDispatcher().getModelForState(state).getParticleTexture();
 
 		particleMaxAge = (int) FBP.random.nextDouble(95, 115);
-		
-		//this.particleRed = 0.35f;
-		//this.particleGreen = 0.65f;
-		//this.particleBlue = 1;
-		
+	
 		scaleAlpha = particleScale * 0.75;
 
 		this.particleAlpha = 0f;
@@ -165,7 +161,7 @@ public class FBPParticleRain extends ParticleDigging {
 				motionZ = 0;
 
 				if (particleHeight > 0.075f)
-					particleHeight *= 0.875f;
+					particleHeight *= 0.85f;
 
 				if (particleScale < FBP.scaleMult * 4.5f) {
 					particleScale *= scaleMult;
@@ -178,9 +174,9 @@ public class FBPParticleRain extends ParticleDigging {
 				
 				if (particleScale >= FBP.scaleMult * 2) {
 					if (FBP.randomFadingSpeed)
-						particleAlpha *= 0.65F * endMult;
+						particleAlpha *= 0.75F * endMult;
 					else
-						particleAlpha *= 0.65F;
+						particleAlpha *= 0.75F;
 				}
 
 				if (particleAlpha <= 0.001f)

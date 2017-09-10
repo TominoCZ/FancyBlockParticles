@@ -15,11 +15,14 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 public class FBPGuiExceptionList extends GuiScreen {
 	private GuiTextField search;
 
 	int ID = 1;
+
+	Block b;
 
 	GuiScreen parent;
 
@@ -48,7 +51,7 @@ public class FBPGuiExceptionList extends GuiScreen {
 				false);
 		buttonAdd.width = buttonRemove.width = width;
 
-		okToAdd = !FBP.blockExceptions.contains(FBP.lastIDAdded);
+		okToAdd = !FBP.INSTANCE.isInExceptions(b = Block.getBlockById(FBP.lastIDAdded));
 
 		this.buttonList.add(buttonAdd);
 		this.buttonList.add(buttonRemove);
@@ -73,25 +76,27 @@ public class FBPGuiExceptionList extends GuiScreen {
 
 		super.keyTyped(c, keyCode);
 
+		if (keyCode != 14 && keyCode != 200 && keyCode != 208)
+			Integer.parseInt("" + c);
+
+		search.textboxKeyTyped(c, keyCode);
 		try {
-			if (keyCode != 14 && keyCode != 200 && keyCode != 208)
-				Integer.parseInt("" + c);
-
-			search.textboxKeyTyped(c, keyCode);
-
 			ID = Integer.parseInt(search.getText());
 
 			if (keyCode == 200 && ID < Integer.MAX_VALUE - 1)
 				search.setText(++ID + "");
 			else if (keyCode == 208 && ID > 0)
 				search.setText(--ID + "");
-			
-			FBP.lastIDAdded = ID;
+			b = Block.getBlockById(FBP.lastIDAdded = ID);
 		} catch (Exception e) {
-
+			for (ResourceLocation rl : Block.REGISTRY.getKeys()) {
+				if (rl.toString().contains(search.getText())) {
+					b = Block.getBlockFromName(rl.toString());
+				}
+			}
 		}
 
-		okToAdd = !FBP.blockExceptions.contains(ID);
+		okToAdd = !FBP.INSTANCE.isInExceptions(b);
 	}
 
 	@Override
@@ -120,18 +125,18 @@ public class FBPGuiExceptionList extends GuiScreen {
 
 		if (b != null) {
 			String itemName = I18n.format(b.getRegistryName().getResourcePath());
-			//Item i = Item.getItemFromBlock(b);
+			// Item i = Item.getItemFromBlock(b);
 			name = itemName;
+			
+			// if (i == null)
+			// i = Item.getByNameOrId(b.getRegistryName().getResourceDomain() + ':' +
+			// itemName);
 
-			//if (i == null)
-				//i = Item.getByNameOrId(b.getRegistryName().getResourceDomain() + ':' + itemName);
-			
-			
-			
-			//if (i != null)
-				//drawStack(new ItemStack(i));
-			//else
-				drawStack(new ItemStack(b, 1, 0));
+			// if (i != null)
+			// drawStack(new ItemStack(i));
+			// else
+
+			drawStack(new ItemStack(b, 1, 0));
 		} else {
 			buttonAdd.enabled = false;
 			name = "";
@@ -142,6 +147,11 @@ public class FBPGuiExceptionList extends GuiScreen {
 
 		this.drawCenteredString(fontRendererObj, "\u00A7LAdd Exception For Blocks", width / 2, 20,
 				fontRendererObj.getColorCode('a'));
+
+		this.drawCenteredString(fontRendererObj, "NOTE:", width / 2, height - 22, fontRendererObj.getColorCode('6'));
+
+		this.drawCenteredString(fontRendererObj, "*NOT ALL BLOCKS ARE LISTED HERE*", width / 2, height - 12,
+				fontRendererObj.getColorCode('c'));
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
@@ -155,9 +165,9 @@ public class FBPGuiExceptionList extends GuiScreen {
 
 		GlStateManager.translate(x, y, 0);
 		GlStateManager.scale(4, 4, 4);
-		
+
 		this.itemRender.renderItemAndEffectIntoGUI(itemstack, 0, 0);
-		
+
 		GlStateManager.scale(0.25, 0.25, 0.25);
 		GlStateManager.translate(-x, -y, 0);
 
@@ -168,20 +178,18 @@ public class FBPGuiExceptionList extends GuiScreen {
 	protected void actionPerformed(GuiButton button) throws IOException {
 		switch (button.id) {
 		case 1:
-			if (!FBP.blockExceptions.contains(ID))
-				FBP.blockExceptions.add(ID);
+			FBP.INSTANCE.addException(b);
 
 			FBPConfigHandler.writeExceptions();
 			break;
 		case 2:
-			if (FBP.blockExceptions.contains(ID))
-				FBP.blockExceptions.remove((Integer) ID);
+			FBP.INSTANCE.removeException(b);
 
 			FBPConfigHandler.writeExceptions();
 			break;
 		}
 
-		okToAdd = !FBP.blockExceptions.contains(ID);
+		okToAdd = !FBP.INSTANCE.isInExceptions(b);
 	}
 
 	void closeGui() {

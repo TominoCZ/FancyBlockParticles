@@ -1,0 +1,25 @@
+package com.TominoCZ.FBP.vector;
+
+import javax.vecmath.Vector3d;
+
+import net.minecraft.util.math.Vec3d;
+
+public class FBPVector3d extends Vector3d {
+
+	public FBPVector3d(double x, double y, double z) {
+		super(x, y, z);
+	}
+
+	public void copyFrom(Vector3d vec) {
+		this.x = vec.x;
+		this.y = vec.y;
+		this.z = vec.z;
+	}
+	
+	public void add(Vector3d vec)
+	{
+		this.x += vec.x;
+		this.y += vec.y;
+		this.z += vec.z;
+	}
+}

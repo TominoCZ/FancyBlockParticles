@@ -41,8 +41,8 @@
 	</section>
 	<section name="org.eclipse.jdt.internal.ui.typehierarchy.QuickHierarchy">
 		<item value="true" key="org.eclipse.jdt.internal.ui.typehierarchy.HierarchyInformationControlDIALOG_USE_PERSISTED_SIZE"/>
-		<item value="306" key="org.eclipse.jdt.internal.ui.typehierarchy.HierarchyInformationControlDIALOG_HEIGHT"/>
-		<item value="350" key="org.eclipse.jdt.internal.ui.typehierarchy.HierarchyInformationControlDIALOG_WIDTH"/>
+		<item value="380" key="org.eclipse.jdt.internal.ui.typehierarchy.HierarchyInformationControlDIALOG_HEIGHT"/>
+		<item value="450" key="org.eclipse.jdt.internal.ui.typehierarchy.HierarchyInformationControlDIALOG_WIDTH"/>
 		<item value="false" key="org.eclipse.jdt.internal.ui.typehierarchy.HierarchyInformationControlDIALOG_USE_PERSISTED_LOCATION"/>
 	</section>
 	<section name="org.eclipse.jdt.internal.ui.text.QuickOutline">
@@ -55,8 +55,8 @@
 	<section name="CallHierarchySearchScope">
 	</section>
 	<section name="RefactoringWizard.preview">
-		<item value="600" key="width"/>
-		<item value="400" key="height"/>
+		<item value="590" key="width"/>
+		<item value="390" key="height"/>
 	</section>
 	<section name="RenameInformationPopup">
 	</section>
@@ -68,10 +68,10 @@
 	<section name="JavaSearchPage">
 		<item value="0" key="HISTORY_SIZE"/>
 		<item value="false" key="CASE_SENSITIVE"/>
-		<item value="11" key="INCLUDE_MASK"/>
+		<item value="15" key="INCLUDE_MASK"/>
 	</section>
 	<section name="completion_proposal_size">
-		<item value="420" key="size.y"/>
+		<item value="1046" key="size.y"/>
 		<item value="755" key="size.x"/>
 		<item value="221" key="contextSelector.size.y"/>
 		<item value="331" key="contextSelector.size.x"/>

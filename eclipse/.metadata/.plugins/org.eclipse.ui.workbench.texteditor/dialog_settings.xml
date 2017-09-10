@@ -2,12 +2,15 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="ItemUse" key="selection"/>
+		<item value="Air" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="air"/>
+			<item value="sync"/>
+			<item value="world"/>
 			<item value="Itemuse"/>
 			<item value="Item"/>
 			<item value="item"/>
@@ -20,9 +23,6 @@
 			<item value="Snow"/>
 			<item value="setEnableSnow"/>
 			<item value="*"/>
-			<item value=" public IBlockState"/>
-			<item value="hooks"/>
-			<item value="smooth"/>
 		</list>
 		<list key="replacehistory">
 			<item value="world.rand"/>

@@ -75,12 +75,12 @@ public class FBPGuiHelper extends GuiScreen {
 
 	public static void drawTitle(int y, int screenWidth, int screenHeight, FontRenderer fr) {
 		if (!FBP.isEnabled())
-			_drawCenteredString(fr, "\u00A7a(\u00A7cdisabled\u00A7a)", screenWidth / 2, y - 32, fr.getColorCode('c'));
+			_drawCenteredString(fr, "\u00A7a(\u00A7cdisabled\u00A7a)", screenWidth / 2, y - 35, fr.getColorCode('c'));
 
-		_drawCenteredString(fr, "\u00A7LFancy Block Particles", screenWidth / 2, y - 23, fr.getColorCode('6'));
+		_drawCenteredString(fr, "=\u00A7LFancy Block Particles=", screenWidth / 2, y - 27, fr.getColorCode('6'));
 		String version = FMLCommonHandler.instance().findContainerFor(FBP.INSTANCE).getVersion();
 
-		fr.drawStringWithShadow("\u00A76Version \u00A7L" + version, 2, screenHeight - 10, fr.getColorCode('6'));
+		_drawCenteredString(fr, "\u00A7L" + version, screenWidth / 2, y - 17, fr.getColorCode('a'));
 	}
 
 	protected static void _drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color) {

@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleSmokeNormal;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -33,7 +34,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 	Vec2f par;
 
 	protected FBPParticleSmokeNormal(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double mX,
-			double mY, double mZ, boolean b) {
+			double mY, double mZ, boolean b, TextureAtlasSprite tex) {
 		super(worldIn, xCoordIn, yCoordIn - 0.11f, zCoordIn, mX, mY, mZ, 1);
 		this.motionY = 0.035f;
 		this.particleGravity = -0.085f;
@@ -41,8 +42,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		_brightnessForRender = (float) (0.5 - (FBP.random.nextDouble() * 0.35 + 0.1f));
 
 		mc = Minecraft.getMinecraft();
-		this.particleTexture = mc.getBlockRendererDispatcher().getModelForState(Blocks.SNOW.getDefaultState())
-				.getParticleTexture();
+		this.particleTexture = tex;
 
 		particleScale *= FBP.scaleMult * 2f;
 

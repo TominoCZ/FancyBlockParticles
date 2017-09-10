@@ -26,8 +26,8 @@ chatLinksPrompt:true
 chatOpacity:1.0
 snooperEnabled:true
 fullscreen:false
-enableVsync:true
-useVbo:false
+enableVsync:false
+useVbo:true
 hideServerAddress:false
 advancedItemTooltips:true
 pauseOnLostFocus:false
@@ -85,7 +85,7 @@ key_Open Menu:25
 key_Toggle Freeze Effect:19
 key_Enable/Disable:0
 key_Kill Particles:45
-soundCategory_master:0.6192053
+soundCategory_master:0.102649
 soundCategory_music:0.0
 soundCategory_record:1.0
 soundCategory_weather:1.0

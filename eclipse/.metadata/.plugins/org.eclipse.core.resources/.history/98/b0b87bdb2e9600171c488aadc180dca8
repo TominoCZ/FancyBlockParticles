@@ -1,0 +1,17 @@
+package com.TominoCZ.FBP.node;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
+
+public class BlockPosNode {
+	public BlockPos possiblePosition;
+	public IBlockState state;
+
+	public BlockPosNode(IBlockState state, BlockPos possible) {
+		this.possiblePosition = possible;
+		this.state = state;
+	}
+}

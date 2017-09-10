@@ -47,10 +47,17 @@ public class FBPParticleManager extends ParticleManager {
 
 	private static IParticleFactory particleFactory;
 	private static IBlockState blockState;
-	
+	private static TextureAtlasSprite white;
+
+	Minecraft mc;
+
 	public FBPParticleManager(World worldIn, TextureManager rendererIn, IParticleFactory particleFactory) {
 		super(worldIn, rendererIn);
 		this.particleFactory = particleFactory;
+
+		mc = Minecraft.getMinecraft();
+
+		white = mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture((Blocks.SNOW.getDefaultState()));
 
 		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
 
@@ -79,33 +86,30 @@ public class FBPParticleManager extends ParticleManager {
 	@Override
 	public void addEffect(Particle effect) {
 		Particle toAdd = effect;
-		
-		if (FBP.enabled && toAdd != null && !(toAdd instanceof FBPParticleSnow) && !(toAdd instanceof FBPParticleRain)) {
-			if (FBP.fancyFlame && toAdd instanceof ParticleFlame && !(toAdd instanceof FBPParticleFlame) && Minecraft.getMinecraft().gameSettings.particleSetting < 2) {
+
+		if (FBP.enabled && toAdd != null && !(toAdd instanceof FBPParticleSnow)
+				&& !(toAdd instanceof FBPParticleRain)) {
+			if (FBP.fancyFlame && toAdd instanceof ParticleFlame && !(toAdd instanceof FBPParticleFlame)
+					&& Minecraft.getMinecraft().gameSettings.particleSetting < 2) {
 				ParticleFlame p = (ParticleFlame) effect;
 
 				try {
-					toAdd = new FBPParticleFlame(worldObj,
-							(double) X.invokeExact(effect),
-							(double) Y.invokeExact(effect),
-							(double) Z.invokeExact(effect),
-							0,
-							FBP.random.nextDouble() * 0.25,
-							0, true);
+					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact(effect),
+							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect), 0,
+							FBP.random.nextDouble() * 0.25, 0, true);
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
-			} else if (FBP.fancySmoke && toAdd instanceof ParticleSmokeNormal && !(toAdd instanceof FBPParticleSmokeNormal) && Minecraft.getMinecraft().gameSettings.particleSetting < 2) {
+			} else if (FBP.fancySmoke && toAdd instanceof ParticleSmokeNormal
+					&& !(toAdd instanceof FBPParticleSmokeNormal)
+					&& Minecraft.getMinecraft().gameSettings.particleSetting < 2) {
 				ParticleSmokeNormal p = (ParticleSmokeNormal) effect;
 
 				try {
-					toAdd = new FBPParticleSmokeNormal(worldObj,
-							(double) X.invokeExact(effect),
-							(double) Y.invokeExact(effect),
-							(double) Z.invokeExact(effect),
-							FBP.random.nextDouble(-0.05, 0.05),
-							FBP.random.nextDouble() * 0.25,
-							FBP.random.nextDouble(-0.05, 0.05), true);
+					toAdd = new FBPParticleSmokeNormal(worldObj, (double) X.invokeExact(effect),
+							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect),
+							FBP.random.nextDouble(-0.05, 0.05), FBP.random.nextDouble() * 0.25,
+							FBP.random.nextDouble(-0.05, 0.05), true, white);
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
@@ -113,7 +117,7 @@ public class FBPParticleManager extends ParticleManager {
 				return;
 			} else if (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticleDigging)) {
 				try {
-					blockState = (IBlockState) getSourceState.invokeExact((ParticleDigging) effect);
+					blockState = (IBlockState) getSourceState.invokeExact(effect);
 
 					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
@@ -121,9 +125,8 @@ public class FBPParticleManager extends ParticleManager {
 							toAdd = new FBPParticleDigging(worldObj, (double) X.invokeExact(effect),
 									(double) Y.invokeExact(effect) - 0.10000000149011612D,
 									(double) Z.invokeExact(effect), 0, 0, 0, blockState, null,
-									(float) getParticleScale.invokeExact(effect));
-
-							toAdd.setParticleTexture((TextureAtlasSprite) getParticleTexture.invokeExact(effect));
+									(float) getParticleScale.invokeExact(effect),
+									(TextureAtlasSprite) getParticleTexture.invokeExact(effect));
 						} else
 							toAdd = null;
 					}
@@ -160,8 +163,8 @@ public class FBPParticleManager extends ParticleManager {
 					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
 						if (!(blockState.getBlock() instanceof BlockLiquid))
-							toSpawn = new FBPParticleDigging(this.worldObj, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed,
-									blockState, EnumFacing.UP, -1).multipleParticleScaleBy(0.6F);
+							toSpawn = new FBPParticleDigging(this.worldObj, xCoord, yCoord, zCoord, xSpeed, ySpeed,
+									zSpeed, blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
 						else
 							toSpawn = null;
 					}
@@ -183,6 +186,8 @@ public class FBPParticleManager extends ParticleManager {
 			b = state.getBlock();
 			int i = 4;
 
+			TextureAtlasSprite texture = mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture(state);
+
 			for (int j = 0; j < 4; ++j) {
 				for (int k = 0; k < 4; ++k) {
 					for (int l = 0; l < 4; ++l) {
@@ -195,9 +200,9 @@ public class FBPParticleManager extends ParticleManager {
 								if (state != null
 										&& (!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 										&& (FBP.spawnRedstoneBlockParticles || b != Blocks.REDSTONE_BLOCK))
-									addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, d0 - (double) pos.getX() - 0.5D,
-											d1 - (double) pos.getY() - 0.5D, d2 - (double) pos.getZ() - 0.5D, state,
-											null, -1));
+									addEffect(new FBPParticleDigging(worldObj, d0, d1, d2,
+											d0 - (double) pos.getX() - 0.5D, d1 - (double) pos.getY() - 0.5D,
+											d2 - (double) pos.getZ() - 0.5D, state, null, -1, texture));
 							} else
 								addEffect((particleFactory.createParticle(0, this.worldObj, d0, d1, d2,
 										d0 - (double) pos.getX() - 0.5D, d1 - (double) pos.getY() - 0.5D,
@@ -306,12 +311,12 @@ public class FBPParticleManager extends ParticleManager {
 						}
 
 						if (FBP.smartBreaking)
-							addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side, -2)
-									.MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F)
-									.multipleParticleScaleBy((float) (0.325F + (damage / 8.125F) * 0.325F)));
+							addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side,
+									-2, null).MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F)
+											.multipleParticleScaleBy((float) (0.325F + (damage / 8.125F) * 0.325F)));
 						else
-							addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side, -2)
-									.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+							addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side,
+									-2, null).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
 					}
 				} else
 					addEffect(particleFactory

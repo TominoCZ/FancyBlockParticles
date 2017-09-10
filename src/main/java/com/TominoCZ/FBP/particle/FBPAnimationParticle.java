@@ -7,6 +7,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.model.FBPModelTransformer;
+import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -23,12 +24,8 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.network.play.client.CPacketPlayerDigging.Action;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -45,22 +42,18 @@ public class FBPAnimationParticle extends Particle {
 
 	IBakedModel modelPrefab;
 
-	IBakedModel modelForRender;
-
 	Minecraft mc;
 
 	EnumFacing facing;
 
-	Vector3f smoothRot;
-
-	Vector3f prevRot;
-	Vector3f rot;
+	FBPVector3d prevRot;
+	FBPVector3d rot;
 
 	long textureSeed;
 
-	float startingHeight = 0.075f;
-	float startingAngle = 0.0275f;
-	float step = 0.0055f;
+	float startingHeight = 0.065f;
+	float startingAngle = 0.03f;
+	float step = 0.003f;
 
 	float height;
 	float prevHeight;
@@ -69,29 +62,26 @@ public class FBPAnimationParticle extends Particle {
 
 	boolean lookingUp;
 	boolean spawned = false;
-	boolean threadRunning = false;
+	long tick = 0;
+
+	boolean blockSet = false;
 
 	public FBPAnimationParticle(World worldIn, double posXIn, double posYIn, double posZIn, IBlockState state,
-			EntityPlayer p, long rand) {
+			long rand) {
 		super(worldIn, posXIn, posYIn, posZIn);
 
 		pos = new BlockPos(posXIn, posYIn, posZIn);
 
-		FBP.FBPBlock.copyState(worldObj, pos, state, this);
-
 		mc = Minecraft.getMinecraft();
 
-		facing = p.getHorizontalFacing();
+		facing = mc.thePlayer.getHorizontalFacing();
 
-		lookingUp = Float.valueOf(MathHelper.wrapDegrees(p.rotationPitch)) <= 0;
+		lookingUp = Float.valueOf(MathHelper.wrapDegrees(mc.thePlayer.rotationPitch)) <= 0;
 
 		height = startingHeight;
-
-		smoothRot = new Vector3f();
-		prevRot = new Vector3f();
-		rot = new Vector3f();
-
-		worldObj.setBlockState(pos, Blocks.AIR.getDefaultState(), 1);
+		
+		prevRot = new FBPVector3d();
+		rot = new FBPVector3d();
 
 		textureSeed = rand;
 
@@ -100,8 +90,9 @@ public class FBPAnimationParticle extends Particle {
 		mr = mc.getBlockRendererDispatcher().getBlockModelRenderer();
 
 		modelPrefab = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
+		this.particleTexture = modelPrefab.getParticleTexture();
 
-		modelPrefab = modelForRender = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
+		modelPrefab = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
 				new FBPModelTransformer.IVertexTransformer() {
 
 					@SuppressWarnings("incomplete-switch")
@@ -141,7 +132,7 @@ public class FBPAnimationParticle extends Particle {
 								break;
 							}
 
-							vec = rotatef(vec, rot.x, rot.y, rot.z);
+							vec = rotatef(vec, (float) rot.x, (float) rot.y, (float) rot.z);
 
 							return new float[] { vec.x, vec.y + startingHeight, vec.z };
 						}
@@ -159,27 +150,25 @@ public class FBPAnimationParticle extends Particle {
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void onUpdate() {
-		if (!canCollide && !threadRunning) {
-			new Thread() {
-				public void run() {
-					threadRunning = true;
+		if (++particleAge >= 10)
+			this.isExpired = true;
 
-					IBlockState s = worldObj.getBlockState(pos);
-					if (s.getBlock() != FBP.FBPBlock || s.getBlock() == block) {
-						worldObj.setBlockState(pos, FBP.FBPBlock.getDefaultState());
-						spawned = true;//TEST
-						
-						end();
-						return;
-					}
-					//spawned = true;
-					end();
+		if (!canCollide) {
+			IBlockState s = worldObj.getBlockState(pos);
+
+			if (s.getBlock() != FBP.FBPBlock || s.getBlock() == block) {
+				if (blockSet && s.getBlock() == Blocks.AIR) {
+					this.isExpired = true;
+					FBP.FBPBlock.onBlockDestroyedByPlayer(worldObj, pos, s);
+					worldObj.setBlockState(pos, Blocks.AIR.getDefaultState(), 1);
+					return;
 				}
 
-				void end() {
-					threadRunning = false;
-				}
-			}.start();
+				worldObj.setBlockState(pos, FBP.FBPBlock.getDefaultState());
+				blockSet = true;
+			}
+
+			spawned = true;
 		}
 
 		if (this.isExpired || !spawned)
@@ -187,9 +176,7 @@ public class FBPAnimationParticle extends Particle {
 
 		prevHeight = height;
 
-		prevRot.x = rot.x;
-		prevRot.y = rot.y;
-		prevRot.z = rot.z;
+		prevRot.copyFrom(rot);
 
 		switch (facing) {
 		case EAST:
@@ -212,7 +199,7 @@ public class FBPAnimationParticle extends Particle {
 
 		height -= step * 5f;
 
-		step *= 1.98982f;
+		step *= 1.78982f;
 	}
 
 	@SuppressWarnings("incomplete-switch")
@@ -223,11 +210,14 @@ public class FBPAnimationParticle extends Particle {
 			return;
 
 		if (canCollide) {
-			if (particleAge >= 2) {
+			Block b = worldObj.getBlockState(pos).getBlock();
+			if (block != b && b != Blocks.AIR)
+				worldObj.setBlockState(pos, blockState);
+
+			if (tick >= 2) {
 				killParticle();
 				return;
-			} else if (particleAge == 0) {
-				worldObj.setBlockState(pos, blockState);
+			} else if (tick == 0) {
 
 				if ((!(FBP.frozen && !FBP.spawnWhileFrozen)
 						&& (FBP.spawnRedstoneBlockParticles || block != Blocks.REDSTONE_BLOCK))
@@ -235,7 +225,7 @@ public class FBPAnimationParticle extends Particle {
 					spawnParticles();
 			}
 
-			particleAge++;
+			tick++;
 		} else if (!spawned)
 			return;
 
@@ -245,9 +235,7 @@ public class FBPAnimationParticle extends Particle {
 		float f6 = (float) (prevPosY + (posY - prevPosY) * (double) partialTicks - interpPosY) - 0.5f;
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * (double) partialTicks - interpPosZ) - 0.5f;
 
-		smoothRot.x = prevRot.x + (rot.x - prevRot.x) * partialTicks;
-		smoothRot.y = prevRot.y + (rot.y - prevRot.y) * partialTicks;
-		smoothRot.z = prevRot.z + (rot.z - prevRot.z) * partialTicks;
+		FBPVector3d smoothRot = rot.partialVec(prevRot, partialTicks);
 
 		smoothHeight = ((float) (prevHeight + (height - prevHeight) * (double) partialTicks));
 
@@ -292,13 +280,13 @@ public class FBPAnimationParticle extends Particle {
 
 		buff.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 
-		modelForRender = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
+		IBakedModel modelForRender = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
 				new FBPModelTransformer.IVertexTransformer() {
 					@Override
 					public float[] transform(BakedQuad quad, VertexFormatElement element, float... data) {
 						if (element.getUsage() == VertexFormatElement.EnumUsage.POSITION) {
-							Vector3f vec = rotatef(new Vector3f(data[0], data[1], data[2]), smoothRot.x, smoothRot.y,
-									smoothRot.z);
+							Vector3f vec = rotatef(new Vector3f(data[0], data[1], data[2]), (float) smoothRot.x,
+									(float) smoothRot.y, (float) smoothRot.z);
 
 							return new float[] { vec.x, vec.y - (startingHeight - smoothHeight), vec.z };
 						}
@@ -324,48 +312,35 @@ public class FBPAnimationParticle extends Particle {
 	}
 
 	Vector3f rotatef(Vector3f pos, float AngleX, float AngleY, float AngleZ) {
-		float sinAngleX = MathHelper.sin(AngleX);
-		float sinAngleY = MathHelper.sin(AngleY);
-		float sinAngleZ = MathHelper.sin(AngleZ);
+		FBPVector3d sin = new FBPVector3d(MathHelper.sin(AngleX), MathHelper.sin(AngleY), MathHelper.sin(AngleZ));
+		FBPVector3d cos = new FBPVector3d(MathHelper.cos(AngleX), MathHelper.cos(AngleY), MathHelper.cos(AngleZ));
 
-		float cosAngleX = MathHelper.cos(AngleX);
-		float cosAngleY = MathHelper.cos(AngleY);
-		float cosAngleZ = MathHelper.cos(AngleZ);
-
-		Vector3f pos1 = new Vector3f(pos.x, pos.y, pos.z);
-		Vector3f pos2;
-
-		// if (lookingUp)
-		// pos1.y -= 1.0f;
+		FBPVector3d pos1 = new FBPVector3d(pos.x, pos.y, pos.z);
+		FBPVector3d pos2;
 
 		if (facing == EnumFacing.EAST) {
 			pos1.x -= 1.0f;
-		}
-		if (facing == EnumFacing.WEST) {
+		} else if (facing == EnumFacing.WEST) {
 			pos1.x += 1.0f;
-		}
-		if (facing == EnumFacing.SOUTH) {
+		} else if (facing == EnumFacing.SOUTH) {
 			pos1.z -= 1.0f;
 			pos1.x -= 1.0f;
 		}
 
-		pos2 = new Vector3f(pos1.x, pos1.y * cosAngleX - pos1.z * sinAngleX, pos1.y * sinAngleX + pos1.z * cosAngleX);
-		pos2 = new Vector3f(pos2.x * cosAngleY + pos2.z * sinAngleY, pos2.y, pos2.x * sinAngleY - pos2.z * cosAngleY);
-		pos2 = new Vector3f(pos2.x * cosAngleZ - pos2.y * sinAngleZ, pos2.x * sinAngleZ + pos2.y * cosAngleZ, pos2.z);
+		pos2 = new FBPVector3d(pos1.x, pos1.y * cos.x - pos1.z * sin.x, pos1.y * sin.x + pos1.z * cos.x);
+		pos2 = new FBPVector3d(pos2.x * cos.y + pos2.z * sin.y, pos2.y, pos2.x * sin.y - pos2.z * cos.y);
+		pos2 = new FBPVector3d(pos2.x * cos.z - pos2.y * sin.z, pos2.x * sin.z + pos2.y * cos.z, pos2.z);
 
 		if (facing == EnumFacing.EAST) {
 			pos2.x += 1.0f;
-		}
-		if (facing == EnumFacing.WEST) {
+		} else if (facing == EnumFacing.WEST) {
 			pos2.x -= 1.0f;
-		}
-		if (facing == EnumFacing.SOUTH) {
+		} else if (facing == EnumFacing.SOUTH) {
 			pos2.z += 1.0f;
 			pos2.x += 1.0f;
 		}
-		// if (lookingUp)
-		// pos2.y += 1;
-		return pos2;
+
+		return new Vector3f((float) pos2.x, (float) pos2.y, (float) pos2.z);
 	}
 
 	@SuppressWarnings("incomplete-switch")
@@ -414,8 +389,8 @@ public class FBPAnimationParticle extends Particle {
 			mZ /= -0.5;
 
 			mc.effectRenderer.addEffect(new FBPParticleDigging(worldObj, corner.x, pos.getY() + 0.1f, corner.y, mX, 0,
-					mZ, block.getActualState(blockState, worldObj, pos), null, 0.6f).multipleParticleScaleBy(0.5f)
-							.multiplyVelocity(0.5f));
+					mZ, block.getActualState(blockState, worldObj, pos), null, 0.6f, this.particleTexture)
+							.multipleParticleScaleBy(0.5f).multiplyVelocity(0.5f));
 		}
 
 		if (mc.gameSettings.particleSetting == 1)
@@ -432,18 +407,16 @@ public class FBPAnimationParticle extends Particle {
 			mZ /= -0.5;
 
 			mc.effectRenderer.addEffect(new FBPParticleDigging(worldObj, corner.x, pos.getY() + 0.1f, corner.y, mX / 3,
-					0, mZ / 3, block.getActualState(blockState, worldObj, pos), null, 0.6f)
+					0, mZ / 3, block.getActualState(blockState, worldObj, pos), null, 0.6f, this.particleTexture)
 							.multipleParticleScaleBy(0.75f).multiplyVelocity(0.75f));
 		}
 	}
 
 	public void killParticle() {
 		this.isExpired = true;
-		FBP.FBPBlock.blockNodes.remove(pos);
 
-		// worldObj.sendPacketToServer(
-		// new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos,
-		// facing.getOpposite()));
+		FBP.FBPBlock.blockNodes.remove(pos);
+		FBP.INSTANCE.eventHandler.removeEntry(pos);
 	}
 
 	@Override
