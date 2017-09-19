@@ -1,7 +1,0 @@
-package com.TominoCZ.FBP.vector;
-
-import net.minecraft.util.math.Vec3d;
-
-public class FBPVec3d extends Vec3d{
-
-}

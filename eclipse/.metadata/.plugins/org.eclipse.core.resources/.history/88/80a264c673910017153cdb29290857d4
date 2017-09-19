@@ -1,9 +1,0 @@
-package com.TominoCZ.FBP.threading;
-
-public class FBPThread extends Thread{
-	public boolean isRunning = true;
-	
-	public void run() {
-		isRunning = false;
-	}
-}
