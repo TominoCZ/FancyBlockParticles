@@ -94,10 +94,6 @@ public class FBP {
 	public FBPEventHandler eventHandler = new FBPEventHandler();
 
 	public FBP() {
-		if (isDev())
-			ReflectionHelper.setPrivateValue(Session.class, Minecraft.getMinecraft().getSession(), "FBPThief",
-					"username", "field_74286_b");
-
 		INSTANCE = this;
 
 		blockExceptions = Collections.synchronizedList(new ArrayList<String>());

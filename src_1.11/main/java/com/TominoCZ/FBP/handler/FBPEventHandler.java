@@ -188,9 +188,9 @@ public class FBPEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onInteractionEvent(RightClickBlock e) { // TODO FIX FAST PLACE WITH SLABS
+	public void onInteractionEvent(RightClickBlock e) {
 		if (e.getWorld().isRemote) {
-			if (!(e.getItemStack().getItem() instanceof ItemBlock))
+			if (e.getItemStack() == null || !(e.getItemStack().getItem() instanceof ItemBlock))
 				return;
 			
 			BlockPos pos = e.getPos();

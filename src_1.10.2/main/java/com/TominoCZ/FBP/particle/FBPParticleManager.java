@@ -30,6 +30,8 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -99,8 +101,9 @@ public class FBPParticleManager extends ParticleManager {
 				ParticleFlame p = (ParticleFlame) effect;
 
 				try {
-					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact(effect), (double) Y.invokeExact(effect),
-							(double) Z.invokeExact(effect), 0, FBP.random.nextDouble() * 0.25, 0, true);
+					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact(effect),
+							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect), 0,
+							FBP.random.nextDouble() * 0.25, 0, true);
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
@@ -112,8 +115,11 @@ public class FBPParticleManager extends ParticleManager {
 				try {
 					toAdd = new FBPParticleSmokeNormal(worldObj, (double) X.invokeExact(effect),
 							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect),
-							FBP.random.nextDouble(-0.05, 0.05), FBP.random.nextDouble() * 0.25,
-							FBP.random.nextDouble(-0.05, 0.05), true, white);
+							(double) mX.invokeExact((Particle) effect) * FBP.random.nextDouble(1, 7),
+							(double) mY.invokeExact((Particle) effect),
+							(double) mZ.invokeExact((Particle) effect) * FBP.random.nextDouble(1, 7),
+							effect.getRedColorF(), effect.getGreenColorF(), effect.getBlueColorF(),
+							(float) getParticleScale.invokeExact(effect), true, white);
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
@@ -121,7 +127,7 @@ public class FBPParticleManager extends ParticleManager {
 				return;
 			} else if (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticleDigging)) {
 				try {
-					blockState = (IBlockState) getSourceState.invokeExact(effect);
+					blockState = (IBlockState) getSourceState.invokeExact((ParticleDigging)effect);
 
 					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
@@ -157,8 +163,8 @@ public class FBPParticleManager extends ParticleManager {
 		}
 
 		if (iparticlefactory != null) {
-			Particle particle = iparticlefactory.createParticle(particleId, this.worldObj, xCoord, yCoord, zCoord, xSpeed,
-					ySpeed, zSpeed, parameters), toSpawn = particle;
+			Particle particle = iparticlefactory.createParticle(particleId, this.worldObj, xCoord, yCoord, zCoord,
+					xSpeed, ySpeed, zSpeed, parameters), toSpawn = particle;
 
 			if (FBP.enabled) {
 				if (particle instanceof ParticleDigging && !(particle instanceof FBPParticleDigging)) {
@@ -167,8 +173,8 @@ public class FBPParticleManager extends ParticleManager {
 					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
 						if (!(blockState.getBlock() instanceof BlockLiquid))
-							toSpawn = new FBPParticleDigging(this.worldObj, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed,
-									blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
+							toSpawn = new FBPParticleDigging(this.worldObj, xCoord, yCoord, zCoord, xSpeed, ySpeed,
+									zSpeed, blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
 						else
 							toSpawn = null;
 					}
@@ -204,9 +210,9 @@ public class FBPParticleManager extends ParticleManager {
 								if (state != null
 										&& (!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 										&& (FBP.spawnRedstoneBlockParticles || b != Blocks.REDSTONE_BLOCK))
-									addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, d0 - (double) pos.getX() - 0.5D,
-											d1 - (double) pos.getY() - 0.5D, d2 - (double) pos.getZ() - 0.5D, state,
-											null, -1, texture));
+									addEffect(new FBPParticleDigging(worldObj, d0, d1, d2,
+											d0 - (double) pos.getX() - 0.5D, d1 - (double) pos.getY() - 0.5D,
+											d2 - (double) pos.getZ() - 0.5D, state, null, -1, texture));
 							} else
 								addEffect((particleFactory.createParticle(0, this.worldObj, d0, d1, d2,
 										d0 - (double) pos.getX() - 0.5D, d1 - (double) pos.getY() - 0.5D,
@@ -236,14 +242,19 @@ public class FBPParticleManager extends ParticleManager {
 
 			double d0 = 0, d1 = 0, d2 = 0;
 
+			RayTraceResult obj = Minecraft.getMinecraft().objectMouseOver;
+
+			if (obj == null || obj.hitVec == null)
+				obj = new RayTraceResult(null, new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
+			
 			if (FBP.enabled && FBP.smartBreaking && iblockstate != null
 					&& (!(iblockstate.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 					&& (FBP.spawnRedstoneBlockParticles || iblockstate.getBlock() != Blocks.REDSTONE_BLOCK)) {
-				d0 = Minecraft.getMinecraft().objectMouseOver.hitVec.xCoord
+				d0 = obj.hitVec.xCoord
 						+ FBP.random.nextDouble(-0.225, 0.2251) * (axisalignedbb.maxX - axisalignedbb.minX);
-				d1 = Minecraft.getMinecraft().objectMouseOver.hitVec.yCoord
+				d1 = obj.hitVec.yCoord
 						+ FBP.random.nextDouble(-0.225, 0.2251) * (axisalignedbb.maxY - axisalignedbb.minY);
-				d2 = Minecraft.getMinecraft().objectMouseOver.hitVec.zCoord
+				d2 = obj.hitVec.zCoord
 						+ FBP.random.nextDouble(-0.225, 0.2251) * (axisalignedbb.maxZ - axisalignedbb.minZ);
 			} else {
 				d0 = (double) i
@@ -316,12 +327,12 @@ public class FBPParticleManager extends ParticleManager {
 						}
 
 						if (FBP.smartBreaking)
-							addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side, -2,
-									null).MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F)
+							addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side,
+									-2, null).MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F)
 											.multipleParticleScaleBy((float) (0.325F + (damage / 8.125F) * 0.325F)));
 						else
-							addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side, -2,
-									null).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+							addEffect(new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, iblockstate, side,
+									-2, null).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
 					}
 				} else
 					addEffect(particleFactory

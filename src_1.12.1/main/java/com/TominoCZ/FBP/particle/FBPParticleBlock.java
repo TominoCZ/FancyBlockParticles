@@ -149,6 +149,12 @@ public class FBPParticleBlock extends Particle {
 		prevRot.z = rot.z = 0;
 
 		this.canCollide = false;
+		
+		if (modelPrefab == null)
+		{
+			canCollide=true;
+			this.isExpired=true;
+		}
 	}
 
 	@SuppressWarnings("incomplete-switch")

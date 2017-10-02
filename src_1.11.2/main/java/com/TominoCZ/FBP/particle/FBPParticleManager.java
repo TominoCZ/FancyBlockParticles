@@ -30,6 +30,8 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -112,8 +114,11 @@ public class FBPParticleManager extends ParticleManager {
 				try {
 					toAdd = new FBPParticleSmokeNormal(world, (double) X.invokeExact(effect),
 							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect),
-							FBP.random.nextDouble(-0.05, 0.05), FBP.random.nextDouble() * 0.25,
-							FBP.random.nextDouble(-0.05, 0.05), true, white);
+							(double)mX.invokeExact((Particle)effect) * FBP.random.nextDouble(1, 7), 
+							(double)mY.invokeExact((Particle)effect),
+							(double)mZ.invokeExact((Particle)effect) * FBP.random.nextDouble(1, 7),
+							effect.getRedColorF(), effect.getGreenColorF(),
+							effect.getBlueColorF(), (float) getParticleScale.invokeExact(effect), true, white);
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
@@ -121,7 +126,7 @@ public class FBPParticleManager extends ParticleManager {
 				return;
 			} else if (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticleDigging)) {
 				try {
-					blockState = (IBlockState) getSourceState.invokeExact(effect);
+					blockState = (IBlockState) getSourceState.invokeExact((ParticleDigging)effect);
 
 					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
@@ -236,14 +241,19 @@ public class FBPParticleManager extends ParticleManager {
 
 			double d0 = 0, d1 = 0, d2 = 0;
 
+			RayTraceResult obj = Minecraft.getMinecraft().objectMouseOver;
+
+			if (obj == null || obj.hitVec == null)
+				obj = new RayTraceResult(null, new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
+			
 			if (FBP.enabled && FBP.smartBreaking && iblockstate != null
 					&& (!(iblockstate.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 					&& (FBP.spawnRedstoneBlockParticles || iblockstate.getBlock() != Blocks.REDSTONE_BLOCK)) {
-				d0 = Minecraft.getMinecraft().objectMouseOver.hitVec.xCoord
+				d0 = obj.hitVec.xCoord
 						+ FBP.random.nextDouble(-0.225, 0.2251) * (axisalignedbb.maxX - axisalignedbb.minX);
-				d1 = Minecraft.getMinecraft().objectMouseOver.hitVec.yCoord
+				d1 = obj.hitVec.yCoord
 						+ FBP.random.nextDouble(-0.225, 0.2251) * (axisalignedbb.maxY - axisalignedbb.minY);
-				d2 = Minecraft.getMinecraft().objectMouseOver.hitVec.zCoord
+				d2 = obj.hitVec.zCoord
 						+ FBP.random.nextDouble(-0.225, 0.2251) * (axisalignedbb.maxZ - axisalignedbb.minZ);
 			} else {
 				d0 = (double) i

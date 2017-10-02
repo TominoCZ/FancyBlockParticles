@@ -18,16 +18,20 @@ public final class FBPModelTransformer {
 
 	public static IBakedModel transform(IBakedModel model, IBlockState state, long rand,
 			IVertexTransformer transformer) {
-		FBPSimpleBakedModel out = new FBPSimpleBakedModel(model);
+		try {
+			FBPSimpleBakedModel out = new FBPSimpleBakedModel(model);
 
-		for (int i = 0; i <= 6; i++) {
-			EnumFacing side = (i == 6 ? null : EnumFacing.getFront(i));
-			for (BakedQuad quad : model.getQuads(state, side, rand)) {
-				out.addQuad(side, transform(quad, transformer));
+			for (int i = 0; i <= 6; i++) {
+				EnumFacing side = (i == 6 ? null : EnumFacing.getFront(i));
+				for (BakedQuad quad : model.getQuads(state, side, rand)) {
+					out.addQuad(side, transform(quad, transformer));
+				}
 			}
-		}
 
-		return out;
+			return out;
+		} catch (Throwable t) {
+			return null;
+		}
 	}
 
 	private static BakedQuad transform(BakedQuad quad, IVertexTransformer transformer) {
