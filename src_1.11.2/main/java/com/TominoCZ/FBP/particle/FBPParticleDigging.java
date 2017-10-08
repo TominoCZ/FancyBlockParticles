@@ -53,7 +53,7 @@ public class FBPParticleDigging extends ParticleDigging {
 
 	Vec2f[] par;
 
-	double endMult = 1;
+	double endMult = 0.75;
 
 	float brightness = 1;
 
@@ -245,17 +245,10 @@ public class FBPParticleDigging extends ParticleDigging {
 				if (!dying)
 					dying = true;
 
-				if (FBP.randomFadingSpeed)
-					particleScale *= 0.95F * endMult;
-				else
-					particleScale *= 0.95F;
+				particleScale *= 0.95F * endMult;
 
-				if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
-					if (FBP.randomFadingSpeed)
-						particleAlpha *= 0.65F * endMult;
-					else
-						particleAlpha *= 0.65F;
-				}
+				if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
+					particleAlpha *= 0.65F * endMult;
 
 				if (particleAlpha <= 0.01)
 					setExpired();
@@ -486,10 +479,10 @@ public class FBPParticleDigging extends ParticleDigging {
 		}
 	}
 
-	private void addVt(VertexBuffer worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k,
-			float r, float g, float b, float a) {
-		worldRendererIn.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a).lightmap(j, k)
-				.endVertex();
+	private void addVt(VertexBuffer worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k, float r,
+			float g, float b, float a) {
+		worldRendererIn.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a)
+				.lightmap(j, k).endVertex();
 	}
 
 	Vec3d rotatef(Vec3d vec, float AngleX, float AngleY, float AngleZ) {

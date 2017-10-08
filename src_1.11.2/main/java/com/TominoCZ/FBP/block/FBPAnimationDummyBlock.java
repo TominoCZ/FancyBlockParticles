@@ -13,7 +13,6 @@ import com.TominoCZ.FBP.particle.FBPParticleBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -52,13 +51,14 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing heldItem, float side, float hitX, float hitY)
-    {
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+			EnumHand hand, EnumFacing heldItem, float side, float hitX, float hitY) {
 		if (blockNodes.containsKey(pos)) {
 			BlockNode n = blockNodes.get(pos);
 
 			try {
-				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY);
+				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX,
+						hitY);
 			} catch (Throwable t) {
 				return false;
 			}
@@ -193,10 +193,15 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
-    {
-		if (blockNodes.containsKey(pos))
-			blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn, p_185477_7_);
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_) {
+		try {
+			if (blockNodes.containsKey(pos))
+				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn,
+						p_185477_7_);
+		} catch (Exception e) {
+
+		}
 	}
 
 	@Override
@@ -361,10 +366,8 @@ public class FBPAnimationDummyBlock extends Block {
 		return false;
 	}
 
-	
-	
 	@SideOnly(Side.CLIENT)
 	public float getAmbientOcclusionLightValue(IBlockState state) {
-		return 0.0F;
+		return 1.0F;
 	}
 }

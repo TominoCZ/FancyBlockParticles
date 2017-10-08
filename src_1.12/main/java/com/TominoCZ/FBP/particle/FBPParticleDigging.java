@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.opengl.GL11;
-
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
 import com.TominoCZ.FBP.util.FBPMathUtil;
@@ -20,11 +18,8 @@ import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -58,7 +53,7 @@ public class FBPParticleDigging extends ParticleDigging {
 
 	Vec2f[] par;
 
-	double endMult = 1;
+	double endMult = 0.75;
 
 	float brightness = 1;
 
@@ -250,17 +245,10 @@ public class FBPParticleDigging extends ParticleDigging {
 				if (!dying)
 					dying = true;
 
-				if (FBP.randomFadingSpeed)
-					particleScale *= 0.95F * endMult;
-				else
-					particleScale *= 0.95F;
+				particleScale *= 0.95F * endMult;
 
-				if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
-					if (FBP.randomFadingSpeed)
-						particleAlpha *= 0.65F * endMult;
-					else
-						particleAlpha *= 0.65F;
-				}
+				if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
+					particleAlpha *= 0.65F * endMult;
 
 				if (particleAlpha <= 0.01)
 					setExpired();

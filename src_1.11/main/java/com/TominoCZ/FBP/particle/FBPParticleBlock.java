@@ -28,6 +28,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerDigging.Action;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -69,6 +70,8 @@ public class FBPParticleBlock extends Particle {
 
 	boolean blockSet = false;
 
+	TileEntity tileEntity;
+	
 	public FBPParticleBlock(World worldIn, double posXIn, double posYIn, double posZIn, IBlockState state,
 			long rand) {
 		super(worldIn, posXIn, posYIn, posZIn);
@@ -154,6 +157,8 @@ public class FBPParticleBlock extends Particle {
 			canCollide = true;
 			this.isExpired = true;
 		}
+		
+		tileEntity = worldIn.getTileEntity(pos);
 	}
 
 	@SuppressWarnings("incomplete-switch")
@@ -182,7 +187,10 @@ public class FBPParticleBlock extends Particle {
 
 		if (this.isExpired || mc.isGamePaused())
 			return;
-
+		
+		if (worldObj.getTileEntity(pos) != tileEntity)
+			worldObj.setTileEntity(pos, tileEntity);
+		
 		prevHeight = height;
 
 		prevRot.copyFrom(rot);
@@ -287,9 +295,7 @@ public class FBPParticleBlock extends Particle {
 		Tessellator.getInstance().draw();
 		mc.getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
-		buff.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
-
-		
+		buff.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 		
 		IBakedModel modelForRender = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
 				new FBPModelTransformer.IVertexTransformer() {

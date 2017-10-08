@@ -307,7 +307,7 @@ public class FBPParticleManager extends ParticleManager {
 									.invokeExact(Minecraft.getMinecraft().renderGlobal);
 
 							if (!mp.isEmpty()) {
-								Iterator it = mp.values().stream().iterator();
+								Iterator it = mp.values().iterator();
 
 								while (it.hasNext()) {
 									progress = (DestroyBlockProgress) it.next();

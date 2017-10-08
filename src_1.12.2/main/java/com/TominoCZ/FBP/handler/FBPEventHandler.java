@@ -95,7 +95,7 @@ public class FBPEventHandler {
 				BlockPosNode node = getNodeWithPos(pos);
 
 				if ((flags == 2 || flags == 3 || flags == 10 || flags == 11) && !(oldState.equals(newState))
-						&& oldState.getBlock() != newState.getBlock() // TODO TESTING...
+						&& oldState.getBlock() != newState.getBlock()
 						&& node != null && !node.checked) {
 					if (node.isSame(pos) || newState.getBlock() == FBP.FBPBlock || newState.getBlock() == Blocks.AIR) {
 						node.checked = true;
@@ -124,7 +124,7 @@ public class FBPEventHandler {
 								pos.getZ() + 0.5f, state, seed);
 
 						FBP.FBPBlock.copyState(worldIn, pos, state, p);
-
+						
 						mc.effectRenderer.addEffect(p);
 					}
 

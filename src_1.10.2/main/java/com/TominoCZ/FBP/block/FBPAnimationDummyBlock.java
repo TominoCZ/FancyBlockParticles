@@ -13,7 +13,6 @@ import com.TominoCZ.FBP.particle.FBPParticleBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -52,13 +51,14 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
-    {
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+			EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (blockNodes.containsKey(pos)) {
 			BlockNode n = blockNodes.get(pos);
 
 			try {
-				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY,
+						hitZ);
 			} catch (Throwable t) {
 				return false;
 			}
@@ -193,10 +193,14 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn)
-    {
-		if (blockNodes.containsKey(pos))
-			blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn);
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn) {
+		try {
+			if (blockNodes.containsKey(pos))
+				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn);
+		} catch (Exception e) {
+
+		}
 	}
 
 	@Override
@@ -361,10 +365,8 @@ public class FBPAnimationDummyBlock extends Block {
 		return false;
 	}
 
-	
-	
 	@SideOnly(Side.CLIENT)
 	public float getAmbientOcclusionLightValue(IBlockState state) {
-		return 0.0F;
+		return 1.0F;
 	}
 }

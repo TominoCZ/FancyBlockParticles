@@ -28,6 +28,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerDigging.Action;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -69,8 +70,9 @@ public class FBPParticleBlock extends Particle {
 
 	boolean blockSet = false;
 
-	public FBPParticleBlock(World worldIn, double posXIn, double posYIn, double posZIn, IBlockState state,
-			long rand) {
+	TileEntity tileEntity;
+
+	public FBPParticleBlock(World worldIn, double posXIn, double posYIn, double posZIn, IBlockState state, long rand) {
 		super(worldIn, posXIn, posYIn, posZIn);
 
 		pos = new BlockPos(posXIn, posYIn, posZIn);
@@ -82,7 +84,7 @@ public class FBPParticleBlock extends Particle {
 		lookingUp = Float.valueOf(MathHelper.wrapDegrees(mc.player.rotationPitch)) <= 0;
 
 		height = startingHeight;
-		
+
 		prevRot = new FBPVector3d();
 		rot = new FBPVector3d();
 
@@ -95,7 +97,7 @@ public class FBPParticleBlock extends Particle {
 		BlockModelShapes shapes = mc.getBlockRendererDispatcher().getBlockModelShapes();
 		modelPrefab = mc.getBlockRendererDispatcher().getModelForState(state);
 		this.particleTexture = shapes.getTexture(state);
-		
+
 		modelPrefab = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
 				new FBPModelTransformer.IVertexTransformer() {
 
@@ -149,12 +151,13 @@ public class FBPParticleBlock extends Particle {
 		prevRot.z = rot.z = 0;
 
 		this.canCollide = false;
-		
-		if (modelPrefab == null)
-		{
-			canCollide=true;
-			this.isExpired=true;
+
+		if (modelPrefab == null) {
+			canCollide = true;
+			this.isExpired = true;
 		}
+
+		tileEntity = worldIn.getTileEntity(pos);
 	}
 
 	@SuppressWarnings("incomplete-switch")
@@ -183,6 +186,9 @@ public class FBPParticleBlock extends Particle {
 
 		if (this.isExpired || mc.isGamePaused())
 			return;
+
+		if (world.getTileEntity(pos) != tileEntity)
+			world.setTileEntity(pos, tileEntity);
 
 		prevHeight = height;
 
@@ -214,8 +220,8 @@ public class FBPParticleBlock extends Particle {
 
 	@SuppressWarnings("incomplete-switch")
 	@Override
-	public void renderParticle(BufferBuilder buff, Entity entityIn, float partialTicks, float rotationX, float rotationZ,
-			float rotationYZ, float rotationXY, float rotationXZ) {
+	public void renderParticle(BufferBuilder buff, Entity entityIn, float partialTicks, float rotationX,
+			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (this.isExpired)
 			return;
 
@@ -223,7 +229,8 @@ public class FBPParticleBlock extends Particle {
 			Block b = world.getBlockState(pos).getBlock();
 			if (block != b && b != Blocks.AIR && world.getBlockState(pos).getBlock() != blockState.getBlock()) {
 				world.setBlockState(pos, blockState);
-				world.sendPacketToServer(new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos, facing.getOpposite()));
+				world.sendPacketToServer(
+						new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos, facing.getOpposite()));
 			}
 			if (tick >= 4) {
 				killParticle();
@@ -288,10 +295,8 @@ public class FBPParticleBlock extends Particle {
 		Tessellator.getInstance().draw();
 		mc.getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
-		buff.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
+		buff.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-		
-		
 		IBakedModel modelForRender = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
 				new FBPModelTransformer.IVertexTransformer() {
 					@Override
@@ -400,8 +405,8 @@ public class FBPParticleBlock extends Particle {
 			mX /= -0.5;
 			mZ /= -0.5;
 
-			mc.effectRenderer.addEffect(new FBPParticleDigging(world, corner.x, pos.getY() + 0.1f, corner.y, mX, 0,
-					mZ, block.getActualState(blockState, world, pos), null, 0.6f, this.particleTexture)
+			mc.effectRenderer.addEffect(new FBPParticleDigging(world, corner.x, pos.getY() + 0.1f, corner.y, mX, 0, mZ,
+					block.getActualState(blockState, world, pos), null, 0.6f, this.particleTexture)
 							.multipleParticleScaleBy(0.5f).multiplyVelocity(0.5f));
 		}
 
@@ -418,8 +423,8 @@ public class FBPParticleBlock extends Particle {
 			mX /= -0.5;
 			mZ /= -0.5;
 
-			mc.effectRenderer.addEffect(new FBPParticleDigging(world, corner.x, pos.getY() + 0.1f, corner.y, mX / 3,
-					0, mZ / 3, block.getActualState(blockState, world, pos), null, 0.6f, this.particleTexture)
+			mc.effectRenderer.addEffect(new FBPParticleDigging(world, corner.x, pos.getY() + 0.1f, corner.y, mX / 3, 0,
+					mZ / 3, block.getActualState(blockState, world, pos), null, 0.6f, this.particleTexture)
 							.multipleParticleScaleBy(0.75f).multiplyVelocity(0.75f));
 		}
 	}

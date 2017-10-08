@@ -195,9 +195,13 @@ public class FBPAnimationDummyBlock extends Block {
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
 			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b) {
+		try {
+			if (blockNodes.containsKey(pos))
+				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn, b);
+						p_185477_7_);
+		} catch (Exception e) {
 
-		if (blockNodes.containsKey(pos))
-			blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn, b);
+		}
 	}
 
 	@Override
@@ -366,6 +370,6 @@ public class FBPAnimationDummyBlock extends Block {
 	
 	@SideOnly(Side.CLIENT)
 	public float getAmbientOcclusionLightValue(IBlockState state) {
-		return 0.0F;
+		return 1.0F;
 	}
 }
