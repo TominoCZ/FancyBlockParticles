@@ -18,7 +18,7 @@ public final class FBPModelTransformer {
 
 	public static IBakedModel transform(IBakedModel model, IBlockState state, long rand,
 			IVertexTransformer transformer) {
-		try{
+		try {
 			FBPSimpleBakedModel out = new FBPSimpleBakedModel(model);
 
 			for (int i = 0; i <= 6; i++) {

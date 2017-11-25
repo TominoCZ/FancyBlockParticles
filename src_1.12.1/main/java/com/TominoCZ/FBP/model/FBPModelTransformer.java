@@ -18,9 +18,9 @@ public final class FBPModelTransformer {
 
 	public static FBPSimpleBakedModel transform(IBakedModel model, IBlockState state, long rand,
 			IVertexTransformer transformer) {
-		try{
+		try {
 			FBPSimpleBakedModel out = new FBPSimpleBakedModel(model);
-			
+
 			for (int i = 0; i <= 6; i++) {
 				EnumFacing side = (i == 6 ? null : EnumFacing.getFront(i));
 				for (BakedQuad quad : model.getQuads(state, side, rand)) {
@@ -29,7 +29,7 @@ public final class FBPModelTransformer {
 			}
 
 			return out;
-		}catch(Throwable t) {
+		} catch (Throwable t) {
 			return null;
 		}
 	}

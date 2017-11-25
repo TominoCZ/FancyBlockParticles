@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
@@ -46,28 +45,31 @@ public class FBPParticleFlame extends ParticleFlame {
 			double mZ, boolean spawnAnother) {
 		super(worldIn, xCoordIn, yCoordIn - 0.11f, zCoordIn, mX, mY, mZ);
 		IBlockState bs = worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
-		
+
 		this.spawnAnother = spawnAnother;
-		
+
 		if (bs.getBlock() != Blocks.TORCH)
 			spawnAnother = false;
-		
+
 		if (bs == Blocks.TORCH.getDefaultState())
 			yCoordIn += 0.11f;
-			
+
 		startPos = new Vec3d(xCoordIn, yCoordIn, zCoordIn);
-		
+
 		mc = Minecraft.getMinecraft();
 
-		//this.spawnAnother = spawnAnother && worldObj.getBlockState(new BlockPos(startPos)).getBlock() == Blocks.TORCH && mc.gameSettings.particleSetting == 0;
-		
+		// this.spawnAnother = spawnAnother && worldObj.getBlockState(new
+		// BlockPos(startPos)).getBlock() == Blocks.TORCH &&
+		// mc.gameSettings.particleSetting == 0;
+
 		this.motionY = -0.00085f;
 		this.particleGravity = -0.05f;
 
-		this.particleTexture = mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture(Blocks.SNOW.getDefaultState());
+		this.particleTexture = mc.getBlockRendererDispatcher().getBlockModelShapes()
+				.getTexture(Blocks.SNOW.getDefaultState());
 
 		particleScale *= FBP.scaleMult * 2.5f;
-		particleMaxAge = (int) FBP.random.nextInt(3, 5);
+		particleMaxAge = FBP.random.nextInt(3, 5);
 
 		this.particleRed = 1f;
 		this.particleGreen = 1f;
@@ -86,11 +88,12 @@ public class FBPParticleFlame extends ParticleFlame {
 
 		particleAlpha = 1f;
 		startScale = particleScale;
-		
+
 		if (FBP.randomFadingSpeed)
 			endMult *= FBP.random.nextDouble(0.9875, 1);
 	}
 
+	@Override
 	public int getFXLayer() {
 		return 0;
 	}
@@ -127,31 +130,33 @@ public class FBPParticleFlame extends ParticleFlame {
 
 				if (particleAlpha <= 0.01)
 					setExpired();
-				else if (particleAlpha <= 0.325 && spawnAnother && world.getBlockState(new BlockPos(posX, posY, posZ)).getBlock() == Blocks.TORCH) {
+				else if (particleAlpha <= 0.325 && spawnAnother
+						&& world.getBlockState(new BlockPos(posX, posY, posZ)).getBlock() == Blocks.TORCH) {
 					spawnAnother = false;
-					
-					mc.effectRenderer.addEffect(new FBPParticleFlame(world, startPos.x, startPos.y - 0.065f,
-							startPos.z, 0, 0, 0, spawnAnother));
+
+					mc.effectRenderer.addEffect(new FBPParticleFlame(world, startPos.x, startPos.y - 0.065f, startPos.z,
+							0, 0, 0, spawnAnother));
 				}
 			}
 
-			motionY -= 0.02D * (double) this.particleGravity;
+			motionY -= 0.02D * this.particleGravity;
 			move(0, motionY, 0);
 			motionY *= 0.95D;
 		}
 	}
 
+	@Override
 	public void renderParticle(BufferBuilder worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
-		float f = particleTexture.getInterpolatedU((double) ((0.1f + 1) / 4 * 16));
-		float f1 = particleTexture.getInterpolatedV((double) ((0.1f + 1) / 4 * 16));
+		float f = particleTexture.getInterpolatedU((0.1f + 1) / 4 * 16);
+		float f1 = particleTexture.getInterpolatedV((0.1f + 1) / 4 * 16);
 
-		float f5 = (float) (prevPosX + (posX - prevPosX) * (double) partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * (double) partialTicks - interpPosY) + 0.01275F;
-		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * (double) partialTicks - interpPosZ);
+		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
+		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
 		int i = getBrightnessForRender(partialTicks);
 
@@ -166,8 +171,6 @@ public class FBPParticleFlame extends ParticleFlame {
 		worldRendererIn.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 
 		GlStateManager.enableCull();
-		GlStateManager.enableBlend();
-		GlStateManager.enableAlpha();
 
 		par = new Vec2f(f, f1);
 
@@ -176,8 +179,7 @@ public class FBPParticleFlame extends ParticleFlame {
 		worldRendererIn.setTranslation(0, 0, 0);
 
 		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getTextureManager()
-				.bindTexture(FBP.LOCATION_PARTICLE_TEXTURE);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(FBP.LOCATION_PARTICLE_TEXTURE);
 		worldRendererIn.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 	}
 
@@ -207,8 +209,8 @@ public class FBPParticleFlame extends ParticleFlame {
 		}
 	}
 
-	private void addVt(BufferBuilder worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k, float r, float g,
-			float b, float a) { // add vertex to buffer
+	private void addVt(BufferBuilder worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k,
+			float r, float g, float b, float a) { // add vertex to buffer
 		worldRendererIn.pos(pos.x * scale, pos.y * scale, pos.z * scale).tex(u, v).color(r, g, b, a).lightmap(j, k)
 				.endVertex();
 	}
@@ -222,16 +224,14 @@ public class FBPParticleFlame extends ParticleFlame {
 		double cosAngleY = MathHelper.cos(AngleY);
 		double cosAngleZ = MathHelper.cos(AngleZ);
 
-		vec = new Vec3d(vec.x, vec.y * cosAngleX - vec.z * sinAngleX,
-				vec.y * sinAngleX + vec.z * cosAngleX);
-		vec = new Vec3d(vec.x * cosAngleY + vec.z * sinAngleY, vec.y,
-				vec.x * sinAngleY - vec.z * cosAngleY);
-		vec = new Vec3d(vec.x * cosAngleZ - vec.y * sinAngleZ,
-				vec.x * sinAngleZ + vec.y * cosAngleZ, vec.z);
+		vec = new Vec3d(vec.x, vec.y * cosAngleX - vec.z * sinAngleX, vec.y * sinAngleX + vec.z * cosAngleX);
+		vec = new Vec3d(vec.x * cosAngleY + vec.z * sinAngleY, vec.y, vec.x * sinAngleY - vec.z * cosAngleY);
+		vec = new Vec3d(vec.x * cosAngleZ - vec.y * sinAngleZ, vec.x * sinAngleZ + vec.y * cosAngleZ, vec.z);
 
 		return vec;
 	}
 
+	@Override
 	public int getBrightnessForRender(float p_189214_1_) {
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;

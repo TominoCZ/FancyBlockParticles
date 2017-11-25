@@ -52,19 +52,18 @@ public class FBPAnimationDummyBlock extends Block {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumHand hand, EnumFacing heldItem, float side, float hitX, float hitY) {
+			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (blockNodes.containsKey(pos)) {
 			BlockNode n = blockNodes.get(pos);
 
 			try {
-				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX,
-						hitY);
+				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
 			} catch (Throwable t) {
 				return false;
 			}
 		}
 
-		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY);
+		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
 	}
 
 	@Override
@@ -121,7 +120,7 @@ public class FBPAnimationDummyBlock extends Block {
 			t.printStackTrace();
 		}
 
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return Block.FULL_BLOCK_AABB.offset(pos);
 	}
 
 	@Override
@@ -136,22 +135,12 @@ public class FBPAnimationDummyBlock extends Block {
 			t.printStackTrace();
 		}
 
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return Block.FULL_BLOCK_AABB.offset(pos);
 	}
 
 	@Override
 	public AxisAlignedBB getSelectedBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
-				BlockNode n = blockNodes.get(pos);
-
-				return n.state.getSelectedBoundingBox(worldIn, pos);
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 	}
 
 	@Override
@@ -194,11 +183,10 @@ public class FBPAnimationDummyBlock extends Block {
 
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
-			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_) {
+			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b) {
 		try {
 			if (blockNodes.containsKey(pos))
-				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn,
-						p_185477_7_);
+				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn, b);
 		} catch (Exception e) {
 
 		}
@@ -366,8 +354,17 @@ public class FBPAnimationDummyBlock extends Block {
 		return false;
 	}
 
+	@Override
 	@SideOnly(Side.CLIENT)
 	public float getAmbientOcclusionLightValue(IBlockState state) {
 		return 1.0F;
+	}
+
+	@Override
+	public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+		if (blockNodes.containsKey(pos))
+			return blockNodes.get(pos).originalBlock.isSideSolid(base_state, world, pos, side);
+
+		return true;
 	}
 }

@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 
 public class FBPGuiButton extends GuiButton {
 	boolean toggleButton = false;
@@ -14,6 +13,8 @@ public class FBPGuiButton extends GuiButton {
 	boolean toggle;
 
 	int offsetX;
+
+	public int size;
 
 	public FBPGuiButton(int buttonId, int x, int y, String buttonText, boolean toggle, boolean toggleButton) {
 		super(buttonId, x, y, buttonText);
@@ -35,9 +36,9 @@ public class FBPGuiButton extends GuiButton {
 			this.displayString = "\u00A76" + this.displayString;
 			offsetX = (this.height - 10) / 2;
 			break;
-		case "cogwheel":
-			this.displayString = "\u00A7a\u00A7L\u2699";
-			offsetX = (this.height - 5) / 2;
+		case "...":
+			this.displayString = "\u00A7a\u00A7L...";// "\u00A7a\u2699";
+			offsetX = 6;
 			break;
 		default:
 			offsetX = -1;
@@ -48,6 +49,7 @@ public class FBPGuiButton extends GuiButton {
 			this.toggle = toggle;
 	}
 
+	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (this.visible) {
 			int centerX1 = x + this.height / 2;
@@ -69,9 +71,8 @@ public class FBPGuiButton extends GuiButton {
 			hovered = (distance1 <= radius || distance2 <= radius) || isOverRectangle;
 
 			FontRenderer fontrenderer = mc.fontRenderer;
-			mc.getTextureManager().bindTexture(new ResourceLocation(FBP.MODID + ":textures/gui/widgets.png"));
+			mc.getTextureManager().bindTexture(FBP.FBP_WIDGETS);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
 			int i = this.getHoverState(this.hovered);
 
 			GlStateManager.enableBlend();
@@ -81,6 +82,7 @@ public class FBPGuiButton extends GuiButton {
 					GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+
 			this.drawTexturedModalRect(this.x, this.y, 0, i * 20, this.width / 2, this.height);
 			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, i * 20, this.width / 2,
 					this.height);
@@ -112,6 +114,7 @@ public class FBPGuiButton extends GuiButton {
 		}
 	}
 
+	@Override
 	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
 		if (this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
 				&& mouseY < this.y + this.height) {

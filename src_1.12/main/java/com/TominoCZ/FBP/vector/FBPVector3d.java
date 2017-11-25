@@ -50,7 +50,7 @@ public class FBPVector3d extends Vector3d {
 
 	public FBPVector3d multiply(double d) {
 		FBPVector3d v = new FBPVector3d(this);
-		
+
 		v.x *= d;
 		v.y *= d;
 		v.z *= d;

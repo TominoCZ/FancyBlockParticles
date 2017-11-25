@@ -14,18 +14,21 @@ import org.apache.commons.lang3.StringUtils;
 import com.TominoCZ.FBP.block.FBPAnimationDummyBlock;
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPEventHandler;
+import com.TominoCZ.FBP.handler.FBPGuiHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
-import com.TominoCZ.FBP.handler.FBPRenderGuiHandler;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
 import com.google.common.base.Throwables;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleDigging;
+import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.init.Blocks;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Session;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -46,18 +49,21 @@ public class FBP {
 
 	public final static String MODID = "fbp";
 
-	public static final ResourceLocation LOCATION_PARTICLE_TEXTURE = new ResourceLocation("textures/particle/particles.png");
+	public static final ResourceLocation LOCATION_PARTICLE_TEXTURE = new ResourceLocation(
+			"textures/particle/particles.png");
 	public static final ResourceLocation RAIN_TEXTURES = new ResourceLocation("textures/environment/rain.png");
 	public static final ResourceLocation SNOW_TEXTURES = new ResourceLocation("textures/environment/snow.png");
-	
-	public static File exceptionsFile = null;
+
+	public static final ResourceLocation FBP_BUG = new ResourceLocation(FBP.MODID + ":textures/gui/bug.png");
+	public static final ResourceLocation FBP_FBP = new ResourceLocation(FBP.MODID + ":textures/gui/fbp.png");
+	public static final ResourceLocation FBP_WIDGETS = new ResourceLocation(FBP.MODID + ":textures/gui/widgets.png");
+
+	public static File animExceptionsFile = null, particleExceptionsFile = null;
 	public static File config = null;
 
-	public static String lastAdded;
+	public static int minAge, maxAge, particlesPerAxis;
 
-	public static int minAge, maxAge;
-
-	public static double scaleMult, gravityMult, rotationMult;
+	public static double scaleMult, gravityMult, rotationMult, weatherParticleDensity;
 
 	public static boolean isServer = false;
 
@@ -66,47 +72,75 @@ public class FBP {
 	public static boolean infiniteDuration = false;
 	public static boolean randomRotation = true, cartoonMode = false, spawnWhileFrozen = true,
 			spawnRedstoneBlockParticles = false, smoothTransitions = true, randomFadingSpeed = true,
-			entityCollision = false, bounceOffWalls = true, rollParticles = false, smartBreaking = true,
-			fancyPlaceAnim = true, fancyWeather = true, fancyFlame = true, fancySmoke = true, frozen = false;
+			entityCollision = false, bounceOffWalls = true, lowTraction = false, smartBreaking = true,
+			fancyPlaceAnim = true, spawnPlaceParticles = true, fancyWeather = true, fancyFlame = true,
+			fancySmoke = true, enableDing = true, frozen = false;
 
-	public List<String> blockExceptions;
-	public List<String> defaultBlockExceptions;
+	public List<String> blockParticleExceptions;
+	public List<String> blockAnimExceptions;
+	public List<String> defaultBlockAnimExceptions;
 
 	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
-	public static final Vec3d[] CUBE = { new Vec3d(-1, -1, 1), new Vec3d(-1, 1, 1), new Vec3d(1, 1, 1),
-			new Vec3d(1, -1, 1),
-
-			new Vec3d(1, -1, -1), new Vec3d(1, 1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, -1, -1),
-
-			new Vec3d(-1, -1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, 1, 1), new Vec3d(-1, -1, 1),
-
-			new Vec3d(1, -1, 1), new Vec3d(1, 1, 1), new Vec3d(1, 1, -1), new Vec3d(1, -1, -1),
-
+	public static final Vec3d[] CUBE = {
+			// TOP
 			new Vec3d(1, 1, -1), new Vec3d(1, 1, 1), new Vec3d(-1, 1, 1), new Vec3d(-1, 1, -1),
 
-			new Vec3d(-1, -1, -1), new Vec3d(-1, -1, 1), new Vec3d(1, -1, 1), new Vec3d(1, -1, -1) };
+			// BOTTOM
+			new Vec3d(-1, -1, -1), new Vec3d(-1, -1, 1), new Vec3d(1, -1, 1), new Vec3d(1, -1, -1),
+
+			// FRONT
+			new Vec3d(-1, -1, 1), new Vec3d(-1, 1, 1), new Vec3d(1, 1, 1), new Vec3d(1, -1, 1),
+			// BACK
+			new Vec3d(1, -1, -1), new Vec3d(1, 1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, -1, -1),
+
+			// LEFT
+			new Vec3d(-1, -1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, 1, 1), new Vec3d(-1, -1, 1),
+
+			// RIGHT
+			new Vec3d(1, -1, 1), new Vec3d(1, 1, 1), new Vec3d(1, 1, -1), new Vec3d(1, -1, -1) };
+
+	public static final Vec3d[] CUBE_NORMALS = { new Vec3d(0, 1, 0), new Vec3d(0, -1, 0),
+
+			new Vec3d(0, 0, 1), new Vec3d(0, 0, -1),
+
+			new Vec3d(-1, 0, 0), new Vec3d(1, 0, 0) };
+
+	public static VertexFormat POSITION_TEX_COLOR_LMAP_NORMAL;
 
 	public static MethodHandle setSourcePos;
 
 	public static FBPAnimationDummyBlock FBPBlock = new FBPAnimationDummyBlock();
 
+	public static EntityRenderer fancyEntityRenderer, originalEntityRenderer;
+	public static ParticleManager fancyEffectRenderer, originalEffectRenderer;
+
 	public FBPEventHandler eventHandler = new FBPEventHandler();
+	public FBPGuiHandler guiHandler = new FBPGuiHandler();
 
 	public FBP() {
 		INSTANCE = this;
 
-		blockExceptions = Collections.synchronizedList(new ArrayList<String>());
-		defaultBlockExceptions = Collections.synchronizedList(new ArrayList<String>());
-		
-		defaultBlockExceptions.add(Blocks.VINE.getRegistryName().toString());
-		defaultBlockExceptions.add(Blocks.BARRIER.getRegistryName().toString());
-		defaultBlockExceptions.add(Blocks.STANDING_BANNER.getRegistryName().toString());
-		defaultBlockExceptions.add(Blocks.COBBLESTONE_WALL.getRegistryName().toString());
-		
-		defaultBlockExceptions.add(Blocks.CHEST.getRegistryName().toString());
-		defaultBlockExceptions.add(Blocks.ENDER_CHEST.getRegistryName().toString());
-		defaultBlockExceptions.add(Blocks.TRAPPED_CHEST.getRegistryName().toString());
+		POSITION_TEX_COLOR_LMAP_NORMAL = new VertexFormat();
+
+		POSITION_TEX_COLOR_LMAP_NORMAL.addElement(DefaultVertexFormats.POSITION_3F);
+		POSITION_TEX_COLOR_LMAP_NORMAL.addElement(DefaultVertexFormats.TEX_2F);
+		POSITION_TEX_COLOR_LMAP_NORMAL.addElement(DefaultVertexFormats.COLOR_4UB);
+		POSITION_TEX_COLOR_LMAP_NORMAL.addElement(DefaultVertexFormats.TEX_2S);
+		POSITION_TEX_COLOR_LMAP_NORMAL.addElement(DefaultVertexFormats.NORMAL_3B);
+
+		blockParticleExceptions = Collections.synchronizedList(new ArrayList<String>());
+		blockAnimExceptions = Collections.synchronizedList(new ArrayList<String>());
+		defaultBlockAnimExceptions = Collections.synchronizedList(new ArrayList<String>());
+
+		defaultBlockAnimExceptions.add(Blocks.VINE.getRegistryName().toString());
+		defaultBlockAnimExceptions.add(Blocks.BARRIER.getRegistryName().toString());
+		defaultBlockAnimExceptions.add(Blocks.STANDING_BANNER.getRegistryName().toString());
+		defaultBlockAnimExceptions.add(Blocks.COBBLESTONE_WALL.getRegistryName().toString());
+
+		defaultBlockAnimExceptions.add(Blocks.CHEST.getRegistryName().toString());
+		defaultBlockAnimExceptions.add(Blocks.ENDER_CHEST.getRegistryName().toString());
+		defaultBlockAnimExceptions.add(Blocks.TRAPPED_CHEST.getRegistryName().toString());
 	}
 
 	@EventHandler
@@ -115,15 +149,14 @@ public class FBP {
 			isServer = true;
 
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-		exceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
+		animExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
+		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
 
 		FBPConfigHandler.init();
 
 		FBPKeyBindings.init();
 
 		FMLCommonHandler.instance().bus().register(new FBPKeyInputHandler());
-		
-		lastAdded = "minecraft:stone";
 	}
 
 	@EventHandler
@@ -134,10 +167,10 @@ public class FBP {
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent evt) {
-		MinecraftForge.EVENT_BUS.register(new FBPRenderGuiHandler());
+		MinecraftForge.EVENT_BUS.register(guiHandler);
 
 		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
-		
+
 		try {
 			setSourcePos = lookup
 					.unreflectSetter(ReflectionHelper.findField(ParticleDigging.class, "field_181019_az", "sourcePos"));
@@ -145,10 +178,9 @@ public class FBP {
 			throw Throwables.propagate(e);
 		}
 	}
-	
+
 	@SubscribeEvent
-	public static void registerItems(final RegistryEvent.Register<Block> event) 
-	{
+	public static void registerItems(final RegistryEvent.Register<Block> event) {
 		event.getRegistry().register(FBPBlock);
 	}
 
@@ -161,67 +193,79 @@ public class FBP {
 		return result;
 	}
 
+	public static void setEnabled(boolean enabled) {
+		if (FBP.enabled != enabled) {
+			if (enabled) {
+				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
+				if (fancyWeather)
+					Minecraft.getMinecraft().entityRenderer = FBP.fancyEntityRenderer;
+			} else {
+				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;
+				Minecraft.getMinecraft().entityRenderer = FBP.originalEntityRenderer;
+			}
+		}
+		FBP.enabled = enabled;
+	}
+
 	public static boolean isDev() {
 		return (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 	}
 
-	public boolean canBlockBeAnimated(Block b) {
-		return !isInExceptions(b);
-	}
-	
-	public boolean isInExceptions(Block b) {
+	public boolean isInExceptions(Block b, boolean particle) {
 		if (b == null)
 			return true;
-		
-		return blockExceptions.contains(b.getRegistryName().toString());
-	}
-	
-	public void addException(Block b) {
-		if (b == null)
-			return;
-		
-		String name = b.getRegistryName().toString();
-		
-		if (!blockExceptions.contains(name))
-			blockExceptions.add(name);
-	}
-	
-	public void removeException(Block b) {
-		if (b == null)
-			return;
-		
-		String name = b.getRegistryName().toString();
-		
-		if (blockExceptions.contains(name))
-			blockExceptions.remove(name);
+
+		return (particle ? blockParticleExceptions : blockAnimExceptions).contains(b.getRegistryName().toString());
 	}
 
-	public void resetExceptions() {
-		blockExceptions.clear();
-		blockExceptions.addAll(defaultBlockExceptions);
+	public void addException(Block b, boolean particle) {
+		if (b == null)
+			return;
+
+		String name = b.getRegistryName().toString();
+
+		if (!(particle ? blockParticleExceptions : blockAnimExceptions).contains(name))
+			(particle ? blockParticleExceptions : blockAnimExceptions).add(name);
 	}
 
-	public void addException(String name) {
+	public void removeException(Block b, boolean particle) {
+		if (b == null)
+			return;
+
+		String name = b.getRegistryName().toString();
+
+		if ((particle ? blockParticleExceptions : blockAnimExceptions).contains(name))
+			(particle ? blockParticleExceptions : blockAnimExceptions).remove(name);
+	}
+
+	public void addException(String name, boolean particle) {
 		if (StringUtils.isEmpty(name))
 			return;
-		
+
 		Iterator it = Block.REGISTRY.getKeys().iterator();
-		
-		while(it.hasNext())
-		{
-			ResourceLocation rl = ((ResourceLocation)it.next());
+
+		while (it.hasNext()) {
+			ResourceLocation rl = ((ResourceLocation) it.next());
 			String s = rl.toString();
-			
-			if (s.equals(name))
-			{
+
+			if (s.equals(name)) {
 				Block b = Block.REGISTRY.getObject(rl);
-				addException(b);
+
+				if (b == Blocks.REDSTONE_BLOCK)
+					break;
+
+				addException(b, particle);
 				break;
 			}
 		}
 	}
 
-	public boolean hasExceptions() {
-		return blockExceptions.size() > 0;
+	public void resetExceptions(boolean particle) {
+		if (particle) {
+			blockParticleExceptions.clear();
+		} else {
+			blockAnimExceptions.clear();
+			blockAnimExceptions.addAll(defaultBlockAnimExceptions);
+		}
 	}
 }

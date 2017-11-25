@@ -3,6 +3,7 @@ package com.TominoCZ.FBP.gui;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiPageButtonList;
@@ -61,6 +62,7 @@ public class FBPGuiTextField extends Gui {
 		this.width = par5Width;
 		this.height = par6Height;
 	}
+
 	/**
 	 * Sets the GuiResponder associated with this text box.
 	 */
@@ -276,7 +278,7 @@ public class FBPGuiTextField extends Gui {
 	public void setCursorPosition(int pos) {
 		this.cursorPosition = pos;
 		int i = this.text.length();
-		this.cursorPosition = MathHelper.clamp_int(this.cursorPosition, 0, i);
+		this.cursorPosition = MathHelper.clamp(this.cursorPosition, 0, i);
 		this.setSelectionPos(this.cursorPosition);
 	}
 
@@ -448,7 +450,7 @@ public class FBPGuiTextField extends Gui {
 			int i = this.isEnabled ? this.enabledColor : this.disabledColor;
 			int j = this.cursorPosition - this.lineScrollOffset;
 			int k = this.selectionEnd - this.lineScrollOffset;
-			
+
 			String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
 			boolean flag = j >= 0 && j <= s.length();
 			boolean flag1 = this.isFocused && this.cursorCounter / 6 % 2 == 0 && flag;
@@ -466,7 +468,7 @@ public class FBPGuiTextField extends Gui {
 				String s1 = ((added = s.contains(":")) ? "\u00A76" : "\u00A7a") + s;
 				s1 = s1.replaceAll(":", "\u00A7c:\u00A7a");
 
-				this.fontRenderer.drawStringWithShadow(s1, (float) l, (float) i1, i);
+				this.fontRenderer.drawStringWithShadow(s1, l, i1, i);
 				j1 = l + fontRenderer.getStringWidth(s.substring(0, j));
 			}
 
@@ -491,7 +493,7 @@ public class FBPGuiTextField extends Gui {
 				if (flag2) {
 					Gui.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRenderer.FONT_HEIGHT, -3092272);
 				} else {
-					this.fontRenderer.drawStringWithShadow("_", (float) k1, (float) i1, i);
+					this.fontRenderer.drawStringWithShadow("_", k1, i1, i);
 				}
 			}
 
@@ -533,10 +535,10 @@ public class FBPGuiTextField extends Gui {
 		GlStateManager.enableColorLogic();
 		GlStateManager.colorLogicOp(GlStateManager.LogicOp.OR_REVERSE);
 		bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-		bufferbuilder.pos((double) startX, (double) endY, 0.0D).endVertex();
-		bufferbuilder.pos((double) endX, (double) endY, 0.0D).endVertex();
-		bufferbuilder.pos((double) endX, (double) startY, 0.0D).endVertex();
-		bufferbuilder.pos((double) startX, (double) startY, 0.0D).endVertex();
+		bufferbuilder.pos(startX, endY, 0.0D).endVertex();
+		bufferbuilder.pos(endX, endY, 0.0D).endVertex();
+		bufferbuilder.pos(endX, startY, 0.0D).endVertex();
+		bufferbuilder.pos(startX, startY, 0.0D).endVertex();
 		tessellator.draw();
 		GlStateManager.disableColorLogic();
 		GlStateManager.enableTexture2D();
@@ -605,12 +607,15 @@ public class FBPGuiTextField extends Gui {
 	 * Sets focus to this gui element
 	 */
 	public void setFocused(boolean isFocusedIn) {
-		if (isFocusedIn && !this.isFocused)
-        {
-            this.cursorCounter = 0;
-        }
+		if (isFocusedIn && !this.isFocused) {
+			this.cursorCounter = 0;
+		}
 
-        this.isFocused = isFocusedIn;
+		this.isFocused = isFocusedIn;
+
+		if (Minecraft.getMinecraft().currentScreen != null) {
+			// Minecraft.getMinecraft().currentScreen.setFocused(isFocusedIn);
+		}
 	}
 
 	/**
@@ -681,7 +686,7 @@ public class FBPGuiTextField extends Gui {
 				this.lineScrollOffset -= this.lineScrollOffset - position;
 			}
 
-			this.lineScrollOffset = MathHelper.clamp_int(this.lineScrollOffset, 0, i);
+			this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
 		}
 	}
 

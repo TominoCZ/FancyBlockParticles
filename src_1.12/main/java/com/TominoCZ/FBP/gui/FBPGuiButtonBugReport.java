@@ -6,9 +6,9 @@ import com.TominoCZ.FBP.FBP;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -29,9 +29,10 @@ public class FBPGuiButtonBugReport extends GuiButton {
 		_fr = fr;
 	}
 
+	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (this.visible) {
-			mc.getTextureManager().bindTexture(new ResourceLocation(FBP.MODID + ":textures/gui/bug.png"));
+			mc.getTextureManager().bindTexture(FBP.FBP_BUG);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 			int centerX = x + 25 / 2;
@@ -69,11 +70,11 @@ public class FBPGuiButtonBugReport extends GuiButton {
 					fadeAmmount = 0;
 
 			if (fadeAmmount > 0)
-				FBPGuiHelper.drawRect(0, 0, _screen.width, _screen.height, 0, 0, 0, (int) fadeAmmount);
+				FBPGuiHelper.drawRect(0, 0, _screen.width, _screen.height, 0, 0, 0, fadeAmmount);
 			else
 				fadeAmmount = 0;
 
-			this.drawModalRectWithCustomSizedTexture(this.x, this.y, 0, i, 25, 25, 25, 50);
+			Gui.drawModalRectWithCustomSizedTexture(this.x, this.y, 0, i, 25, 25, 25, 50);
 
 			if (flag)
 				this.drawString(_fr, _textOnHover, mouseX - _fr.getStringWidth(_textOnHover) - 25, mouseY - 3,

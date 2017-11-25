@@ -15,7 +15,6 @@ import net.minecraft.block.BlockSlab.EnumBlockHalf;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.particle.ParticleDigging.Factory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,6 +32,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -50,39 +50,50 @@ public class FBPEventHandler {
 		list = new ConcurrentSet<BlockPosNode>();
 
 		listener = new IWorldEventListener() {
+			@Override
 			public void markBlockRangeForRenderUpdate(int x1, int y1, int z1, int x2, int y2, int z2) {
 			}
 
+			@Override
 			public void broadcastSound(int soundID, BlockPos pos, int data) {
 			}
 
+			@Override
 			public void onEntityAdded(Entity entityIn) {
 			}
 
+			@Override
 			public void spawnParticle(int id, boolean ignoreRange, boolean p_190570_3_, double x, double y, double z,
 					double xSpeed, double ySpeed, double zSpeed, int... parameters) {
 			}
 
+			@Override
 			public void spawnParticle(int particleID, boolean ignoreRange, double xCoord, double yCoord, double zCoord,
 					double xSpeed, double ySpeed, double zSpeed, int... parameters) {
 			}
 
+			@Override
 			public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
 			}
 
+			@Override
 			public void playSoundToAllNearExcept(EntityPlayer player, SoundEvent soundIn, SoundCategory category,
 					double x, double y, double z, float volume, float pitch) {
 			}
 
+			@Override
 			public void playRecord(SoundEvent soundIn, BlockPos pos) {
 			}
 
+			@Override
 			public void playEvent(EntityPlayer player, int type, BlockPos blockPosIn, int data) {
 			}
 
+			@Override
 			public void onEntityRemoved(Entity entityIn) {
 			}
 
+			@Override
 			public void notifyLightSet(BlockPos pos) {
 			}
 
@@ -95,17 +106,14 @@ public class FBPEventHandler {
 				BlockPosNode node = getNodeWithPos(pos);
 
 				if ((flags == 2 || flags == 3 || flags == 10 || flags == 11) && !(oldState.equals(newState))
-						&& oldState.getBlock() != newState.getBlock() // TODO TESTING...
-						&& node != null && !node.checked) {
+						&& oldState.getBlock() != newState.getBlock() && node != null && !node.checked) {
 					if (node.isSame(pos) || newState.getBlock() == FBP.FBPBlock || newState.getBlock() == Blocks.AIR) {
 						node.checked = true;
 						list.remove(node);
 						return;
 					}
-
-					list.remove(node);
-
 					node.checked = true;
+					list.remove(node);
 
 					long seed = MathHelper.getPositionRandom(pos);
 
@@ -115,32 +123,21 @@ public class FBPEventHandler {
 
 					if (state.getBlock() instanceof BlockFalling) {
 						BlockFalling bf = (BlockFalling) state.getBlock();
-						if (bf.canFallThrough(worldIn.getBlockState(pos.offset(EnumFacing.DOWN))))
+						if (BlockFalling.canFallThrough(worldIn.getBlockState(pos.offset(EnumFacing.DOWN))))
 							isNotFalling = false;
 					}
 
-					if (FBP.INSTANCE.canBlockBeAnimated(state.getBlock()) && isNotFalling) {
-						FBPParticleBlock p = new FBPParticleBlock(mc.theWorld, pos.getX() + 0.5f, pos.getY() + 0.5f,
+					if (!FBP.INSTANCE.isInExceptions(state.getBlock(), false) && isNotFalling) {
+						FBPParticleBlock p = new FBPParticleBlock(mc.world, pos.getX() + 0.5f, pos.getY() + 0.5f,
 								pos.getZ() + 0.5f, state, seed);
 
 						FBP.FBPBlock.copyState(worldIn, pos, state, p);
 
 						mc.effectRenderer.addEffect(p);
-					}
 
-					// clear list
-					for (BlockPosNode n : list) {
-						if (!n.isSame(pos)) {
-							list.remove(n);
-							return;
-						}
+						list.clear();
 					}
 				}
-			}
-			
-			public void func_190570_a(int p_190570_1_, boolean p_190570_2_, boolean p_190570_3_, double p_190570_4_,
-					double p_190570_6_, double p_190570_8_, double p_190570_10_, double p_190570_12_,
-					double p_190570_14_, int... p_190570_16_) {
 			}
 		};
 	}
@@ -150,15 +147,30 @@ public class FBPEventHandler {
 	public void onWorldLoadEvent(WorldEvent.Load e) {
 		e.getWorld().addEventListener(listener);
 		list.clear();
+
 	}
 
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
-		if (e.getEntity() instanceof EntityPlayerSP) {
-			mc.effectRenderer = new FBPParticleManager(e.getWorld(), mc.getTextureManager(), new Factory());
+		if (e.getEntity() == mc.player) {
+			FBP.fancyEffectRenderer = new FBPParticleManager(e.getWorld(), mc.renderEngine, new Factory());
+			FBP.fancyEntityRenderer = new FBPEntityRenderer(Minecraft.getMinecraft(),
+					Minecraft.getMinecraft().getResourceManager());
 
-			mc.entityRenderer = new FBPEntityRenderer(mc, mc.getResourceManager());
+			if (FBP.originalEntityRenderer == null || (FBP.originalEntityRenderer != mc.entityRenderer
+					&& mc.entityRenderer != FBP.fancyEntityRenderer))
+				FBP.originalEntityRenderer = mc.entityRenderer;
+			if (FBP.originalEffectRenderer == null || (FBP.originalEffectRenderer != mc.effectRenderer
+					&& FBP.originalEffectRenderer != FBP.fancyEffectRenderer))
+				FBP.originalEffectRenderer = mc.effectRenderer;
+
+			if (FBP.enabled) {
+				mc.effectRenderer = FBP.fancyEffectRenderer;
+
+				if (FBP.fancyWeather)
+					mc.entityRenderer = FBP.fancyEntityRenderer;
+			}
 		}
 	}
 
@@ -192,7 +204,7 @@ public class FBPEventHandler {
 		if (e.getWorld().isRemote) {
 			if (e.getItemStack() == null || !(e.getItemStack().getItem() instanceof ItemBlock))
 				return;
-			
+
 			BlockPos pos = e.getPos();
 			BlockPos pos_o = e.getPos().offset(e.getFace());
 
@@ -212,7 +224,7 @@ public class FBPEventHandler {
 				BlockNode n = FBP.FBPBlock.blockNodes.get(pos);
 
 				if (n != null && n.state.getBlock() != null) {
-					boolean activated = n.originalBlock.onBlockActivated(e.getWorld(), pos, n.state, mc.thePlayer,
+					boolean activated = n.originalBlock.onBlockActivated(e.getWorld(), pos, n.state, mc.player,
 							EnumHand.MAIN_HAND, e.getFace(), f, f1, f2);
 
 					if (activated)

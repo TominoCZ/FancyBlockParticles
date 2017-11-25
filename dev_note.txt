@@ -1,0 +1,1 @@
+in versions <1.12 keep currentScreen null check in FBPKeyInputHandler

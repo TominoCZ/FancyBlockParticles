@@ -121,7 +121,7 @@ public class FBPAnimationDummyBlock extends Block {
 			t.printStackTrace();
 		}
 
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return Block.FULL_BLOCK_AABB.offset(pos);
 	}
 
 	@Override
@@ -136,22 +136,12 @@ public class FBPAnimationDummyBlock extends Block {
 			t.printStackTrace();
 		}
 
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return Block.FULL_BLOCK_AABB.offset(pos);
 	}
 
 	@Override
 	public AxisAlignedBB getSelectedBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
-				BlockNode n = blockNodes.get(pos);
-
-				return n.state.getSelectedBoundingBox(worldIn, pos);
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 	}
 
 	@Override
@@ -365,8 +355,17 @@ public class FBPAnimationDummyBlock extends Block {
 		return false;
 	}
 
+	@Override
 	@SideOnly(Side.CLIENT)
 	public float getAmbientOcclusionLightValue(IBlockState state) {
 		return 1.0F;
+	}
+
+	@Override
+	public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+		if (blockNodes.containsKey(pos))
+			return blockNodes.get(pos).originalBlock.isSideSolid(base_state, world, pos, side);
+
+		return true;
 	}
 }

@@ -38,16 +38,16 @@ public class FBPGuiHelper extends GuiScreen {
 		GlStateManager.disableTexture2D();
 		int i1 = 4;
 		BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-		BufferBuilder.pos(0, (double) (top + 4), 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 0).endVertex();
-		BufferBuilder.pos((double) width, (double) (top + 4), 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 0).endVertex();
-		BufferBuilder.pos((double) width, (double) top, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 255).endVertex();
-		BufferBuilder.pos(0, (double) top, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 255).endVertex();
+		BufferBuilder.pos(0, top + 4, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 0).endVertex();
+		BufferBuilder.pos(width, top + 4, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 0).endVertex();
+		BufferBuilder.pos(width, top, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 255).endVertex();
+		BufferBuilder.pos(0, top, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 255).endVertex();
 		tessellator.draw();
 		BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-		BufferBuilder.pos(0, (double) bottom, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 255).endVertex();
-		BufferBuilder.pos((double) width, (double) bottom, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 255).endVertex();
-		BufferBuilder.pos((double) width, (double) (bottom - 4), 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 0).endVertex();
-		BufferBuilder.pos(0, (double) (bottom - 4), 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 0).endVertex();
+		BufferBuilder.pos(0, bottom, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 255).endVertex();
+		BufferBuilder.pos(width, bottom, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 255).endVertex();
+		BufferBuilder.pos(width, bottom - 4, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 0).endVertex();
+		BufferBuilder.pos(0, bottom - 4, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 0).endVertex();
 		tessellator.draw();
 
 		GlStateManager.enableTexture2D();
@@ -64,10 +64,10 @@ public class FBPGuiHelper extends GuiScreen {
 		GlStateManager.enableBlend();
 
 		BufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-		BufferBuilder.pos((double) x, (double) (y + y2), 0.0D).color(red, green, blue, alpha).endVertex();
-		BufferBuilder.pos((double) (x + x2), (double) (y + y2), 0.0D).color(red, green, blue, alpha).endVertex();
-		BufferBuilder.pos((double) (x + x2), (double) y, 0.0D).color(red, green, blue, alpha).endVertex();
-		BufferBuilder.pos((double) x, (double) y, 0.0D).color(red, green, blue, alpha).endVertex();
+		BufferBuilder.pos(x, y + y2, 0.0D).color(red, green, blue, alpha).endVertex();
+		BufferBuilder.pos(x + x2, y + y2, 0.0D).color(red, green, blue, alpha).endVertex();
+		BufferBuilder.pos(x + x2, y, 0.0D).color(red, green, blue, alpha).endVertex();
+		BufferBuilder.pos(x, y, 0.0D).color(red, green, blue, alpha).endVertex();
 		tessellator.draw();
 
 		GlStateManager.enableTexture2D();
@@ -84,8 +84,7 @@ public class FBPGuiHelper extends GuiScreen {
 	}
 
 	protected static void _drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
-		fontRendererIn.drawStringWithShadow(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y,
-				color);
+		fontRendererIn.drawStringWithShadow(text, x - fontRendererIn.getStringWidth(text) / 2, y, color);
 	}
 
 	protected static void overlayBackground(int startY, int endY, int startAlpha, int endAlpha, int top, int bottom,
@@ -97,16 +96,12 @@ public class FBPGuiHelper extends GuiScreen {
 		float f = 32.0F;
 
 		BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-		BufferBuilder.pos((double) left, (double) endY, 0.0D).tex(0.0D, (double) ((float) endY / 32.0F))
-				.color(64, 64, 64, endAlpha).endVertex();
-		BufferBuilder.pos((double) (left + right), (double) endY, 0.0D)
-				.tex((double) ((float) right / 32.0F), (double) ((float) endY / 32.0F)).color(64, 64, 64, endAlpha)
+		BufferBuilder.pos(left, endY, 0.0D).tex(0.0D, endY / 32.0F).color(64, 64, 64, endAlpha).endVertex();
+		BufferBuilder.pos(left + right, endY, 0.0D).tex(right / 32.0F, endY / 32.0F).color(64, 64, 64, endAlpha)
 				.endVertex();
-		BufferBuilder.pos((double) (left + right), (double) startY, 0.0D)
-				.tex((double) ((float) right / 32.0F), (double) ((float) startY / 32.0F)).color(64, 64, 64, startAlpha)
+		BufferBuilder.pos(left + right, startY, 0.0D).tex(right / 32.0F, startY / 32.0F).color(64, 64, 64, startAlpha)
 				.endVertex();
-		BufferBuilder.pos((double) left, (double) startY, 0.0D).tex(0.0D, (double) ((float) startY / 32.0F))
-				.color(64, 64, 64, startAlpha).endVertex();
+		BufferBuilder.pos(left, startY, 0.0D).tex(0.0D, startY / 32.0F).color(64, 64, 64, startAlpha).endVertex();
 		tessellator.draw();
 	}
 
@@ -117,15 +112,18 @@ public class FBPGuiHelper extends GuiScreen {
 
 		float f = 32.0F;
 		buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-		buffer.pos((double) left, (double) bottom, 0.0D).tex((double) ((float) left / f), (double) (bottom / f))
-				.color(32, 32, 32, 255).endVertex();
-		buffer.pos((double) right, (double) bottom, 0.0D).tex((double) ((float) right / f), (double) (bottom / f))
-				.color(32, 32, 32, 255).endVertex();
-		buffer.pos((double) right, (double) top, 0.0D).tex((double) ((float) right / f), (double) (top / f))
-				.color(32, 32, 32, 255).endVertex();
-		buffer.pos((double) left, (double) top, 0.0D).tex((double) ((float) left / f), (double) (top / f))
-				.color(32, 32, 32, 255).endVertex();
+		buffer.pos(left, bottom, 0.0D).tex(left / f, bottom / f).color(32, 32, 32, 255).endVertex();
+		buffer.pos(right, bottom, 0.0D).tex(right / f, bottom / f).color(32, 32, 32, 255).endVertex();
+		buffer.pos(right, top, 0.0D).tex(right / f, top / f).color(32, 32, 32, 255).endVertex();
+		buffer.pos(left, top, 0.0D).tex(left / f, top / f).color(32, 32, 32, 255).endVertex();
 
 		tessellator.draw();
+	}
+
+	public static boolean isMouseInsideCircle(int mouseX, int mouseY, double d, double e, double radius) {
+		double X = d - mouseX;
+		double Y = e - mouseY;
+
+		return Math.sqrt(X * X + Y * Y) <= radius;
 	}
 }

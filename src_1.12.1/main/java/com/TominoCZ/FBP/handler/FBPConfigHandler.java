@@ -1,7 +1,6 @@
 package com.TominoCZ.FBP.handler;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,46 +11,52 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.TominoCZ.FBP.FBP;
 
+import net.minecraft.util.math.MathHelper;
 import scala.reflect.io.Directory;
+import scala.reflect.io.Path;
 
 public class FBPConfigHandler {
 	static FileInputStream fis;
 	static InputStreamReader isr;
 	static BufferedReader br;
 
-	static File configFile;
-	static File exceptionsFile;
-
 	public static void init() {
 		try {
-			configFile = FBP.config;
-			exceptionsFile = FBP.exceptionsFile;
-
 			defaults(false);
 
-			if (!configFile.exists()) {
-				if (!Directory.apply(configFile.getParent()).exists())
-					Directory.apply(configFile.getParent()).createDirectory(true, false);
+			if (!FBP.config.exists()) {
+				if (!Path.apply(FBP.config.getParent()).exists())
+					Path.apply(FBP.config.getParent()).createDirectory(true, false);
 
-				configFile.createNewFile();
+				FBP.config.createNewFile();
 
 				write();
 			}
 
-			if (!exceptionsFile.exists()) {
-				if (!Directory.apply(exceptionsFile.getParent()).exists())
-					Directory.apply(exceptionsFile.getParent()).createDirectory(true, false);
+			if (!FBP.animExceptionsFile.exists()) {
+				if (!Path.apply(FBP.animExceptionsFile.getParent()).exists())
+					Path.apply(FBP.animExceptionsFile.getParent()).createDirectory(true, false);
 
-				exceptionsFile.createNewFile();
+				FBP.animExceptionsFile.createNewFile();
 
-				writeExceptions();
+				writeAnimExceptions();
+			}
+			if (!FBP.particleExceptionsFile.exists()) {
+				if (!Path.apply(FBP.particleExceptionsFile.getParent()).exists())
+					Path.apply(FBP.particleExceptionsFile.getParent()).createDirectory(true, false);
+
+				FBP.particleExceptionsFile.createNewFile();
+
+				writeParticleExceptions();
 			}
 
 			read();
-			readExceptions();
+			readAnimExceptions();
+			readParticleExceptions();
 
 			write();
-			writeExceptions();
+			writeAnimExceptions();
+			writeParticleExceptions();
 
 			closeStreams();
 		} catch (IOException e) {
@@ -65,14 +70,18 @@ public class FBPConfigHandler {
 		try {
 			check();
 
-			PrintWriter writer = new PrintWriter(configFile.getPath(), "UTF-8");
+			PrintWriter writer = new PrintWriter(FBP.config.getPath(), "UTF-8");
 			writer.println("enabled=" + FBP.enabled);
+			writer.println("enableDing=" + FBP.enableDing);
+			writer.println("weatherParticleDensity=" + FBP.weatherParticleDensity);
+			writer.println("particlesPerAxis=" + FBP.particlesPerAxis);
 			writer.println("fancyFlame=" + FBP.fancyFlame);
 			writer.println("fancySmoke=" + FBP.fancySmoke);
 			writer.println("fancyWeather=" + FBP.fancyWeather);
+			writer.println("spawnPlaceParticles=" + FBP.spawnPlaceParticles);
 			writer.println("fancyPlaceAnim=" + FBP.fancyPlaceAnim);
 			writer.println("smartBreaking=" + FBP.smartBreaking);
-			writer.println("rollParticles=" + FBP.rollParticles);
+			writer.println("lowTraction=" + FBP.lowTraction);
 			writer.println("bounceOffWalls=" + FBP.bounceOffWalls);
 			writer.println("showInMillis=" + FBP.showInMillis);
 			writer.println("randomRotation=" + FBP.randomRotation);
@@ -92,12 +101,12 @@ public class FBPConfigHandler {
 		} catch (Exception e) {
 			closeStreams();
 
-			if (!configFile.exists()) {
-				if (!Directory.apply(configFile.getParent()).exists())
-					Directory.apply(configFile.getParent()).createDirectory(true, false);
+			if (!FBP.config.exists()) {
+				if (!Path.apply(FBP.config.getParent()).exists())
+					Path.apply(FBP.config.getParent()).createDirectory(true, false);
 
 				try {
-					configFile.createNewFile();
+					FBP.config.createNewFile();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -107,23 +116,47 @@ public class FBPConfigHandler {
 		}
 	}
 
-	public static void writeExceptions() {
+	public static void writeAnimExceptions() {
 		try {
-			PrintWriter writer = new PrintWriter(exceptionsFile.getPath(), "UTF-8");
+			PrintWriter writer = new PrintWriter(FBP.animExceptionsFile.getPath(), "UTF-8");
 
-			for (String ex : FBP.INSTANCE.blockExceptions)
+			for (String ex : FBP.INSTANCE.blockAnimExceptions)
 				writer.println(ex);
-			
+
 			writer.close();
 		} catch (Exception e) {
 			closeStreams();
 
-			if (!exceptionsFile.exists()) {
-				if (!Directory.apply(exceptionsFile.getParent()).exists())
-					Directory.apply(exceptionsFile.getParent()).createDirectory(true, false);
+			if (!FBP.animExceptionsFile.exists()) {
+				if (!Path.apply(FBP.animExceptionsFile.getParent()).exists())
+					Path.apply(FBP.animExceptionsFile.getParent()).createDirectory(true, false);
 
 				try {
-					exceptionsFile.createNewFile();
+					FBP.animExceptionsFile.createNewFile();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public static void writeParticleExceptions() {
+		try {
+			PrintWriter writer = new PrintWriter(FBP.particleExceptionsFile.getPath(), "UTF-8");
+
+			for (String ex : FBP.INSTANCE.blockParticleExceptions)
+				writer.println(ex);
+
+			writer.close();
+		} catch (Exception e) {
+			closeStreams();
+
+			if (!FBP.particleExceptionsFile.exists()) {
+				if (!Path.apply(FBP.particleExceptionsFile.getParent()).exists())
+					Path.apply(FBP.particleExceptionsFile.getParent()).createDirectory(true, false);
+
+				try {
+					FBP.particleExceptionsFile.createNewFile();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -133,59 +166,67 @@ public class FBPConfigHandler {
 
 	static void read() {
 		try {
-			fis = new FileInputStream(configFile);
+			fis = new FileInputStream(FBP.config);
 			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 			br = new BufferedReader(isr);
 
 			String line;
 
 			while ((line = br.readLine()) != null) {
-				if (line.contains("enabled="))
-					FBP.enabled = Boolean.valueOf(line.replaceAll(" ", "").replace("enabled=", ""));
-				else if (line.contains("fancyFlame="))
-					FBP.fancyFlame = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyFlame=", ""));
-				else if (line.contains("fancySmoke="))
-					FBP.fancySmoke = Boolean.valueOf(line.replaceAll(" ", "").replace("fancySmoke=", ""));
-				else if (line.contains("fancyWeather="))
-					FBP.fancyWeather = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyWeather=", ""));
-				else if (line.contains("fancyPlaceAnim="))
-					FBP.fancyPlaceAnim = Boolean.valueOf(line.replaceAll(" ", "").replace("fancyPlaceAnim=", ""));
-				else if (line.contains("smartBreaking="))
-					FBP.smartBreaking = Boolean.valueOf(line.replaceAll(" ", "").replace("smartBreaking=", ""));
-				else if (line.contains("rollParticles="))
-					FBP.rollParticles = Boolean.valueOf(line.replaceAll(" ", "").replace("rollParticles=", ""));
-				else if (line.contains("bounceOffWalls="))
-					FBP.bounceOffWalls = Boolean.valueOf(line.replaceAll(" ", "").replace("bounceOffWalls=", ""));
-				else if (line.contains("showInMillis="))
-					FBP.showInMillis = Boolean.valueOf(line.replaceAll(" ", "").replace("showInMillis=", ""));
-				else if (line.contains("randomRotation="))
-					FBP.randomRotation = Boolean.valueOf(line.replaceAll(" ", "").replace("randomRotation=", ""));
-				else if (line.contains("cartoonMode="))
-					FBP.cartoonMode = Boolean.valueOf(line.replaceAll(" ", "").replace("cartoonMode=", ""));
-				else if (line.contains("entityCollision="))
-					FBP.entityCollision = Boolean.valueOf(line.replaceAll(" ", "").replace("entityCollision=", ""));
-				else if (line.contains("randomFadingSpeed="))
-					FBP.randomFadingSpeed = Boolean.valueOf(line.replaceAll(" ", "").replace("randomFadingSpeed=", ""));
-				else if (line.contains("smoothTransitions="))
-					FBP.smoothTransitions = Boolean.valueOf(line.replaceAll(" ", "").replace("smoothTransitions=", ""));
-				else if (line.contains("spawnWhileFrozen="))
-					FBP.spawnWhileFrozen = Boolean.valueOf(line.replaceAll(" ", "").replace("spawnWhileFrozen=", ""));
-				else if (line.contains("spawnRedstoneBlockParticles="))
-					FBP.spawnRedstoneBlockParticles = Boolean
-							.valueOf(line.replaceAll(" ", "").replace("spawnRedstoneBlockParticles=", ""));
-				else if (line.contains("infiniteDuration="))
-					FBP.infiniteDuration = Boolean.valueOf(line.replaceAll(" ", "").replace("infiniteDuration=", ""));
-				else if (line.contains("minAge="))
-					FBP.minAge = Integer.valueOf(line.replaceAll(" ", "").replace("minAge=", ""));
-				else if (line.contains("maxAge="))
-					FBP.maxAge = Integer.valueOf(line.replaceAll(" ", "").replace("maxAge=", ""));
+				line = line.replaceAll(" ", "");
 
+				if (line.contains("enabled="))
+					FBP.enabled = Boolean.valueOf(line.replace("enabled=", ""));
+				else if (line.contains("enableDing="))
+					FBP.enableDing = Boolean.valueOf(line.replace("enableDing=", ""));
+				else if (line.contains("weatherParticleDensity="))
+					FBP.weatherParticleDensity = Double.valueOf(line.replace("weatherParticleDensity=", ""));
+				else if (line.contains("particlesPerAxis="))
+					FBP.particlesPerAxis = Integer.valueOf(line.replace("particlesPerAxis=", ""));
+				else if (line.contains("fancyFlame="))
+					FBP.fancyFlame = Boolean.valueOf(line.replace("fancyFlame=", ""));
+				else if (line.contains("fancySmoke="))
+					FBP.fancySmoke = Boolean.valueOf(line.replace("fancySmoke=", ""));
+				else if (line.contains("fancyWeather="))
+					FBP.fancyWeather = Boolean.valueOf(line.replace("fancyWeather=", ""));
+				else if (line.contains("spawnPlaceParticles="))
+					FBP.spawnPlaceParticles = Boolean.valueOf(line.replace("spawnPlaceParticles=", ""));
+				else if (line.contains("fancyPlaceAnim="))
+					FBP.fancyPlaceAnim = Boolean.valueOf(line.replace("fancyPlaceAnim=", ""));
+				else if (line.contains("smartBreaking="))
+					FBP.smartBreaking = Boolean.valueOf(line.replace("smartBreaking=", ""));
+				else if (line.contains("lowTraction="))
+					FBP.lowTraction = Boolean.valueOf(line.replace("lowTraction=", ""));
+				else if (line.contains("bounceOffWalls="))
+					FBP.bounceOffWalls = Boolean.valueOf(line.replace("bounceOffWalls=", ""));
+				else if (line.contains("showInMillis="))
+					FBP.showInMillis = Boolean.valueOf(line.replace("showInMillis=", ""));
+				else if (line.contains("randomRotation="))
+					FBP.randomRotation = Boolean.valueOf(line.replace("randomRotation=", ""));
+				else if (line.contains("cartoonMode="))
+					FBP.cartoonMode = Boolean.valueOf(line.replace("cartoonMode=", ""));
+				else if (line.contains("entityCollision="))
+					FBP.entityCollision = Boolean.valueOf(line.replace("entityCollision=", ""));
+				else if (line.contains("randomFadingSpeed="))
+					FBP.randomFadingSpeed = Boolean.valueOf(line.replace("randomFadingSpeed=", ""));
+				else if (line.contains("smoothTransitions="))
+					FBP.smoothTransitions = Boolean.valueOf(line.replace("smoothTransitions=", ""));
+				else if (line.contains("spawnWhileFrozen="))
+					FBP.spawnWhileFrozen = Boolean.valueOf(line.replace("spawnWhileFrozen=", ""));
+				else if (line.contains("spawnRedstoneBlockParticles="))
+					FBP.spawnRedstoneBlockParticles = Boolean.valueOf(line.replace("spawnRedstoneBlockParticles=", ""));
+				else if (line.contains("infiniteDuration="))
+					FBP.infiniteDuration = Boolean.valueOf(line.replace("infiniteDuration=", ""));
+				else if (line.contains("minAge="))
+					FBP.minAge = Integer.valueOf(line.replace("minAge=", ""));
+				else if (line.contains("maxAge="))
+					FBP.maxAge = Integer.valueOf(line.replace("maxAge=", ""));
 				else if (line.contains("scaleMult="))
-					FBP.scaleMult = Double.valueOf(line.replaceAll(" ", "").replace("scaleMult=", ""));
+					FBP.scaleMult = Double.valueOf(line.replace("scaleMult=", ""));
 				else if (line.contains("gravityMult="))
-					FBP.gravityMult = Double.valueOf(line.replaceAll(" ", "").replace("gravityMult=", ""));
+					FBP.gravityMult = Double.valueOf(line.replace("gravityMult=", ""));
 				else if (line.contains("rotationMult="))
-					FBP.rotationMult = Double.valueOf(line.replaceAll(" ", "").replace("rotationMult=", ""));
+					FBP.rotationMult = Double.valueOf(line.replace("rotationMult=", ""));
 			}
 
 			closeStreams();
@@ -200,27 +241,41 @@ public class FBPConfigHandler {
 		}
 	}
 
-	static void readExceptions() {
+	static void readAnimExceptions() {
 		try {
-			fis = new FileInputStream(exceptionsFile);
+			fis = new FileInputStream(FBP.animExceptionsFile);
 			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 			br = new BufferedReader(isr);
 
 			String line;
-			String last = "";
-			
-			FBP.INSTANCE.resetExceptions();
-			
-			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line)) {
-				FBP.INSTANCE.addException(last = line.replaceAll(" ", "").toLowerCase());
-			}
-			
-			if (!StringUtils.isEmpty(last))
-				FBP.lastAdded = last;
+
+			FBP.INSTANCE.resetExceptions(false);
+
+			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line))
+				FBP.INSTANCE.addException(line.replaceAll(" ", "").toLowerCase(), false);
 		} catch (Exception e) {
-			
+
 		}
-		
+
+		closeStreams();
+	}
+
+	static void readParticleExceptions() {
+		try {
+			fis = new FileInputStream(FBP.particleExceptionsFile);
+			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
+			br = new BufferedReader(isr);
+
+			String line;
+
+			FBP.INSTANCE.resetExceptions(true);
+
+			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line))
+				FBP.INSTANCE.addException(line.replaceAll(" ", "").toLowerCase(), true);
+		} catch (Exception e) {
+
+		}
+
 		closeStreams();
 	}
 
@@ -236,11 +291,13 @@ public class FBPConfigHandler {
 
 	public static void defaults(boolean write) {
 		FBP.minAge = 10;
-		FBP.maxAge = 65;
+		FBP.maxAge = 45;
 		FBP.scaleMult = 1.0;
 		FBP.gravityMult = 1.0;
 		FBP.rotationMult = 1.0;
-		FBP.rollParticles = false;
+		FBP.particlesPerAxis = 4;
+		FBP.weatherParticleDensity = 1.0;
+		FBP.lowTraction = false;
 		FBP.bounceOffWalls = true;
 		FBP.randomRotation = true;
 		FBP.cartoonMode = false;
@@ -252,61 +309,28 @@ public class FBPConfigHandler {
 		FBP.spawnWhileFrozen = true;
 		FBP.smartBreaking = true;
 		FBP.fancyPlaceAnim = true;
+		FBP.spawnPlaceParticles = true;
 		FBP.fancyWeather = true;
 		FBP.fancySmoke = true;
 		FBP.fancyFlame = true;
+		FBP.enableDing = true;
 
-		FBP.INSTANCE.resetExceptions();
-
-		if (write) {
+		if (write)
 			write();
-			writeExceptions();
-		}
 	}
 
 	public static void check() {
-		FBP.scaleMult = Math.abs(FBP.scaleMult);
-		FBP.minAge = Math.abs(FBP.minAge);
-		FBP.maxAge = Math.abs(FBP.maxAge);
-		FBP.gravityMult = Math.abs(FBP.gravityMult);
-		FBP.rotationMult = Math.abs(FBP.rotationMult);
+		FBP.maxAge = MathHelper.clamp(FBP.maxAge, 10, 100);
+		FBP.minAge = MathHelper.clamp(FBP.minAge, 10, FBP.maxAge);
 
-		if (FBP.minAge < 10)
-			FBP.minAge = 10;
-		if (FBP.maxAge < 10)
-			FBP.maxAge = 10;
-		else if (FBP.maxAge > 100)
-			FBP.maxAge = 100;
+		FBP.particlesPerAxis = MathHelper.clamp(FBP.particlesPerAxis, 2, 5);
 
-		FBP.minAge = fix(FBP.minAge);
-		FBP.maxAge = fix(FBP.maxAge);
+		FBP.scaleMult = MathHelper.clamp(FBP.scaleMult, 0.75D, 1.25D);
 
-		if (FBP.scaleMult > 1.25D)
-			FBP.scaleMult = 1.25D;
-		else if (FBP.scaleMult < 0.75D)
-			FBP.scaleMult = 0.75D;
+		FBP.gravityMult = MathHelper.clamp(FBP.gravityMult, 0.5D, 2.0D);
 
-		if (FBP.gravityMult > 2.0D)
-			FBP.gravityMult = 2.0D;
-		else if (FBP.gravityMult < 0.5D)
-			FBP.gravityMult = 0.5D;
+		FBP.rotationMult = MathHelper.clamp(FBP.rotationMult, 0.0D, 1.5D);
 
-		if (FBP.rotationMult > 1.5D)
-			FBP.rotationMult = 1.5D;
-		else if (FBP.rotationMult < 0)
-			FBP.rotationMult = 0;
-
-		// FINAL CHECK
-		if (FBP.minAge > FBP.maxAge)
-			FBP.minAge = FBP.maxAge;
-	}
-
-	private static int fix(int num) {
-		for (int i = num; i > 0; i--) {
-			if (i % 5 == 0)
-				return i;
-		}
-
-		return num;
+		FBP.weatherParticleDensity = MathHelper.clamp(FBP.weatherParticleDensity, 0.75D, 5.0D);
 	}
 }

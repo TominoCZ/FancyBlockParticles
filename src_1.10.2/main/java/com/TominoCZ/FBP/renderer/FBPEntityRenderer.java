@@ -16,8 +16,7 @@ public class FBPEntityRenderer extends EntityRenderer {
 
 	private Minecraft mc;
 
-	long snowTick;
-	long rainTick;
+	long tickCounter;
 
 	public FBPEntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn) {
 		super(mcIn, resourceManagerIn);
@@ -29,85 +28,65 @@ public class FBPEntityRenderer extends EntityRenderer {
 		super.updateRenderer();
 
 		if (FBP.fancyWeather && mc.theWorld.isRaining()) {
-			BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-			Biome biome;
+			if (++tickCounter >= 12) {
+				int r = 35;
+				BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+				Biome biome;
 
-			double mX;
-			double mZ;
-			double mT;
-			
-			double offsetY;
+				double mX;
+				double mZ;
+				double mT;
 
-			double angle;
-			double radius;
-			double X;
-			double Z;
+				double offsetY;
 
-			int r;
+				double angle;
+				double radius;
 
-			if (++snowTick >= 13) {
-				r = 25;
-				
 				mX = mc.thePlayer.motionX * 26;
 				mZ = mc.thePlayer.motionZ * 26;
 
-				mT = (Math.sqrt(mX * mX + mZ * mZ) / 25);
+				mT = (MathHelper.sqrt_double(mX * mX + mZ * mZ) / 25);
 
 				offsetY = mc.thePlayer.motionY * 6;
 
-				for (int i = 0; i < 25 * (2 - mc.gameSettings.particleSetting); i++) {
+				for (int i = 0; i < 80 * FBP.weatherParticleDensity; i++) {
 					// get random position within radius of a little over the player's render
 					// distance
 					angle = mc.theWorld.rand.nextDouble() * Math.PI * 2;
-					radius = Math.sqrt(mc.theWorld.rand.nextDouble()) * r;
-					X = mc.thePlayer.posX + mX + radius * Math.cos(angle);
-					Z = mc.thePlayer.posZ + mZ + radius * Math.sin(angle);
+					radius = MathHelper.sqrt_double(mc.theWorld.rand.nextDouble()) * r;
+					double X = mc.thePlayer.posX + mX + radius * Math.cos(angle);
+					double Z = mc.thePlayer.posZ + mZ + radius * Math.sin(angle);
+
+					if (mc.thePlayer.getDistance(X, mc.thePlayer.posY, Z) > mc.gameSettings.renderDistanceChunks * 16)
+						continue;
 
 					// check if position is within a snow biome
-					blockpos$mutableblockpos.setPos(X, 0, Z);
+					blockpos$mutableblockpos.setPos(X, mc.thePlayer.posY, Z);
 					biome = mc.theWorld.getBiome(blockpos$mutableblockpos);
 
-					if (biome.getEnableSnow()) {
-						mc.effectRenderer
-								.addEffect(new FBPParticleSnow(mc.theWorld, X, mc.thePlayer.posY + 17 + offsetY, Z,
-										FBP.random.nextDouble(-0.5, 0.5), FBP.random.nextDouble(0.25, 0.8) + mT * 1.5f,
-										FBP.random.nextDouble(-0.5, 0.5), Blocks.SNOW.getDefaultState()));
+					int height = mc.theWorld.getPrecipitationHeight(blockpos$mutableblockpos).getY();
+
+					int Y = (int) (mc.thePlayer.posY + 15 + FBP.random.nextDouble() * 10 + offsetY);
+
+					if (Y <= height + 2)
+						Y = height + 10;
+
+					// System.out.println(biome.getTemperature(blockpos$mutableblockpos));
+
+					if (biome.getEnableSnow() || biome.isSnowyBiome()
+							|| biome.getFloatTemperature(blockpos$mutableblockpos) < 0.15) {
+						mc.effectRenderer.addEffect(new FBPParticleSnow(mc.theWorld, X, Y, Z,
+								FBP.random.nextDouble(-0.5, 0.5), FBP.random.nextDouble(0.25, 1) + mT * 1.5f,
+								FBP.random.nextDouble(-0.5, 0.5), Blocks.SNOW.getDefaultState()));
+					} else if (biome.canRain() && !biome.getEnableSnow()) {
+						mc.effectRenderer.addEffect(new FBPParticleRain(mc.theWorld, X, Y, Z, 0.1,
+								FBP.random.nextDouble(0.75, 0.999f) + mT / 2, 0.1, Blocks.SNOW.getDefaultState()));
 					}
 				}
-
-				snowTick = (int) (mT * 2 + offsetY / 2);
+				tickCounter = 0;
 			}
 
-			if (++rainTick >= 8) {
-				r = 40;
-				
-				mX = mc.thePlayer.motionX * 26;
-				mZ = mc.thePlayer.motionZ * 26;
-
-				mT = (Math.sqrt(mX * mX + mZ * mZ) / 25);
-
-				offsetY = mc.thePlayer.motionY * 6;
-
-				for (int i = 0; i < 60 * (2 - mc.gameSettings.particleSetting); i++) {
-					// get random position within radius of a little over the player's render
-					// distance
-					angle = mc.theWorld.rand.nextDouble() * Math.PI * 2;
-					radius = Math.sqrt(mc.theWorld.rand.nextDouble()) * r;
-					X = mc.thePlayer.posX - 5 + mX + radius * Math.cos(angle);
-					Z = mc.thePlayer.posZ - 5 + mZ + radius * Math.sin(angle);
-
-					// check if position is NOT within a snow biome
-					blockpos$mutableblockpos.setPos(X, 0, Z);
-					biome = mc.theWorld.getBiome(blockpos$mutableblockpos);
-
-					if (biome.canRain() && !biome.getEnableSnow()) {
-						mc.effectRenderer.addEffect(new FBPParticleRain(mc.theWorld, X, mc.thePlayer.posY + 15, Z, 0.25,
-								FBP.random.nextDouble(0.75, 2.25f) + mT / 2, 0.25, Blocks.SNOW.getDefaultState()));
-					}
-				}
-
-				rainTick = (int) (mT * 2 + offsetY / 2);
-			}
+			tickCounter++;
 		}
 	}
 

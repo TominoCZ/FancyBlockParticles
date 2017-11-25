@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 
 public class FBPGuiButton extends GuiButton {
 	boolean toggleButton = false;
@@ -14,6 +13,8 @@ public class FBPGuiButton extends GuiButton {
 	boolean toggle;
 
 	int offsetX;
+
+	public int size;
 
 	public FBPGuiButton(int buttonId, int x, int y, String buttonText, boolean toggle, boolean toggleButton) {
 		super(buttonId, x, y, buttonText);
@@ -35,9 +36,9 @@ public class FBPGuiButton extends GuiButton {
 			this.displayString = "\u00A76" + this.displayString;
 			offsetX = (this.height - 10) / 2;
 			break;
-		case "cogwheel":
-			this.displayString = "\u00A7a\u00A7L\u2699";
-			offsetX = (this.height - 5) / 2;
+		case "...":
+			this.displayString = "\u00A7a\u00A7L...";// "\u00A7a\u2699";
+			offsetX = 6;
 			break;
 		default:
 			offsetX = -1;
@@ -48,6 +49,7 @@ public class FBPGuiButton extends GuiButton {
 			this.toggle = toggle;
 	}
 
+	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
 		if (this.visible) {
 			int centerX1 = xPosition + this.height / 2;
@@ -64,26 +66,28 @@ public class FBPGuiButton extends GuiButton {
 					.sqrt((mouseX - centerX2) * (mouseX - centerX2) + (mouseY - centerY2) * (mouseY - centerY2));
 
 			boolean isOverRectangle = mouseX >= this.xPosition + this.height / 2 - 2 && mouseY >= this.yPosition + 1
-					&& mouseX < this.xPosition + this.width - this.height / 2 + 3 && mouseY < this.yPosition + this.height;
+					&& mouseX < this.xPosition + this.width - this.height / 2 + 3
+					&& mouseY < this.yPosition + this.height;
 
 			hovered = (distance1 <= radius || distance2 <= radius) || isOverRectangle;
 
 			FontRenderer fontrenderer = mc.fontRendererObj;
-			mc.getTextureManager().bindTexture(new ResourceLocation("fbp:textures/gui/widgets.png"));
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
 			int i = this.getHoverState(this.hovered);
 
 			GlStateManager.enableBlend();
+
+			mc.getTextureManager().bindTexture(FBP.FBP_WIDGETS);
 
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
 					GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+
 			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, i * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, i * 20, this.width / 2,
-					this.height);
+			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, i * 20,
+					this.width / 2, this.height);
 
 			this.mouseDragged(mc, mouseX, mouseY);
 			int j = 14737632;
@@ -101,20 +105,22 @@ public class FBPGuiButton extends GuiButton {
 					this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2,
 							this.yPosition + (this.height - 8) / 2, j);
 				else
-					this.drawString(fontrenderer, this.displayString, this.xPosition + offsetX, this.yPosition + (this.height - 8) / 2,
-							j);
+					this.drawString(fontrenderer, this.displayString, this.xPosition + offsetX,
+							this.yPosition + (this.height - 8) / 2, j);
 			} else {
-				this.drawString(fontrenderer, this.displayString, this.xPosition + 8, this.yPosition + (this.height - 8) / 2, j);
-
-				this.drawString(fontrenderer, toggle ? FBPGuiHelper.on : FBPGuiHelper.off, this.xPosition + this.width - 25,
+				this.drawString(fontrenderer, this.displayString, this.xPosition + 8,
 						this.yPosition + (this.height - 8) / 2, j);
+
+				this.drawString(fontrenderer, toggle ? FBPGuiHelper.on : FBPGuiHelper.off,
+						this.xPosition + this.width - 25, this.yPosition + (this.height - 8) / 2, j);
 			}
 		}
 	}
 
+	@Override
 	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-		if (this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width
-				&& mouseY < this.yPosition + this.height) {
+		if (this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition
+				&& mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height) {
 			toggle = !toggle;
 			return true;
 		} else

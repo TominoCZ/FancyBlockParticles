@@ -35,29 +35,34 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 
 	double offsetX = 0;
 
+	int GUIOffsetY = 4;
+
+	@Override
 	public void initGui() {
 		this.buttonList.clear();
 
 		int x = this.width / 2 - (96 * 2 + 8) / 2;
 
-		b1 = new FBPGuiButton(1, x, (int) (this.height / 5) - 10, b1Text, FBP.randomRotation, true);
-		b2 = new FBPGuiButton(2, x, (int) b1.yPosition + b1.height + 1, b2Text, FBP.cartoonMode, true);
+		b1 = new FBPGuiButton(1, x, this.height / 5 - 10 + GUIOffsetY, b1Text, FBP.randomRotation, true);
+		b2 = new FBPGuiButton(2, x, b1.yPosition + b1.height + 1, b2Text, FBP.cartoonMode, true);
 
-		b3 = new FBPGuiButton(3, x, (int) b2.yPosition + b2.height + 6, b3Text, FBP.smoothTransitions, true);
-		b4 = new FBPGuiButton(4, x, (int) b3.yPosition + b3.height + 1, b4Text, FBP.randomFadingSpeed, true);
+		b3 = new FBPGuiButton(3, x, b2.yPosition + b2.height + 6, b3Text, FBP.smoothTransitions, true);
+		b4 = new FBPGuiButton(4, x, b3.yPosition + b3.height + 1, b4Text, FBP.randomFadingSpeed, true);
 
-		b5 = new FBPGuiButton(5, x, (int) b4.yPosition + b4.height + 6, b5Text, FBP.spawnRedstoneBlockParticles, true);
-		b6 = new FBPGuiButton(6, x, (int) b5.yPosition + b5.height + 1, b6Text, FBP.spawnWhileFrozen, true);
+		b5 = new FBPGuiButton(5, x, b4.yPosition + b4.height + 6, b5Text, FBP.spawnRedstoneBlockParticles, true);
+		b6 = new FBPGuiButton(6, x, b5.yPosition + b5.height + 1, b6Text, FBP.spawnWhileFrozen, true);
 
-		Back = new FBPGuiButton(-3, b6.xPosition - (20 + 3 + 2 + 19)/* this.width / 2 - 125 */, (int) b6.yPosition + 10, "<<",
+		Back = new FBPGuiButton(-3, b6.xPosition - 44, b6.yPosition + 10 - GUIOffsetY, "<<", false, false);
+		Next = new FBPGuiButton(-5, b6.xPosition + b6.width + 25, b6.yPosition + 10 - GUIOffsetY, ">>", false,
+				false);
+
+		Defaults = new FBPGuiButton(0, this.width / 2 + 2, b6.yPosition + b6.height + 24 - GUIOffsetY, "Defaults",
 				false, false);
-		Next = new FBPGuiButton(-5, b6.xPosition + b6.width + 3 + 2 + 20, (int) b6.yPosition + 10, ">>", false, false);
-
-		Defaults = new FBPGuiButton(0, this.width / 2 + 2, b6.yPosition + b6.height + 24, "Defaults", false, false);
-		Done = new FBPGuiButton(-1, this.width / 2 - 100, (int) Defaults.yPosition, "Done", false, false);
-		Reload = new FBPGuiButton(-2, this.width / 2 - 100, (int) Defaults.yPosition + Defaults.height + 1, "Reload Config",
-				false, false);
-		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 27, 2, new Dimension(width, height), this.fontRendererObj);
+		Done = new FBPGuiButton(-1, this.width / 2 - 100, Defaults.yPosition, "Done", false, false);
+		Reload = new FBPGuiButton(-2, this.width / 2 - 100, Defaults.yPosition + Defaults.height + 1,
+				"Reload Config", false, false);
+		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 27, 2, new Dimension(width, height),
+				this.fontRendererObj);
 		Enable = new FBPGuiButtonEnable(-6, (this.width - 25 - 27) - 4, 2, new Dimension(width, height),
 				this.fontRendererObj);
 		Defaults.width = Done.width = 98;
@@ -69,10 +74,11 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 				new GuiButton[] { b1, b2, b3, b4, b5, b6, Defaults, Done, Reload, Back, Next, Enable, ReportBug }));
 	}
 
+	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
 		switch (button.id) {
 		case -6:
-			FBP.enabled = !FBP.enabled;
+			FBP.setEnabled(!FBP.enabled);
 			break;
 		case -5:
 			this.mc.displayGuiScreen(new FBPGuiMenuPage3());
@@ -122,18 +128,21 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		initGui();
 	}
 
+	@Override
 	public boolean doesGuiPauseGame() {
 		return true;
 	}
 
+	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		FBPGuiHelper.background(b1.yPosition - 6, Done.yPosition - 4, width, height);
+		FBPGuiHelper.background(b1.yPosition - 6 - GUIOffsetY, Done.yPosition - 4, width, height);
 
 		int posY = Done.yPosition - 18;
 
 		getDescription();
 
-		if ((mouseX >= b1.xPosition && mouseX < b1.xPosition + b1.width) && (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height)) {
+		if ((mouseX >= b1.xPosition && mouseX < b1.xPosition + b1.width)
+				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height)) {
 
 			moveText();
 
@@ -141,7 +150,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 					fontRendererObj.getColorCode('a'));
 		}
 
-		FBPGuiHelper.drawTitle(b1.yPosition, width, height, fontRendererObj);
+		FBPGuiHelper.drawTitle(b1.yPosition - GUIOffsetY, width, height, fontRendererObj);
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
@@ -150,8 +159,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		int textWidth = this.fontRendererObj.getStringWidth(description);
 		int outsideSizeX = textWidth - this.width;
 
-		if (textWidth > width) // TODO
-		{
+		if (textWidth > width) {
 			double speedOfSliding = 2400;
 			long time = System.currentTimeMillis();
 
@@ -163,6 +171,22 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 			offsetX = (outsideSizeX * 2) * normalValue - outsideSizeX;
 		} else
 			offsetX = 0;
+	}
+
+	@Override
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+		if (mouseButton == 0) {
+			for (int i = 0; i < this.buttonList.size(); ++i) {
+				GuiButton guibutton = this.buttonList.get(i);
+
+				if (guibutton.mousePressed(this.mc, mouseX, mouseY)) {
+					if (!guibutton.isMouseOver())
+						return;
+
+					this.actionPerformed(guibutton);
+				}
+			}
+		}
 	}
 
 	private void getDescription() {

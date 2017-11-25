@@ -22,7 +22,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 	double scaleAlpha, prevParticleScale, prevParticleAlpha;
 
-	double endMult = 1;
+	double endMult = 0.75;
 
 	float AngleY;
 
@@ -32,23 +32,16 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 	Vec2f par;
 
-	protected FBPParticleSmokeNormal(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double mX,
-			double mY, double mZ, float R, float G, float B, float scale, boolean b, TextureAtlasSprite tex) {
-		super(worldIn, xCoordIn, yCoordIn - 0.11f, zCoordIn, mX, mY, mZ, 1);
-		// this.motionY = 0.035f;
-		// this.particleGravity *= 1.85f;
-		this.particleRed = R;
-		this.particleGreen = G;
-		this.particleBlue = B;
+	protected FBPParticleSmokeNormal(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, final double mX,
+			final double mY, final double mZ, float scale, boolean b, TextureAtlasSprite tex) {
+		super(worldIn, xCoordIn, yCoordIn, zCoordIn, mX, mY, mZ, scale);
+
+		this.motionX = mX;
+		this.motionY = mY;
+		this.motionZ = mZ;
 
 		mc = Minecraft.getMinecraft();
 		this.particleTexture = tex;
-
-		// particleMaxAge *= (int) FBP.random.nextInt(2, 4);
-
-		// this.particleRed = 0.75f;
-		// this.particleGreen = particleRed;
-		// this.particleBlue = particleRed;
 
 		scaleAlpha = particleScale * 0.85;
 
@@ -64,7 +57,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 			scaleAlpha = particleScale * 0.5;
 
-			particleMaxAge = (int) FBP.random.nextInt(7, 18);
+			particleMaxAge = FBP.random.nextInt(7, 18);
 		} else if (worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn)).getBlock() == Blocks.TORCH) {
 			particleScale *= 0.5f;
 
@@ -73,7 +66,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 			this.motionZ = FBP.random.nextDouble(-0.05, 0.05);
 
 			this.motionX *= 0.925f;
-			this.motionY = 0.01f;
+			this.motionY = 0.005f;
 			this.motionZ *= 0.925f;
 
 			this.particleRed = 0.275f;
@@ -82,11 +75,10 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 			scaleAlpha = particleScale * 0.75;
 
-			particleMaxAge = (int) FBP.random.nextInt(5, 10);
+			particleMaxAge = FBP.random.nextInt(5, 10);
 		} else {
 			particleScale = scale;
-
-			this.motionY *= 0.975f;
+			motionY *= 0.935;
 		}
 
 		particleScale *= FBP.scaleMult;
@@ -105,9 +97,10 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		particleAlpha = 1f;
 
 		if (FBP.randomFadingSpeed)
-			endMult *= FBP.random.nextDouble(0.975, 1);
+			endMult = MathHelper.clamp(FBP.random.nextDouble(0.425, 1.15), 0.5432, 1);
 	}
 
+	@Override
 	public int getFXLayer() {
 		return 1;
 	}
@@ -124,33 +117,27 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		if (!FBP.fancySmoke)
 			this.isExpired = true;
 
-		// if (!mc.isGamePaused()) {
 		particleAge++;
 
 		if (this.particleAge >= this.particleMaxAge) {
 			if (FBP.randomFadingSpeed)
-				particleScale *= 0.85F * endMult;
+				particleScale *= 0.887654321F * endMult;
 			else
-				particleScale *= 0.85F;
+				particleScale *= 0.887654321F;
 
 			if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
 				if (FBP.randomFadingSpeed)
-					particleAlpha *= 0.65F * endMult;
+					particleAlpha *= 0.7654321F * endMult;
 				else
-					particleAlpha *= 0.65F;
+					particleAlpha *= 0.7654321F;
 			}
 
 			if (particleAlpha <= 0.01)
 				setExpired();
 		}
 
-		// int index = 7 - this.particleAge * 8 / this.particleMaxAge;
-
-		// this.particleTextureIndexX = index % 16;
-		// this.particleTextureIndexY = index / 16;
-
 		this.motionY += 0.004D;
-		this.moveEntity(this.motionX, this.motionY, this.motionZ);
+		this.move(this.motionX, this.motionY, this.motionZ);
 
 		if (this.posY == this.prevPosY) {
 			this.motionX *= 1.1D;
@@ -161,23 +148,24 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		this.motionY *= 0.9599999785423279D;
 		this.motionZ *= 0.9599999785423279D;
 
-		if (this.isCollided) {
+		if (this.onGround) {
 			this.motionX *= 0.699999988079071D;
 			this.motionZ *= 0.699999988079071D;
 		}
 	}
 
+	@Override
 	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
-		float f = particleTexture.getInterpolatedU((double) ((0.1f + 1) / 4 * 16));
-		float f1 = particleTexture.getInterpolatedV((double) ((0.1f + 1) / 4 * 16));
+		float f = particleTexture.getInterpolatedU((0.1f + 1) / 4 * 16);
+		float f1 = particleTexture.getInterpolatedV((0.1f + 1) / 4 * 16);
 
-		float f5 = (float) (prevPosX + (posX - prevPosX) * (double) partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * (double) partialTicks - interpPosY) + 0.01275F;
-		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * (double) partialTicks - interpPosZ);
+		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
+		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
 		int i = getBrightnessForRender(partialTicks);
 
@@ -186,18 +174,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
 
-		// float f = (float) this.particleTextureIndexX / 16.0F;
-		// float f1 = f + 0.0624375F;
-
-		// if (this.particleTexture != null) {
-		// f = this.particleTexture.getMinU();
-		// f1 = this.particleTexture.getMaxU();
-		// }
-
 		// RENDER
 		GlStateManager.enableCull();
-		GlStateManager.enableBlend();
-		GlStateManager.enableAlpha();
 
 		par = new Vec2f(f, f1);
 
@@ -233,10 +211,10 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		}
 	}
 
-	private void addVt(VertexBuffer worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k,
-			float r, float g, float b, float a) { // add vertex to buffer
-		worldRendererIn.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a).lightmap(j, k)
-				.endVertex();
+	private void addVt(VertexBuffer worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k, float r,
+			float g, float b, float a) { // add vertex to buffer
+		worldRendererIn.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a)
+				.lightmap(j, k).endVertex();
 	}
 
 	Vec3d rotatef(Vec3d vec, float AngleX, float AngleY, float AngleZ) {
@@ -248,19 +226,23 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		double cosAngleY = MathHelper.cos(AngleY);
 		double cosAngleZ = MathHelper.cos(AngleZ);
 
-		vec = new Vec3d(vec.xCoord, vec.yCoord * cosAngleX - vec.zCoord * sinAngleX, vec.yCoord * sinAngleX + vec.zCoord * cosAngleX);
-		vec = new Vec3d(vec.xCoord * cosAngleY + vec.zCoord * sinAngleY, vec.yCoord, vec.xCoord * sinAngleY - vec.zCoord * cosAngleY);
-		vec = new Vec3d(vec.xCoord * cosAngleZ - vec.yCoord * sinAngleZ, vec.xCoord * sinAngleZ + vec.yCoord * cosAngleZ, vec.zCoord);
+		vec = new Vec3d(vec.xCoord, vec.yCoord * cosAngleX - vec.zCoord * sinAngleX,
+				vec.yCoord * sinAngleX + vec.zCoord * cosAngleX);
+		vec = new Vec3d(vec.xCoord * cosAngleY + vec.zCoord * sinAngleY, vec.yCoord,
+				vec.xCoord * sinAngleY - vec.zCoord * cosAngleY);
+		vec = new Vec3d(vec.xCoord * cosAngleZ - vec.yCoord * sinAngleZ,
+				vec.xCoord * sinAngleZ + vec.yCoord * cosAngleZ, vec.zCoord);
 
 		return vec;
 	}
 
+	@Override
 	public int getBrightnessForRender(float p_189214_1_) {
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
 
-		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
 		}
 
 		return i == 0 ? j : i;

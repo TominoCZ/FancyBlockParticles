@@ -2,7 +2,6 @@ package com.TominoCZ.FBP.gui;
 
 import java.io.IOException;
 
-import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 
 import net.minecraft.client.gui.GuiButton;
@@ -21,6 +20,7 @@ public class FBPGuiYesNo extends GuiScreen {
 		parent = s;
 	}
 
+	@Override
 	public void initGui() {
 		this.buttonList.clear();
 
@@ -34,6 +34,7 @@ public class FBPGuiYesNo extends GuiScreen {
 		this.buttonList.add(no);
 	}
 
+	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
 		switch (button.id) {
 		case 1:
@@ -45,14 +46,16 @@ public class FBPGuiYesNo extends GuiScreen {
 		FBPConfigHandler.write();
 	}
 
+	@Override
 	public void updateScreen() {
 
 	}
 
+	@Override
 	public boolean doesGuiPauseGame() {
 		return false;
 	}
-	
+
 	@Override
 	protected void keyTyped(char c, int keyCode) throws IOException {
 		if (keyCode == 1) {
@@ -62,7 +65,8 @@ public class FBPGuiYesNo extends GuiScreen {
 
 		super.keyTyped(c, keyCode);
 	}
-	
+
+	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		parent.width = this.width;
 		parent.height = this.height;
@@ -76,7 +80,7 @@ public class FBPGuiYesNo extends GuiScreen {
 				Integer.parseInt("FFAA00", 16));
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
-	
+
 	void closeGui() {
 		mc.displayGuiScreen(parent);
 	}

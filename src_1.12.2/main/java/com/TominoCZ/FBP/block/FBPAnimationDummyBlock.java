@@ -13,7 +13,6 @@ import com.TominoCZ.FBP.particle.FBPParticleBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -121,7 +120,7 @@ public class FBPAnimationDummyBlock extends Block {
 			t.printStackTrace();
 		}
 
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return Block.FULL_BLOCK_AABB.offset(pos);
 	}
 
 	@Override
@@ -136,22 +135,12 @@ public class FBPAnimationDummyBlock extends Block {
 			t.printStackTrace();
 		}
 
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return Block.FULL_BLOCK_AABB.offset(pos);
 	}
 
 	@Override
 	public AxisAlignedBB getSelectedBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
-				BlockNode n = blockNodes.get(pos);
-
-				return n.state.getSelectedBoundingBox(worldIn, pos);
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-
-		return this.FULL_BLOCK_AABB.offset(pos);
+		return new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 	}
 
 	@Override
@@ -199,7 +188,7 @@ public class FBPAnimationDummyBlock extends Block {
 			if (blockNodes.containsKey(pos))
 				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn, b);
 		} catch (Exception e) {
-			
+
 		}
 	}
 
@@ -364,9 +353,18 @@ public class FBPAnimationDummyBlock extends Block {
 	public boolean isOpaqueCube(IBlockState state) {
 		return false;
 	}
-	
+
+	@Override
 	@SideOnly(Side.CLIENT)
 	public float getAmbientOcclusionLightValue(IBlockState state) {
 		return 1.0F;
+	}
+
+	@Override
+	public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+		if (blockNodes.containsKey(pos))
+			return blockNodes.get(pos).originalBlock.isSideSolid(base_state, world, pos, side);
+
+		return true;
 	}
 }

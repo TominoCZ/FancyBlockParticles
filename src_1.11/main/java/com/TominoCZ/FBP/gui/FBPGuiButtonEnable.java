@@ -6,9 +6,9 @@ import com.TominoCZ.FBP.FBP;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -24,9 +24,10 @@ public class FBPGuiButtonEnable extends GuiButton {
 		_fr = fr;
 	}
 
+	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
 		if (this.visible) {
-			mc.getTextureManager().bindTexture(new ResourceLocation("fbp:textures/gui/fbp.png"));
+			mc.getTextureManager().bindTexture(FBP.FBP_FBP);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 			int centerX = xPosition + 25 / 2;
@@ -42,7 +43,7 @@ public class FBPGuiButtonEnable extends GuiButton {
 			if (hovered = enabled = flag)
 				i += 25;
 
-			this.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, i, 25, 25, 25, 100);
+			Gui.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, i, 25, 25, 25, 100);
 
 			String text = (FBP.isEnabled() ? "Disable" : "Enable") + " FBP";
 

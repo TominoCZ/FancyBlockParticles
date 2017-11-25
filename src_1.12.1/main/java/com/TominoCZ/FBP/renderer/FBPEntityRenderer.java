@@ -35,7 +35,7 @@ public class FBPEntityRenderer extends EntityRenderer {
 			double mX;
 			double mZ;
 			double mT;
-			
+
 			double offsetY;
 
 			double angle;
@@ -47,7 +47,7 @@ public class FBPEntityRenderer extends EntityRenderer {
 
 			if (++snowTick >= 13) {
 				r = 25;
-				
+
 				mX = mc.player.motionX * 26;
 				mZ = mc.player.motionZ * 26;
 
@@ -68,10 +68,9 @@ public class FBPEntityRenderer extends EntityRenderer {
 					biome = mc.world.getBiome(blockpos$mutableblockpos);
 
 					if (biome.getEnableSnow()) {
-						mc.effectRenderer
-								.addEffect(new FBPParticleSnow(mc.world, X, mc.player.posY + 17 + offsetY, Z,
-										FBP.random.nextDouble(-0.5, 0.5), FBP.random.nextDouble(0.25, 0.8) + mT * 1.5f,
-										FBP.random.nextDouble(-0.5, 0.5), Blocks.SNOW.getDefaultState()));
+						mc.effectRenderer.addEffect(new FBPParticleSnow(mc.world, X, mc.player.posY + 17 + offsetY, Z,
+								FBP.random.nextDouble(-0.5, 0.5), FBP.random.nextDouble(0.25, 0.8) + mT * 1.5f,
+								FBP.random.nextDouble(-0.5, 0.5), Blocks.SNOW.getDefaultState()));
 					}
 				}
 
@@ -80,7 +79,7 @@ public class FBPEntityRenderer extends EntityRenderer {
 
 			if (++rainTick >= 8) {
 				r = 40;
-				
+
 				mX = mc.player.motionX * 26;
 				mZ = mc.player.motionZ * 26;
 
