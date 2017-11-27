@@ -1,1 +1,1 @@
-in versions <1.12 keep currentScreen null check in FBPKeyInputHandler
+in versions <1.12 the currentScreen null check in FBPKeyInputHandler is needed
