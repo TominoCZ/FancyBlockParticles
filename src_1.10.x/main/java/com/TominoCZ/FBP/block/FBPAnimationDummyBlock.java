@@ -175,6 +175,9 @@ public class FBPAnimationDummyBlock extends Block {
 
 			if (node.particle != null)
 				node.particle.killParticle();
+
+			// cleanup just to make sure it gets removed
+			FBP.INSTANCE.eventHandler.removePosEntry(pos);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}

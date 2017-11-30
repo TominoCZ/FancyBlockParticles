@@ -207,7 +207,7 @@ public class FBPRenderUtil {
 
 		return new Vector3f((float) pos2.x, (float) pos2.y, (float) pos2.z);
 	}
-	
+
 	public static void markBlockForRender(BlockPos pos) {
 		BlockPos bp1, bp2;
 		bp1 = pos.add(1, 1, 1);

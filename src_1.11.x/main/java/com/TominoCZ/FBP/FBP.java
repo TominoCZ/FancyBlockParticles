@@ -23,13 +23,13 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.init.Blocks;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -76,7 +76,6 @@ public class FBP {
 
 	public List<String> blockParticleExceptions;
 	public List<String> blockAnimExceptions;
-	public List<String> defaultBlockAnimExceptions;
 
 	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
@@ -110,7 +109,7 @@ public class FBP {
 
 	public static FBPAnimationDummyBlock FBPBlock = new FBPAnimationDummyBlock();
 
-	public static EntityRenderer fancyEntityRenderer, originalEntityRenderer;
+	public static IRenderHandler fancyWeatherRenderer, originalWeatherRenderer;
 	public static ParticleManager fancyEffectRenderer, originalEffectRenderer;
 
 	public FBPEventHandler eventHandler = new FBPEventHandler();
@@ -129,16 +128,6 @@ public class FBP {
 
 		blockParticleExceptions = Collections.synchronizedList(new ArrayList<String>());
 		blockAnimExceptions = Collections.synchronizedList(new ArrayList<String>());
-		defaultBlockAnimExceptions = Collections.synchronizedList(new ArrayList<String>());
-
-		defaultBlockAnimExceptions.add(Blocks.VINE.getRegistryName().toString());
-		defaultBlockAnimExceptions.add(Blocks.BARRIER.getRegistryName().toString());
-		defaultBlockAnimExceptions.add(Blocks.STANDING_BANNER.getRegistryName().toString());
-		defaultBlockAnimExceptions.add(Blocks.COBBLESTONE_WALL.getRegistryName().toString());
-
-		defaultBlockAnimExceptions.add(Blocks.CHEST.getRegistryName().toString());
-		defaultBlockAnimExceptions.add(Blocks.ENDER_CHEST.getRegistryName().toString());
-		defaultBlockAnimExceptions.add(Blocks.TRAPPED_CHEST.getRegistryName().toString());
 	}
 
 	@EventHandler
@@ -196,10 +185,10 @@ public class FBP {
 			if (enabled) {
 				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
 				if (fancyWeather)
-					Minecraft.getMinecraft().entityRenderer = FBP.fancyEntityRenderer;
+					Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			} else {
 				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;
-				Minecraft.getMinecraft().entityRenderer = FBP.originalEntityRenderer;
+				Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
 			}
 		}
 		FBP.enabled = enabled;
@@ -259,11 +248,9 @@ public class FBP {
 	}
 
 	public void resetExceptions(boolean particle) {
-		if (particle) {
+		if (particle)
 			blockParticleExceptions.clear();
-		} else {
+		else
 			blockAnimExceptions.clear();
-			blockAnimExceptions.addAll(defaultBlockAnimExceptions);
-		}
 	}
 }

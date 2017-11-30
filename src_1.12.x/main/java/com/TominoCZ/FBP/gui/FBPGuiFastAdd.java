@@ -9,8 +9,10 @@ import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
+import com.TominoCZ.FBP.model.FBPModelHelper;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -51,8 +53,11 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 		TileEntity te = mc.world.getTileEntity(selectedPos);
 
-		if (te != null)
-			mc.storeTEInStack(is, te);
+		try {
+			if (te != null)
+				mc.storeTEInStack(is, te);
+		} catch (Throwable t) {
+		}
 
 		displayItemStack = is.copy();
 	}
@@ -81,7 +86,11 @@ public class FBPGuiFastAdd extends GuiScreen {
 		particle = new FBPGuiButtonException(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
 				FBP.INSTANCE.isInExceptions(selectedBlock.getBlock(), true));
 
-		animation.enabled = Item.getItemFromBlock(selectedBlock.getBlock()) instanceof ItemBlock;
+		Item ib = Item.getItemFromBlock(selectedBlock.getBlock());
+		Block b = ib instanceof ItemBlock ? ((ItemBlock) ib).getBlock() : null;
+
+		animation.enabled = b != null && !(b instanceof BlockDoublePlant)
+				&& FBPModelHelper.isModelValid(b.getDefaultState());
 		particle.enabled = selectedBlock.getBlock() != Blocks.REDSTONE_BLOCK;
 
 		FBPGuiButton guide = new FBPGuiButton(-1, animation.x + 30, animation.y + 30 - 10,

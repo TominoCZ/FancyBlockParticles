@@ -1,15 +1,17 @@
 package com.TominoCZ.FBP.handler;
 
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.model.FBPModelHelper;
 import com.TominoCZ.FBP.node.BlockNode;
 import com.TominoCZ.FBP.node.BlockPosNode;
 import com.TominoCZ.FBP.particle.FBPParticleBlock;
 import com.TominoCZ.FBP.particle.FBPParticleManager;
-import com.TominoCZ.FBP.renderer.FBPEntityRenderer;
+import com.TominoCZ.FBP.renderer.FBPWeatherRenderer;
 import com.TominoCZ.FBP.util.FBPRenderUtil;
 
 import io.netty.util.internal.ConcurrentSet;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockSlab.EnumBlockHalf;
@@ -29,12 +31,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
+import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -99,15 +103,20 @@ public class FBPEventHandler {
 				if (FBP.enabled && FBP.fancyPlaceAnim && (flags == 11 || flags == 3) && !oldState.equals(newState)) {
 					BlockPosNode node = getNodeWithPos(pos);
 
-					if (node != null) {
+					if (node != null && !node.checked) {
 						if (newState.getBlock() == FBP.FBPBlock || newState.getBlock() == Blocks.AIR) {
-							list.clear();
+							if (newState.getBlock() == Blocks.AIR)
+								removePosEntry(pos);
+
 							return;
 						}
 
+						IBlockState state = newState.getActualState(worldIn, pos);
+						if (state.getBlock() instanceof BlockDoublePlant || !FBPModelHelper.isModelValid(state))
+							return;
+
 						long seed = MathHelper.getPositionRandom(pos);
 
-						IBlockState state = newState.getActualState(worldIn, pos);
 						boolean isNotFalling = true;
 
 						if (state.getBlock() instanceof BlockFalling) {
@@ -117,71 +126,22 @@ public class FBPEventHandler {
 						}
 
 						if (!FBP.INSTANCE.isInExceptions(state.getBlock(), false) && isNotFalling) {
-							FBPParticleBlock p = new FBPParticleBlock(mc.theWorld, pos.getX() + 0.5f, pos.getY() + 0.5f,
+							node.checked = true;
+
+							FBPParticleBlock p = new FBPParticleBlock(worldIn, pos.getX() + 0.5f, pos.getY() + 0.5f,
 									pos.getZ() + 0.5f, state, seed);
 
 							mc.effectRenderer.addEffect(p);
 
 							FBP.FBPBlock.copyState(worldIn, pos, state, p);
-							mc.theWorld.setBlockState(pos, FBP.FBPBlock.getDefaultState(), 8);
+							mc.theWorld.setBlockState(pos, FBP.FBPBlock.getDefaultState(), 2);
 
 							FBPRenderUtil.markBlockForRender(pos);
-
-							list.clear();
 						}
 					}
 				}
 			}
 		};
-	}
-
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onWorldLoadEvent(WorldEvent.Load e) {
-		e.getWorld().addEventListener(listener);
-		list.clear();
-	}
-
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
-		if (e.getEntity() == mc.thePlayer) {
-			FBP.fancyEffectRenderer = new FBPParticleManager(e.getWorld(), mc.renderEngine, new Factory());
-			FBP.fancyEntityRenderer = new FBPEntityRenderer(Minecraft.getMinecraft(),
-					Minecraft.getMinecraft().getResourceManager());
-
-			if (FBP.originalEntityRenderer == null || (FBP.originalEntityRenderer != mc.entityRenderer
-					&& mc.entityRenderer != FBP.fancyEntityRenderer))
-				FBP.originalEntityRenderer = mc.entityRenderer;
-			if (FBP.originalEffectRenderer == null || (FBP.originalEffectRenderer != mc.effectRenderer
-					&& FBP.originalEffectRenderer != FBP.fancyEffectRenderer))
-				FBP.originalEffectRenderer = mc.effectRenderer;
-
-			if (FBP.enabled) {
-				mc.effectRenderer = FBP.fancyEffectRenderer;
-
-				if (FBP.fancyWeather)
-					mc.entityRenderer = FBP.fancyEntityRenderer;
-			}
-		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onPlayerPlaceBlockEvent(BlockEvent.PlaceEvent e) {
-		IBlockState bs = e.getPlacedBlock();
-		Block placed = bs.getBlock();
-
-		if (placed == FBP.FBPBlock)
-			e.setCanceled(true);
-	}
-
-	BlockPosNode getNodeWithPos(BlockPos p) {
-		for (BlockPosNode n : list) {
-			if (n.hasPos(p))
-				return n;
-		}
-		return null;
 	}
 
 	@SubscribeEvent
@@ -196,7 +156,6 @@ public class FBPEventHandler {
 			Block inHand = null;
 
 			IBlockState atPos = e.getWorld().getBlockState(pos);
-			IBlockState _atPos = atPos;
 			IBlockState offset = e.getWorld().getBlockState(pos_o);
 
 			boolean bool = false;
@@ -245,50 +204,126 @@ public class FBPEventHandler {
 
 			boolean addedOffset = false;
 
-			if (getNodeWithPos(pos) == null && getNodeWithPos(pos_o) == null) {
-				BlockPosNode node = new BlockPosNode();
+			BlockPosNode node = new BlockPosNode();
 
-				try {
-					if (!bool && (inHand != null && offset.getMaterial().isReplaceable()
-							&& !atPos.getBlock().isReplaceable(e.getWorld(), pos)
-							&& inHand.canPlaceBlockAt(e.getWorld(), pos_o))) {
-						node.add(pos_o, offset);
-						addedOffset = true;
-					} else
-						node.add(pos, atPos);
+			try {
+				if (!bool && (inHand != null && offset.getMaterial().isReplaceable()
+						&& !atPos.getBlock().isReplaceable(e.getWorld(), pos)
+						&& inHand.canPlaceBlockAt(e.getWorld(), pos_o))) {
+					node.add(pos_o);
+					addedOffset = true;
+				} else
+					node.add(pos);
 
-					boolean okToAdd = inHand != null && inHand != Blocks.AIR
-							&& inHand.canPlaceBlockAt(e.getWorld(), addedOffset ? pos_o : pos);
+				boolean okToAdd = inHand != null && inHand != Blocks.AIR
+						&& inHand.canPlaceBlockAt(e.getWorld(), addedOffset ? pos_o : pos);
 
-					// do torch check
-					if (inHand != null && inHand instanceof BlockTorch) {
-						BlockTorch bt = (BlockTorch) inHand;
+				// do torch check
+				if (inHand != null && inHand instanceof BlockTorch) {
+					BlockTorch bt = (BlockTorch) inHand;
 
-						if (!bt.canPlaceBlockAt(e.getWorld(), pos_o))
-							okToAdd = false;
+					if (!bt.canPlaceBlockAt(e.getWorld(), pos_o))
+						okToAdd = false;
 
-						if (atPos.getBlock() == Blocks.TORCH) {
-							for (EnumFacing fc : EnumFacing.VALUES) {
-								BlockPos p = pos_o.offset(fc);
-								Block bl = e.getWorld().getBlockState(p).getBlock();
+					if (atPos.getBlock() == Blocks.TORCH) {
+						for (EnumFacing fc : EnumFacing.VALUES) {
+							BlockPos p = pos_o.offset(fc);
+							Block bl = e.getWorld().getBlockState(p).getBlock();
 
-								if (bl != Blocks.TORCH && bl != FBP.FBPBlock
-										&& bl.isSideSolid(bl.getDefaultState(), e.getWorld(), p, fc)) {
-									okToAdd = true;
-									break;
-								} else
-									okToAdd = false;
-							}
+							if (bl != Blocks.TORCH && bl != FBP.FBPBlock
+									&& bl.isSideSolid(bl.getDefaultState(), e.getWorld(), p, fc)) {
+								okToAdd = true;
+								break;
+							} else
+								okToAdd = false;
 						}
 					}
-
-					// add if all ok
-					if (okToAdd)
-						list.add(node);
-				} catch (Throwable t) {
-
 				}
+
+				BlockPosNode last = getNodeWithPos(pos);
+				BlockPosNode last_o = getNodeWithPos(pos_o);
+
+				// add if all ok
+				if (okToAdd) {
+					boolean replaceable = offset.getBlock().isReplaceable(e.getWorld(), (addedOffset ? pos_o : pos));
+
+					if (last != null && !addedOffset && last.checked) // replace
+						return;
+					if (last_o != null && addedOffset && (last_o.checked || replaceable)) // place on side
+						return;
+
+					list.add(node);
+				}
+			} catch (Throwable t) {
+				list.clear();
 			}
+		}
+	}
+
+	@SubscribeEvent
+	public void onTick(TickEvent.ClientTickEvent e) {
+		if (!mc.isGamePaused() && mc.theWorld != null
+				&& mc.theWorld.provider.getWeatherRenderer() == FBP.fancyWeatherRenderer && FBP.enabled
+				&& FBP.fancyWeather)
+			((FBPWeatherRenderer) FBP.fancyWeatherRenderer).onUpdate();
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void onWorldLoadEvent(WorldEvent.Load e) {
+		e.getWorld().addEventListener(listener);
+		list.clear();
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
+		if (e.getEntity() == mc.thePlayer) {
+			FBP.fancyEffectRenderer = new FBPParticleManager(e.getWorld(), mc.renderEngine, new Factory());
+			FBP.fancyWeatherRenderer = new FBPWeatherRenderer();
+
+			IRenderHandler currentWeatherRenderer = mc.theWorld.provider.getCloudRenderer();
+
+			if (FBP.originalWeatherRenderer == null || (FBP.originalWeatherRenderer != currentWeatherRenderer
+					&& currentWeatherRenderer != FBP.fancyWeatherRenderer))
+				FBP.originalWeatherRenderer = currentWeatherRenderer;
+			if (FBP.originalEffectRenderer == null || (FBP.originalEffectRenderer != mc.effectRenderer
+					&& FBP.originalEffectRenderer != FBP.fancyEffectRenderer))
+				FBP.originalEffectRenderer = mc.effectRenderer;
+
+			if (FBP.enabled) {
+				mc.effectRenderer = FBP.fancyEffectRenderer;
+
+				if (FBP.fancyWeather)
+					mc.theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
+			}
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void onPlayerPlaceBlockEvent(BlockEvent.PlaceEvent e) {
+		IBlockState bs = e.getPlacedBlock();
+		Block placed = bs.getBlock();
+
+		if (placed == FBP.FBPBlock)
+			e.setCanceled(true);
+	}
+
+	BlockPosNode getNodeWithPos(BlockPos pos) {
+		for (BlockPosNode n : list) {
+			if (n.hasPos(pos))
+				return n;
+		}
+		return null;
+	}
+
+	public void removePosEntry(BlockPos pos) {
+		for (int i = 0; i < list.size(); i++) {
+			BlockPosNode n = getNodeWithPos(pos);
+
+			if (n != null)
+				list.remove(n);
 		}
 	}
 }

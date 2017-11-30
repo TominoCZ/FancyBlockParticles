@@ -96,9 +96,9 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 			FBP.fancyWeather = !FBP.fancyWeather;
 
 			if (FBP.fancyWeather)
-				mc.entityRenderer = FBP.fancyEntityRenderer;
+				mc.world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			else
-				mc.entityRenderer = FBP.originalEntityRenderer;
+				mc.world.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
 			break;
 		case 4:
 			FBP.enableDing = !FBP.enableDing;

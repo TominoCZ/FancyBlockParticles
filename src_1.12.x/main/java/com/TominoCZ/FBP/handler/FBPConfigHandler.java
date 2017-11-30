@@ -37,16 +37,12 @@ public class FBPConfigHandler {
 					Path.apply(FBP.animExceptionsFile.getParent()).createDirectory(true, false);
 
 				FBP.animExceptionsFile.createNewFile();
-
-				writeAnimExceptions();
 			}
 			if (!FBP.particleExceptionsFile.exists()) {
 				if (!Path.apply(FBP.particleExceptionsFile.getParent()).exists())
 					Path.apply(FBP.particleExceptionsFile.getParent()).createDirectory(true, false);
 
 				FBP.particleExceptionsFile.createNewFile();
-
-				writeParticleExceptions();
 			}
 
 			read();
