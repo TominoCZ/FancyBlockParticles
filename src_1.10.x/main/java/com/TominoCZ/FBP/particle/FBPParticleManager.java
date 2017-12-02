@@ -108,6 +108,7 @@ public class FBPParticleManager extends ParticleManager {
 					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact(effect),
 							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect), 0,
 							FBP.random.nextDouble() * 0.25, 0, true);
+					effect.setExpired();
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
@@ -120,7 +121,8 @@ public class FBPParticleManager extends ParticleManager {
 					toAdd = new FBPParticleSmokeNormal(worldObj, (double) X.invokeExact(effect),
 							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect),
 							(double) mX.invokeExact(effect), (double) mY.invokeExact(effect),
-							(double) mZ.invokeExact(effect), (float) getParticleScale.invokeExact(effect), true, white);
+							(double) mZ.invokeExact(effect), (float) getParticleScale.invokeExact(effect), true, white,
+							p);
 
 					toAdd.setRBGColorF(MathHelper.clamp_float(effect.getRedColorF() + 0.1f, 0.1f, 1),
 							MathHelper.clamp_float(effect.getGreenColorF() + 0.1f, 0.1f, 1),
@@ -130,7 +132,8 @@ public class FBPParticleManager extends ParticleManager {
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
-			} else if (FBP.fancyWeather && toAdd instanceof ParticleRain) {
+			} else if (FBP.fancyRain && toAdd instanceof ParticleRain) {
+				effect.setExpired();
 				return;
 			} else if (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticleDigging)) {
 				try {
@@ -138,6 +141,8 @@ public class FBPParticleManager extends ParticleManager {
 
 					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
+						effect.setExpired();
+
 						if (!(blockState.getBlock() instanceof BlockLiquid)
 								&& !FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
 							toAdd = new FBPParticleDigging(worldObj, (double) X.invokeExact(effect),
@@ -147,7 +152,7 @@ public class FBPParticleManager extends ParticleManager {
 									(float) getParticleScale.invokeExact(effect),
 									(TextureAtlasSprite) getParticleTexture.invokeExact(effect));
 						} else
-							toAdd = null;
+							return;
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();
@@ -160,8 +165,10 @@ public class FBPParticleManager extends ParticleManager {
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
 
 						if (blockState.getBlock() instanceof BlockLiquid
-								|| FBP.INSTANCE.isInExceptions(blockState.getBlock(), true))
-							toAdd = null;
+								|| FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
+							effect.setExpired();
+							return;
+						}
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();

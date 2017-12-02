@@ -114,7 +114,7 @@ public class FBPParticleDigging extends ParticleDigging {
 		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
 		// = 0.7F + (0.25F * mc.gameSettings.gammaSetting);
 
-		scaleAlpha = particleScale * 0.825;
+		scaleAlpha = particleScale * 0.82;
 
 		destroyed = facing == null;
 
@@ -145,7 +145,7 @@ public class FBPParticleDigging extends ParticleDigging {
 			multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 
 		if (FBP.randomFadingSpeed)
-			endMult = MathHelper.clamp(FBP.random.nextDouble(0.41020543, 1.15012558), 0.5432, 1);
+			endMult = MathHelper.clamp(FBP.random.nextDouble(0.4151, 0.9875), 0.63875, 0.9875);
 	}
 
 	public Particle MultiplyVelocity(float multiplier) {
@@ -251,7 +251,7 @@ public class FBPParticleDigging extends ParticleDigging {
 				particleScale *= 0.887654321F * endMult;
 
 				if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
-					particleAlpha *= 0.7654321F * endMult;
+					particleAlpha *= 0.68752F * endMult;
 
 				if (particleAlpha <= 0.01)
 					setExpired();

@@ -4,7 +4,6 @@ import com.TominoCZ.FBP.FBP;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleSmokeNormal;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
@@ -32,9 +31,14 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 	Vec2f par;
 
+	ParticleSmokeNormal original;
+
 	protected FBPParticleSmokeNormal(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, final double mX,
-			final double mY, final double mZ, float scale, boolean b, TextureAtlasSprite tex) {
+			final double mY, final double mZ, float scale, boolean b, TextureAtlasSprite tex,
+			ParticleSmokeNormal original) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, mX, mY, mZ, scale);
+
+		this.original = original;
 
 		this.motionX = mX;
 		this.motionY = mY;
@@ -175,8 +179,6 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
 
 		// RENDER
-		GlStateManager.enableCull();
-
 		par = new Vec2f(f, f1);
 
 		worldRendererIn.setTranslation(f5, f6, f7);
@@ -246,5 +248,12 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		}
 
 		return i == 0 ? j : i;
+	}
+
+	@Override
+	public void setExpired() {
+		this.isExpired = true;
+
+		original.setExpired();
 	}
 }

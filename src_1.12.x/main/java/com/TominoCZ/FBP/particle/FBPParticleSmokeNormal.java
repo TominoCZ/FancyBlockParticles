@@ -4,8 +4,7 @@ import com.TominoCZ.FBP.FBP;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleSmokeNormal;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -32,9 +31,14 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 	Vec2f par;
 
+	ParticleSmokeNormal original;
+
 	protected FBPParticleSmokeNormal(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, final double mX,
-			final double mY, final double mZ, float scale, boolean b, TextureAtlasSprite tex) {
+			final double mY, final double mZ, float scale, boolean b, TextureAtlasSprite tex,
+			ParticleSmokeNormal original) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, mX, mY, mZ, scale);
+
+		this.original = original;
 
 		this.motionX = mX;
 		this.motionY = mY;
@@ -97,7 +101,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		particleAlpha = 1f;
 
 		if (FBP.randomFadingSpeed)
-			endMult = MathHelper.clamp(FBP.random.nextDouble(0.425, 1.15), 0.5432, 1);
+			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.425, 1.15), 0.5432, 1);
 	}
 
 	@Override
@@ -137,7 +141,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		}
 
 		this.motionY += 0.004D;
-		this.move(this.motionX, this.motionY, this.motionZ);
+		this.moveEntity(this.motionX, this.motionY, this.motionZ);
 
 		if (this.posY == this.prevPosY) {
 			this.motionX *= 1.1D;
@@ -148,14 +152,14 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		this.motionY *= 0.9599999785423279D;
 		this.motionZ *= 0.9599999785423279D;
 
-		if (this.onGround) {
+		if (this.isCollided) {
 			this.motionX *= 0.699999988079071D;
 			this.motionZ *= 0.699999988079071D;
 		}
 	}
 
 	@Override
-	public void renderParticle(BufferBuilder worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
+	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
@@ -175,8 +179,6 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
 
 		// RENDER
-		GlStateManager.enableCull();
-
 		par = new Vec2f(f, f1);
 
 		worldRendererIn.setTranslation(f5, f6, f7);
@@ -185,7 +187,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		worldRendererIn.setTranslation(0, 0, 0);
 	}
 
-	public void putCube(BufferBuilder worldRendererIn, double scale, int j, int k, float r, float g, float b, float a) {
+	public void putCube(VertexBuffer worldRendererIn, double scale, int j, int k, float r, float g, float b, float a) {
 		float brightnessForRender = _brightnessForRender;
 
 		float R = 0;
@@ -211,10 +213,10 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		}
 	}
 
-	private void addVt(BufferBuilder worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k,
-			float r, float g, float b, float a) { // add vertex to buffer
-		worldRendererIn.pos(pos.x * scale, pos.y * scale, pos.z * scale).tex(u, v).color(r, g, b, a).lightmap(j, k)
-				.endVertex();
+	private void addVt(VertexBuffer worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k, float r,
+			float g, float b, float a) { // add vertex to buffer
+		worldRendererIn.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a)
+				.lightmap(j, k).endVertex();
 	}
 
 	Vec3d rotatef(Vec3d vec, float AngleX, float AngleY, float AngleZ) {
@@ -226,9 +228,12 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		double cosAngleY = MathHelper.cos(AngleY);
 		double cosAngleZ = MathHelper.cos(AngleZ);
 
-		vec = new Vec3d(vec.x, vec.y * cosAngleX - vec.z * sinAngleX, vec.y * sinAngleX + vec.z * cosAngleX);
-		vec = new Vec3d(vec.x * cosAngleY + vec.z * sinAngleY, vec.y, vec.x * sinAngleY - vec.z * cosAngleY);
-		vec = new Vec3d(vec.x * cosAngleZ - vec.y * sinAngleZ, vec.x * sinAngleZ + vec.y * cosAngleZ, vec.z);
+		vec = new Vec3d(vec.xCoord, vec.yCoord * cosAngleX - vec.zCoord * sinAngleX,
+				vec.yCoord * sinAngleX + vec.zCoord * cosAngleX);
+		vec = new Vec3d(vec.xCoord * cosAngleY + vec.zCoord * sinAngleY, vec.yCoord,
+				vec.xCoord * sinAngleY - vec.zCoord * cosAngleY);
+		vec = new Vec3d(vec.xCoord * cosAngleZ - vec.yCoord * sinAngleZ,
+				vec.xCoord * sinAngleZ + vec.yCoord * cosAngleZ, vec.zCoord);
 
 		return vec;
 	}
@@ -238,10 +243,17 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
 
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
 		}
 
 		return i == 0 ? j : i;
+	}
+
+	@Override
+	public void setExpired() {
+		this.isExpired = true;
+
+		original.setExpired();
 	}
 }

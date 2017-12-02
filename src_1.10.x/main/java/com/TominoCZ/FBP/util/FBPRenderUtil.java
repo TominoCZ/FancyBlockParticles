@@ -37,7 +37,7 @@ public class FBPRenderUtil {
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
 		GlStateManager.enableLighting();
 		GlStateManager.enableLight(0);
-
+		GlStateManager.enableLight(1);
 		// render particle
 		buf.setTranslation(f5, f6, f7);
 
@@ -71,6 +71,7 @@ public class FBPRenderUtil {
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
 		GlStateManager.enableLighting();
 		GlStateManager.enableLight(0);
+		GlStateManager.enableLight(1);
 
 		// render particle
 		buf.setTranslation(f5, f6, f7);

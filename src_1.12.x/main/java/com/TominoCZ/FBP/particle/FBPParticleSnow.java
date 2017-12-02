@@ -5,20 +5,19 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.util.FBPRenderUtil;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleDigging;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -106,7 +105,7 @@ public class FBPParticleSnow extends ParticleDigging {
 
 	@Override
 	protected void multiplyColor(@Nullable BlockPos p_187154_1_) {
-		int i = mc.getBlockColors().colorMultiplier(this.sourceState, this.world, p_187154_1_, 0);
+		int i = mc.getBlockColors().colorMultiplier(this.sourceState, this.worldObj, p_187154_1_, 0);
 		this.particleRed *= (i >> 16 & 255) / 255.0F;
 		this.particleGreen *= (i >> 8 & 255) / 255.0F;
 		this.particleBlue *= (i & 255) / 255.0F;
@@ -131,7 +130,7 @@ public class FBPParticleSnow extends ParticleDigging {
 		if (!mc.isGamePaused()) {
 			particleAge++;
 
-			if (posY < mc.player.posY - (mc.gameSettings.renderDistanceChunks * 16))
+			if (posY < mc.thePlayer.posY - (mc.gameSettings.renderDistanceChunks * 16))
 				this.isExpired = true;
 
 			rot.add(rotStep.multiply(FBP.rotationMult * 5));
@@ -183,7 +182,7 @@ public class FBPParticleSnow extends ParticleDigging {
 
 			motionZ *= 0.9800000190734863D;
 
-			if (onGround) {
+			if (isCollided) {
 				motionX *= 0.680000190734863D;
 				motionZ *= 0.6800000190734863D;
 
@@ -201,21 +200,22 @@ public class FBPParticleSnow extends ParticleDigging {
 		double d0 = y;
 
 		if (this.canCollide) {
-			List<AxisAlignedBB> list = this.world.getCollisionBoxes(null, this.getBoundingBox().offset(x, y, z));
+			List<AxisAlignedBB> list = this.worldObj.getCollisionBoxes(null,
+					this.getEntityBoundingBox().offset(x, y, z));
 
 			for (AxisAlignedBB aabb : list) {
-				x = aabb.calculateXOffset(this.getBoundingBox(), x);
-				y = aabb.calculateYOffset(this.getBoundingBox(), y);
-				z = aabb.calculateZOffset(this.getBoundingBox(), z);
+				x = aabb.calculateXOffset(this.getEntityBoundingBox(), x);
+				y = aabb.calculateYOffset(this.getEntityBoundingBox(), y);
+				z = aabb.calculateZOffset(this.getEntityBoundingBox(), z);
 			}
 
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
 		} else
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
 
 		this.resetPositionToBB();
 
-		this.onGround = y != Y && d0 < 0.0D;
+		this.isCollided = y != Y && d0 < 0.0D;
 
 		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
 			if (x != X)
@@ -226,7 +226,7 @@ public class FBPParticleSnow extends ParticleDigging {
 	}
 
 	@Override
-	public void renderParticle(BufferBuilder worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
+	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
@@ -287,69 +287,11 @@ public class FBPParticleSnow extends ParticleDigging {
 		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
 		worldRendererIn.setTranslation(f5, f6, f7);
-		putCube(worldRendererIn, f4 / 20, smoothRot, i >> 16 & 65535, i & 65535, particleRed, particleGreen,
-				particleBlue, alpha, FBP.cartoonMode);
+
+		FBPRenderUtil.renderCubeShaded_S(worldRendererIn, par, f5, f6, f7, f4 / 20, smoothRot, i >> 16 & 65535,
+				i & 65535, particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
 
 		worldRendererIn.setTranslation(0, 0, 0);
-	}
-
-	public void putCube(BufferBuilder buff, double scale, FBPVector3d rotVec, int j, int k, float r, float g, float b,
-			float a, boolean cartoon) {
-		brightness = 1;
-
-		float R = 0;
-		float G = 0;
-		float B = 0;
-
-		float radsX = (float) Math.toRadians(rotVec.x);
-		float radsY = (float) Math.toRadians(rotVec.y);
-		float radsZ = (float) Math.toRadians(rotVec.z);
-
-		for (int i = 0; i < FBP.CUBE.length; i += 4) {
-			Vec3d v1 = FBP.CUBE[i];
-			Vec3d v2 = FBP.CUBE[i + 1];
-			Vec3d v3 = FBP.CUBE[i + 2];
-			Vec3d v4 = FBP.CUBE[i + 3];
-
-			v1 = rotatef(v1, radsX, radsY, radsZ);
-			v2 = rotatef(v2, radsX, radsY, radsZ);
-			v3 = rotatef(v3, radsX, radsY, radsZ);
-			v4 = rotatef(v4, radsX, radsY, radsZ);
-
-			R = r * brightness;
-			G = g * brightness;
-			B = b * brightness;
-
-			brightness *= 0.935;
-
-			if (!cartoon) {
-				addVt(buff, scale, v1, par[0].x, par[0].y, j, k, R, G, B, a);
-				addVt(buff, scale, v2, par[1].x, par[1].y, j, k, R, G, B, a);
-				addVt(buff, scale, v3, par[2].x, par[2].y, j, k, R, G, B, a);
-				addVt(buff, scale, v4, par[3].x, par[3].y, j, k, R, G, B, a);
-			} else {
-				addVt(buff, scale, v1, par[0].x, par[0].y, j, k, R, G, B, a);
-				addVt(buff, scale, v2, par[0].x, par[0].y, j, k, R, G, B, a);
-				addVt(buff, scale, v3, par[0].x, par[0].y, j, k, R, G, B, a);
-				addVt(buff, scale, v4, par[0].x, par[0].y, j, k, R, G, B, a);
-			}
-		}
-	}
-
-	private void addVt(BufferBuilder buff, double scale, Vec3d pos, double u, double v, int j, int k, float r, float g,
-			float b, float a) {
-		buff.pos(pos.x * scale, pos.y * scale, pos.z * scale).tex(u, v).color(r, g, b, a).lightmap(j, k).endVertex();
-	}
-
-	Vec3d rotatef(Vec3d vec, float AngleX, float AngleY, float AngleZ) {
-		FBPVector3d sin = new FBPVector3d(MathHelper.sin(AngleX), MathHelper.sin(AngleY), MathHelper.sin(AngleZ));
-		FBPVector3d cos = new FBPVector3d(MathHelper.cos(AngleX), MathHelper.cos(AngleY), MathHelper.cos(AngleZ));
-
-		vec = new Vec3d(vec.x, vec.y * cos.x - vec.z * sin.x, vec.y * sin.x + vec.z * cos.x);
-		vec = new Vec3d(vec.x * cos.y + vec.z * sin.y, vec.y, vec.x * sin.y - vec.z * cos.y);
-		vec = new Vec3d(vec.x * cos.z - vec.y * sin.z, vec.x * sin.z + vec.y * cos.z, vec.z);
-
-		return vec;
 	}
 
 	@Override
@@ -357,8 +299,8 @@ public class FBPParticleSnow extends ParticleDigging {
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
 
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
 		}
 
 		return i == 0 ? j : i;

@@ -48,15 +48,16 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 		WeatherParticleDensity = new FBPGuiSlider(X, this.height / 5 - 10 + GUIOffsetY,
 				(FBP.weatherParticleDensity - 0.75) / 4.25);
 
-		int Y = WeatherParticleDensity.y + WeatherParticleDensity.height + 2 + 4 * (WeatherParticleDensity.height + 1)
-				+ 5;
+		int Y = WeatherParticleDensity.yPosition + WeatherParticleDensity.height + 2
+				+ 4 * (WeatherParticleDensity.height + 1) + 5;
 
 		Defaults = new FBPGuiButton(0, this.width / 2 + 2, Y + 20 + 24 - GUIOffsetY + 4, "Defaults", false, false);
-		Done = new FBPGuiButton(-1, x2, Defaults.y, "Done", false, false);
-		Reload = new FBPGuiButton(-2, x2, Defaults.y + Defaults.height + 1, "Reload Config", false, false);
-		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 27, 2, new Dimension(width, height), this.fontRenderer);
+		Done = new FBPGuiButton(-1, x2, Defaults.yPosition, "Done", false, false);
+		Reload = new FBPGuiButton(-2, x2, Defaults.yPosition + Defaults.height + 1, "Reload Config", false, false);
+		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 27, 2, new Dimension(width, height),
+				this.fontRendererObj);
 		Enable = new FBPGuiButtonEnable(-6, (this.width - 25 - 27) - 4, 2, new Dimension(width, height),
-				this.fontRenderer);
+				this.fontRendererObj);
 		Defaults.width = Done.width = 98;
 		Reload.width = 96 * 2 + 8;
 		Back = new FBPGuiButton(-7, X - 44, Y + 10 - GUIOffsetY + 4, "<<", false, false);
@@ -115,7 +116,7 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		FBPGuiHelper.background(WeatherParticleDensity.y - 6 - GUIOffsetY, Done.y - 4, width, height);
+		FBPGuiHelper.background(WeatherParticleDensity.yPosition - 6 - GUIOffsetY, Done.yPosition - 4, width, height);
 
 		double sWeatherParticleDensity = FBPMathUtil.round(0.75 + 4.25 * WeatherParticleDensity.value, 2);
 
@@ -123,7 +124,7 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 
 		drawMouseOverSelection(mouseX, mouseY, partialTicks);
 
-		FBPGuiHelper.drawTitle(WeatherParticleDensity.y - GUIOffsetY, width, height, fontRenderer);
+		FBPGuiHelper.drawTitle(WeatherParticleDensity.yPosition - GUIOffsetY, width, height, fontRendererObj);
 
 		drawInfo();
 
@@ -131,13 +132,13 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 	}
 
 	private void drawMouseOverSelection(int mouseX, int mouseY, float partialTicks) {
-		int posY = Done.y - 18;
+		int posY = Done.yPosition - 18;
 
-		if ((mouseX >= WeatherParticleDensity.x - 2
-				&& mouseX <= (WeatherParticleDensity.x + WeatherParticleDensity.width + 2))
-				&& mouseY >= WeatherParticleDensity.y
-				&& mouseY <= (WeatherParticleDensity.y + WeatherParticleDensity.height - 2)) {
-			handle.y = WeatherParticleDensity.y;
+		if ((mouseX >= WeatherParticleDensity.xPosition - 2
+				&& mouseX <= (WeatherParticleDensity.xPosition + WeatherParticleDensity.width + 2))
+				&& mouseY >= WeatherParticleDensity.yPosition
+				&& mouseY <= (WeatherParticleDensity.yPosition + WeatherParticleDensity.height - 2)) {
+			handle.y = WeatherParticleDensity.yPosition;
 			size = new Vector2d(WeatherParticleDensity.width, 18);
 			selected = 1;
 		}
@@ -165,7 +166,7 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 					lastHandle.y += step;
 			}
 
-			lastHandle.x = WeatherParticleDensity.x;
+			lastHandle.x = WeatherParticleDensity.xPosition;
 		}
 
 		if (lastSize != new Vector2d(0, 0)) {
@@ -200,32 +201,32 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 			text = "";
 		}
 
-		if (((mouseX >= WeatherParticleDensity.x - 2
-				&& mouseX <= WeatherParticleDensity.x + WeatherParticleDensity.width + 2)
-				&& (mouseY < WeatherParticleDensity.y + WeatherParticleDensity.height
-						&& mouseY >= WeatherParticleDensity.y)
+		if (((mouseX >= WeatherParticleDensity.xPosition - 2
+				&& mouseX <= WeatherParticleDensity.xPosition + WeatherParticleDensity.width + 2)
+				&& (mouseY < WeatherParticleDensity.yPosition + WeatherParticleDensity.height
+						&& mouseY >= WeatherParticleDensity.yPosition)
 				&& (lastSize.y <= 20 || (lastSize.y < 50 && lastSize.y > 20))
-				&& lastHandle.y >= WeatherParticleDensity.y)) {
+				&& lastHandle.y >= WeatherParticleDensity.yPosition)) {
 			moveText(text);
 
 			if (selected <= 5)
 				FBPGuiHelper.drawRect(lastHandle.x - 2, lastHandle.y + 2, lastSize.x + 4, lastSize.y - 2, 200, 200, 200,
 						35);
 
-			this.drawCenteredString(fontRenderer, text, (int) (this.width / 2 + offsetX), posY,
-					fontRenderer.getColorCode('a'));
+			this.drawCenteredString(fontRendererObj, text, (int) (this.width / 2 + offsetX), posY,
+					fontRendererObj.getColorCode('a'));
 		}
 	}
 
 	private void drawInfo() {
-		int posY = Done.y - 18;
+		int posY = Done.yPosition - 18;
 
 		String s = "Weather Particle Density [\u00A76" + (int) (FBP.weatherParticleDensity * 100) + "%\u00A7f]";
 		WeatherParticleDensity.displayString = s;
 	}
 
 	private void moveText(String text) {
-		int textWidth = this.fontRenderer.getStringWidth(text);
+		int textWidth = this.fontRendererObj.getStringWidth(text);
 		int outsideSizeX = textWidth - this.width;
 
 		if (textWidth > width) {

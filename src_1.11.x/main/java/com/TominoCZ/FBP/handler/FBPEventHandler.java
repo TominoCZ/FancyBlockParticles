@@ -31,6 +31,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
@@ -141,6 +142,10 @@ public class FBPEventHandler {
 							FBP.FBPBlock.copyState(worldIn, pos, state, p);
 							mc.world.setBlockState(pos, FBP.FBPBlock.getDefaultState(), 2);
 
+							Chunk c = mc.world.getChunkFromBlockCoords(pos);
+							c.resetRelightChecks();
+							c.setLightPopulated(true);
+
 							FBPRenderUtil.markBlockForRender(pos);
 						}
 					}
@@ -250,12 +255,17 @@ public class FBPEventHandler {
 
 				// add if all ok
 				if (okToAdd) {
-					boolean replaceable = offset.getBlock().isReplaceable(e.getWorld(), (addedOffset ? pos_o : pos));
+					boolean replaceable = (addedOffset ? offset : atPos).getBlock().isReplaceable(e.getWorld(),
+							(addedOffset ? pos_o : pos));
 
 					if (last != null && !addedOffset && last.checked) // replace
 						return;
 					if (last_o != null && addedOffset && (last_o.checked || replaceable)) // place on side
 						return;
+
+					Chunk c = mc.world.getChunkFromBlockCoords((addedOffset ? pos_o : pos));
+					c.resetRelightChecks();
+					c.setLightPopulated(true);
 
 					list.add(node);
 				}
@@ -268,7 +278,7 @@ public class FBPEventHandler {
 	@SubscribeEvent
 	public void onTick(TickEvent.ClientTickEvent e) {
 		if (!mc.isGamePaused() && mc.world != null && mc.world.provider.getWeatherRenderer() == FBP.fancyWeatherRenderer
-				&& FBP.enabled && FBP.fancyWeather)
+				&& FBP.enabled)
 			((FBPWeatherRenderer) FBP.fancyWeatherRenderer).onUpdate();
 	}
 
@@ -298,7 +308,7 @@ public class FBPEventHandler {
 			if (FBP.enabled) {
 				mc.effectRenderer = FBP.fancyEffectRenderer;
 
-				if (FBP.fancyWeather)
+				if (FBP.fancyRain || FBP.fancySnow)
 					mc.world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			}
 		}

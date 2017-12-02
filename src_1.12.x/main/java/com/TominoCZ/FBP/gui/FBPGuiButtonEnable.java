@@ -25,13 +25,13 @@ public class FBPGuiButtonEnable extends GuiButton {
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
 		if (this.visible) {
 			mc.getTextureManager().bindTexture(FBP.FBP_FBP);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-			int centerX = x + 25 / 2;
-			int centerY = y + 25 / 2;
+			int centerX = xPosition + 25 / 2;
+			int centerY = yPosition + 25 / 2;
 
 			double distance = Math
 					.sqrt((mouseX - centerX) * (mouseX - centerX) + (mouseY - centerY) * (mouseY - centerY));
@@ -43,7 +43,7 @@ public class FBPGuiButtonEnable extends GuiButton {
 			if (hovered = enabled = flag)
 				i += 25;
 
-			Gui.drawModalRectWithCustomSizedTexture(this.x, this.y, 0, i, 25, 25, 25, 100);
+			Gui.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, i, 25, 25, 25, 100);
 
 			String text = (FBP.isEnabled() ? "Disable" : "Enable") + " FBP";
 

@@ -8,9 +8,9 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.math.MathHelper;
@@ -278,7 +278,7 @@ public class FBPGuiTextField extends Gui {
 	public void setCursorPosition(int pos) {
 		this.cursorPosition = pos;
 		int i = this.text.length();
-		this.cursorPosition = MathHelper.clamp(this.cursorPosition, 0, i);
+		this.cursorPosition = MathHelper.clamp_int(this.cursorPosition, 0, i);
 		this.setSelectionPos(this.cursorPosition);
 	}
 
@@ -529,7 +529,7 @@ public class FBPGuiTextField extends Gui {
 		}
 
 		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuffer();
+		VertexBuffer bufferbuilder = tessellator.getBuffer();
 		GlStateManager.disableAlpha();
 		GlStateManager.color(0.0F, 0.0F, 0.0F, 255.0F);
 		GlStateManager.enableColorLogic();
@@ -614,7 +614,7 @@ public class FBPGuiTextField extends Gui {
 		this.isFocused = isFocusedIn;
 
 		if (Minecraft.getMinecraft().currentScreen != null) {
-			Minecraft.getMinecraft().currentScreen.setFocused(isFocusedIn);
+			// Minecraft.getMinecraft().currentScreen.setFocused(isFocusedIn);
 		}
 	}
 
@@ -686,7 +686,7 @@ public class FBPGuiTextField extends Gui {
 				this.lineScrollOffset -= this.lineScrollOffset - position;
 			}
 
-			this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
+			this.lineScrollOffset = MathHelper.clamp_int(this.lineScrollOffset, 0, i);
 		}
 	}
 

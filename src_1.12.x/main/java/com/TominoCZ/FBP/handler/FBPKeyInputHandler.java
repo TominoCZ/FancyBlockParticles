@@ -51,6 +51,9 @@ public class FBPKeyInputHandler {
 			else
 				FBP.frozen = false;
 
+		if (mc.currentScreen != null)
+			return;
+
 		boolean isShiftDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
 		boolean isKeyDown = FBPKeyBindings.FBPFastAdd.isKeyDown();
 
@@ -58,10 +61,10 @@ public class FBPKeyInputHandler {
 			Block b = null;
 			ItemStack stack = null;
 
-			boolean useHeldBlock = isShiftDown && mc.player.getHeldItemMainhand() != null
-					&& mc.player.getHeldItemMainhand().getItem() != null
-					&& (b = Block.getBlockFromName(
-							(stack = mc.player.getHeldItemMainhand()).getItem().getRegistryName().toString())) != null
+			boolean useHeldBlock = isShiftDown && mc.thePlayer.getHeldItemMainhand() != null
+					&& mc.thePlayer.getHeldItemMainhand().getItem() != null
+					&& (b = Block.getBlockFromName((stack = mc.thePlayer.getHeldItemMainhand()).getItem()
+							.getRegistryName().toString())) != null
 					&& b != Blocks.AIR;
 
 			if (!wasOpened && isKeyDown

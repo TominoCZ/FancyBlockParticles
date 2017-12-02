@@ -12,7 +12,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleDigging;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -94,7 +94,7 @@ public class FBPParticleRain extends ParticleDigging {
 
 	@Override
 	protected void multiplyColor(@Nullable BlockPos p_187154_1_) {
-		int i = mc.getBlockColors().colorMultiplier(this.sourceState, this.world, p_187154_1_, 0);
+		int i = mc.getBlockColors().colorMultiplier(this.sourceState, this.worldObj, p_187154_1_, 0);
 		this.particleRed *= (i >> 16 & 255) / 255.0F;
 		this.particleGreen *= (i >> 8 & 255) / 255.0F;
 		this.particleBlue *= (i & 255) / 255.0F;
@@ -118,11 +118,11 @@ public class FBPParticleRain extends ParticleDigging {
 		if (!mc.isGamePaused()) {
 			particleAge++;
 
-			if (posY < mc.player.posY - (mc.gameSettings.renderDistanceChunks * 9))
+			if (posY < mc.thePlayer.posY - (mc.gameSettings.renderDistanceChunks * 9))
 				this.isExpired = true;
 
 			if (this.particleAge < this.particleMaxAge) {
-				if (!onGround) {
+				if (!isCollided) {
 					if (particleScale < FBP.scaleMult * 1.5f) {
 						if (FBP.randomFadingSpeed)
 							particleScale += 0.75F * endMult;
@@ -154,7 +154,7 @@ public class FBPParticleRain extends ParticleDigging {
 
 			motionY *= 1.00025000190734863D;
 
-			if (onGround) {
+			if (isCollided) {
 				motionX = 0;
 				motionY = -0.25f;
 				motionZ = 0;
@@ -183,11 +183,11 @@ public class FBPParticleRain extends ParticleDigging {
 			}
 		}
 
-		Vec3d rgb = mc.world.getSkyColor(mc.player, mc.getRenderPartialTicks());
+		Vec3d rgb = mc.theWorld.getSkyColor(mc.thePlayer, mc.getRenderPartialTicks());
 
-		this.particleRed = (float) rgb.x;
-		this.particleGreen = (float) MathHelper.clamp(rgb.y + 0.25f, 0.25, 1);
-		this.particleBlue = (float) MathHelper.clamp(rgb.z + 0.5f, 0.5, 1);
+		this.particleRed = (float) rgb.xCoord;
+		this.particleGreen = (float) MathHelper.clamp_double(rgb.yCoord + 0.25, 0.25, 1);
+		this.particleBlue = (float) MathHelper.clamp_double(rgb.zCoord + 0.5, 0.5, 1);
 
 		if (this.particleGreen > 1)
 			particleGreen = 1;
@@ -202,21 +202,22 @@ public class FBPParticleRain extends ParticleDigging {
 		double d0 = y;
 
 		if (this.canCollide) {
-			List<AxisAlignedBB> list = this.world.getCollisionBoxes(null, this.getBoundingBox().offset(x, y, z));
+			List<AxisAlignedBB> list = this.worldObj.getCollisionBoxes(null,
+					this.getEntityBoundingBox().offset(x, y, z));
 
 			for (AxisAlignedBB aabb : list) {
-				x = aabb.calculateXOffset(this.getBoundingBox(), x);
-				y = aabb.calculateYOffset(this.getBoundingBox(), y);
-				z = aabb.calculateZOffset(this.getBoundingBox(), z);
+				x = aabb.calculateXOffset(this.getEntityBoundingBox(), x);
+				y = aabb.calculateYOffset(this.getEntityBoundingBox(), y);
+				z = aabb.calculateZOffset(this.getEntityBoundingBox(), z);
 			}
 
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
 		} else
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
 
 		this.resetPositionToBB();
 
-		this.onGround = y != Y && d0 < 0.0D;
+		this.isCollided = y != Y && d0 < 0.0D;
 
 		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
 			if (x != X)
@@ -227,7 +228,7 @@ public class FBPParticleRain extends ParticleDigging {
 	}
 
 	@Override
-	public void renderParticle(BufferBuilder worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
+	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
@@ -274,8 +275,8 @@ public class FBPParticleRain extends ParticleDigging {
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
 
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
 		}
 
 		return i == 0 ? j : i;

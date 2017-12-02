@@ -35,6 +35,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public class FBPParticleBlock extends Particle {
 
@@ -194,6 +195,10 @@ public class FBPParticleBlock extends Particle {
 				FBP.FBPBlock.copyState(mc.theWorld, pos, blockState, this);
 				mc.theWorld.setBlockState(pos, FBP.FBPBlock.getDefaultState(), 2);
 
+				Chunk c = mc.theWorld.getChunkFromBlockCoords(pos);
+				c.resetRelightChecks();
+				c.setLightPopulated(true);
+
 				FBPRenderUtil.markBlockForRender(pos);
 
 				blockSet = true;
@@ -347,7 +352,7 @@ public class FBPParticleBlock extends Particle {
 		GlStateManager.enableColorMaterial();
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
 
-		mr.renderModelFlat(mc.theWorld, modelForRender, blockState, pos, buff, false, textureSeed);
+		mr.renderModel(mc.theWorld, modelForRender, blockState, pos, buff, false, textureSeed);
 
 		buff.setTranslation(0, 0, 0);
 

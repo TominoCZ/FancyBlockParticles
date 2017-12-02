@@ -17,7 +17,7 @@ import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.renderer.BlockModelShapes;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
@@ -90,8 +90,8 @@ public class FBPParticleDigging extends ParticleDigging {
 
 					double particleSpeed = Math.sqrt(motionX * motionX + motionZ * motionZ);
 
-					double x = FBPMathUtil.add(cameraViewDir.x, 0.01D);
-					double z = FBPMathUtil.add(cameraViewDir.z, 0.01D);
+					double x = FBPMathUtil.add(cameraViewDir.xCoord, 0.01D);
+					double z = FBPMathUtil.add(cameraViewDir.zCoord, 0.01D);
 
 					motionX = x * particleSpeed;
 					motionZ = z * particleSpeed;
@@ -114,7 +114,7 @@ public class FBPParticleDigging extends ParticleDigging {
 		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
 		// = 0.7F + (0.25F * mc.gameSettings.gammaSetting);
 
-		scaleAlpha = particleScale * 0.825;
+		scaleAlpha = particleScale * 0.82;
 
 		destroyed = facing == null;
 
@@ -145,7 +145,7 @@ public class FBPParticleDigging extends ParticleDigging {
 			multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 
 		if (FBP.randomFadingSpeed)
-			endMult = MathHelper.clamp(FBP.random.nextDouble(0.41020543, 1.15012558), 0.5432, 1);
+			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.4151, 0.9875), 0.63875, 0.9875);
 	}
 
 	public Particle MultiplyVelocity(float multiplier) {
@@ -157,7 +157,7 @@ public class FBPParticleDigging extends ParticleDigging {
 
 	@Override
 	protected void multiplyColor(@Nullable BlockPos p_187154_1_) {
-		int i = mc.getBlockColors().colorMultiplier(this.sourceState, this.world, p_187154_1_, 0);
+		int i = mc.getBlockColors().colorMultiplier(this.sourceState, this.worldObj, p_187154_1_, 0);
 		this.particleRed *= (i >> 16 & 255) / 255.0F;
 		this.particleGreen *= (i >> 8 & 255) / 255.0F;
 		this.particleBlue *= (i & 255) / 255.0F;
@@ -251,14 +251,14 @@ public class FBPParticleDigging extends ParticleDigging {
 				particleScale *= 0.887654321F * endMult;
 
 				if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
-					particleAlpha *= 0.7654321F * endMult;
+					particleAlpha *= 0.68752F * endMult;
 
 				if (particleAlpha <= 0.01)
 					setExpired();
 			}
 
 			if (!killToggle) {
-				if (onGround)
+				if (isCollided)
 					motionY = -0.08322508594922069D;
 				else
 					motionY -= 0.04D * particleGravity;
@@ -282,13 +282,13 @@ public class FBPParticleDigging extends ParticleDigging {
 
 				// PHYSICS
 				if (FBP.entityCollision) {
-					List<Entity> list = world.getEntitiesWithinAABB(Entity.class, this.getBoundingBox());
+					List<Entity> list = worldObj.getEntitiesWithinAABB(Entity.class, this.getEntityBoundingBox());
 
 					for (Entity entityIn : list) {
 						if (!entityIn.noClip) {
 							double d0 = this.posX - entityIn.posX;
 							double d1 = this.posZ - entityIn.posZ;
-							double d2 = MathHelper.absMax(d0, d1);
+							double d2 = MathHelper.abs_max(d0, d1);
 
 							if (d2 >= 0.009999999776482582D) {
 								d2 = Math.sqrt(d2);
@@ -306,13 +306,13 @@ public class FBPParticleDigging extends ParticleDigging {
 								if (!FBP.randomRotation)
 									calculateYAngle();
 								if (!FBP.frozen)
-									this.onGround = false;
+									this.isCollided = false;
 							}
 						}
 					}
 				}
 
-				if (onGround) {
+				if (isCollided) {
 					if (FBP.lowTraction) {
 						motionX *= 0.932515086137662D;
 						motionZ *= 0.932515086137662D;
@@ -335,24 +335,25 @@ public class FBPParticleDigging extends ParticleDigging {
 		double d0 = y;
 
 		if (this.canCollide) {
-			List<AxisAlignedBB> list = this.world.getCollisionBoxes(null, this.getBoundingBox().offset(x, y, z));
+			List<AxisAlignedBB> list = this.worldObj.getCollisionBoxes(null,
+					this.getEntityBoundingBox().offset(x, y, z));
 
 			for (AxisAlignedBB aabb : list) {
-				y = aabb.calculateYOffset(this.getBoundingBox(), y);
+				y = aabb.calculateYOffset(this.getEntityBoundingBox(), y);
 
 				if (!YOnly) {
-					x = aabb.calculateXOffset(this.getBoundingBox(), x);
-					z = aabb.calculateZOffset(this.getBoundingBox(), z);
+					x = aabb.calculateXOffset(this.getEntityBoundingBox(), x);
+					z = aabb.calculateZOffset(this.getEntityBoundingBox(), z);
 				}
 			}
 
-			this.setBoundingBox(this.getBoundingBox().offset(YOnly ? 0.0D : x, y, YOnly ? 0.0D : z));
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(YOnly ? 0.0D : x, y, YOnly ? 0.0D : z));
 		} else
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
 
 		this.resetPositionToBB();
 
-		this.onGround = y != Y && d0 < 0.0D;
+		this.isCollided = y != Y && d0 < 0.0D;
 
 		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
 			if (x != X)
@@ -363,7 +364,7 @@ public class FBPParticleDigging extends ParticleDigging {
 	}
 
 	@Override
-	public void renderParticle(BufferBuilder worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
+	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
@@ -449,8 +450,8 @@ public class FBPParticleDigging extends ParticleDigging {
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
 
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
 		}
 
 		return i == 0 ? j : i;

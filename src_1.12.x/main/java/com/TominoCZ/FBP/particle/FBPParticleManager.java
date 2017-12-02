@@ -105,8 +105,10 @@ public class FBPParticleManager extends ParticleManager {
 				ParticleFlame p = (ParticleFlame) effect;
 
 				try {
-					toAdd = new FBPParticleFlame(world, (double) X.invokeExact(effect), (double) Y.invokeExact(effect),
-							(double) Z.invokeExact(effect), 0, FBP.random.nextDouble() * 0.25, 0, true);
+					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact(effect),
+							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect), 0,
+							FBP.random.nextDouble() * 0.25, 0, true);
+					effect.setExpired();
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
@@ -116,20 +118,22 @@ public class FBPParticleManager extends ParticleManager {
 				ParticleSmokeNormal p = (ParticleSmokeNormal) effect;
 
 				try {
-					toAdd = new FBPParticleSmokeNormal(world, (double) X.invokeExact(effect),
+					toAdd = new FBPParticleSmokeNormal(worldObj, (double) X.invokeExact(effect),
 							(double) Y.invokeExact(effect), (double) Z.invokeExact(effect),
 							(double) mX.invokeExact(effect), (double) mY.invokeExact(effect),
-							(double) mZ.invokeExact(effect), (float) getParticleScale.invokeExact(effect), true, white);
+							(double) mZ.invokeExact(effect), (float) getParticleScale.invokeExact(effect), true, white,
+							p);
 
-					toAdd.setRBGColorF(MathHelper.clamp(effect.getRedColorF() + 0.1f, 0.1f, 1),
-							MathHelper.clamp(effect.getGreenColorF() + 0.1f, 0.1f, 1),
-							MathHelper.clamp(effect.getBlueColorF() + 0.1f, 0.1f, 1));
+					toAdd.setRBGColorF(MathHelper.clamp_float(effect.getRedColorF() + 0.1f, 0.1f, 1),
+							MathHelper.clamp_float(effect.getGreenColorF() + 0.1f, 0.1f, 1),
+							MathHelper.clamp_float(effect.getBlueColorF() + 0.1f, 0.1f, 1));
 
 					toAdd.setMaxAge((int) getParticleMaxAge.invokeExact(effect));
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
-			} else if (FBP.fancyWeather && toAdd instanceof ParticleRain) {
+			} else if (FBP.fancyRain && toAdd instanceof ParticleRain) {
+				effect.setExpired();
 				return;
 			} else if (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticleDigging)) {
 				try {
@@ -137,16 +141,18 @@ public class FBPParticleManager extends ParticleManager {
 
 					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
+						effect.setExpired();
+
 						if (!(blockState.getBlock() instanceof BlockLiquid)
 								&& !FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
-							toAdd = new FBPParticleDigging(world, (double) X.invokeExact(effect),
+							toAdd = new FBPParticleDigging(worldObj, (double) X.invokeExact(effect),
 									(double) Y.invokeExact(effect) - 0.10000000149011612D,
 									(double) Z.invokeExact(effect), 0, 0, 0, toAdd.getRedColorF(),
 									toAdd.getGreenColorF(), toAdd.getBlueColorF(), blockState, null,
 									(float) getParticleScale.invokeExact(effect),
 									(TextureAtlasSprite) getParticleTexture.invokeExact(effect));
 						} else
-							toAdd = null;
+							return;
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();
@@ -159,8 +165,10 @@ public class FBPParticleManager extends ParticleManager {
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
 
 						if (blockState.getBlock() instanceof BlockLiquid
-								|| FBP.INSTANCE.isInExceptions(blockState.getBlock(), true))
-							toAdd = null;
+								|| FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
+							effect.setExpired();
+							return;
+						}
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();
@@ -185,8 +193,8 @@ public class FBPParticleManager extends ParticleManager {
 		}
 
 		if (iparticlefactory != null) {
-			Particle particle = iparticlefactory.createParticle(particleId, this.world, xCoord, yCoord, zCoord, xSpeed,
-					ySpeed, zSpeed, parameters), toSpawn = particle;
+			Particle particle = iparticlefactory.createParticle(particleId, this.worldObj, xCoord, yCoord, zCoord,
+					xSpeed, ySpeed, zSpeed, parameters), toSpawn = particle;
 
 			if (FBP.enabled) {
 				if (particle instanceof ParticleDigging && !(particle instanceof FBPParticleDigging)) {
@@ -196,8 +204,8 @@ public class FBPParticleManager extends ParticleManager {
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.REDSTONE_BLOCK)) {
 						if (!(blockState.getBlock() instanceof BlockLiquid)
 								&& !FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
-							toSpawn = new FBPParticleDigging(this.world, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed,
-									1, 1, 1, blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
+							toSpawn = new FBPParticleDigging(this.worldObj, xCoord, yCoord, zCoord, xSpeed, ySpeed,
+									zSpeed, 1, 1, 1, blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
 						} else
 							toSpawn = null;
 					}
@@ -214,8 +222,8 @@ public class FBPParticleManager extends ParticleManager {
 	public void addBlockDestroyEffects(BlockPos pos, IBlockState state) {
 		Block b = state.getBlock();
 
-		if (!b.isAir(state, world, pos) && !b.addDestroyEffects(world, pos, this) && b != FBP.FBPBlock) {
-			state = state.getActualState(world, pos);
+		if (!b.isAir(state, worldObj, pos) && !b.addDestroyEffects(worldObj, pos, this) && b != FBP.FBPBlock) {
+			state = state.getActualState(worldObj, pos);
 			b = state.getBlock();
 			int i = 4;
 
@@ -234,14 +242,14 @@ public class FBPParticleManager extends ParticleManager {
 										&& (!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 										&& (FBP.spawnRedstoneBlockParticles || b != Blocks.REDSTONE_BLOCK)
 										&& !FBP.INSTANCE.isInExceptions(b, true)) {
-									FBPParticleDigging toSpawn = new FBPParticleDigging(world, d0, d1, d2,
+									FBPParticleDigging toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2,
 											d0 - pos.getX() - 0.5D, -0.001, d2 - pos.getZ() - 0.5D, 1, 1, 1, state,
 											null, -1, texture);
 
 									addEffect(toSpawn);
 								}
 							} else
-								addEffect((particleFactory.createParticle(0, this.world, d0, d1, d2,
+								addEffect((particleFactory.createParticle(0, this.worldObj, d0, d1, d2,
 										d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D,
 										Block.getStateId(state))));
 						} catch (Throwable e) {
@@ -255,7 +263,7 @@ public class FBPParticleManager extends ParticleManager {
 
 	@Override
 	public void addBlockHitEffects(BlockPos pos, EnumFacing side) {
-		IBlockState iblockstate = world.getBlockState(pos);
+		IBlockState iblockstate = worldObj.getBlockState(pos);
 
 		if (iblockstate.getBlock() == FBP.FBPBlock)
 			return;
@@ -265,7 +273,7 @@ public class FBPParticleManager extends ParticleManager {
 			int j = pos.getY();
 			int k = pos.getZ();
 			float f = 0.1F;
-			AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(world, pos);
+			AxisAlignedBB axisalignedbb = iblockstate.getBoundingBox(worldObj, pos);
 
 			double d0 = 0, d1 = 0, d2 = 0;
 
@@ -277,18 +285,18 @@ public class FBPParticleManager extends ParticleManager {
 			if (FBP.enabled && FBP.smartBreaking && iblockstate != null
 					&& (!(iblockstate.getBlock() instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 					&& (FBP.spawnRedstoneBlockParticles || iblockstate.getBlock() != Blocks.REDSTONE_BLOCK)) {
-				d0 = obj.hitVec.x
+				d0 = obj.hitVec.xCoord
 						+ FBP.random.nextDouble(-0.21, 0.21) * Math.abs(axisalignedbb.maxX - axisalignedbb.minX);
-				d1 = obj.hitVec.y
+				d1 = obj.hitVec.yCoord
 						+ FBP.random.nextDouble(-0.21, 0.21) * Math.abs(axisalignedbb.maxY - axisalignedbb.minY);
-				d2 = obj.hitVec.z
+				d2 = obj.hitVec.zCoord
 						+ FBP.random.nextDouble(-0.21, 0.21) * Math.abs(axisalignedbb.maxZ - axisalignedbb.minZ);
 			} else {
-				d0 = i + world.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D)
+				d0 = i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D)
 						+ 0.10000000149011612D + axisalignedbb.minX;
-				d1 = j + world.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D)
+				d1 = j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D)
 						+ 0.10000000149011612D + axisalignedbb.minY;
-				d2 = k + world.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D)
+				d2 = k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D)
 						+ 0.10000000149011612D + axisalignedbb.minZ;
 			}
 
@@ -349,12 +357,12 @@ public class FBPParticleManager extends ParticleManager {
 
 						if (!FBP.INSTANCE.isInExceptions(iblockstate.getBlock(), true)) {
 							if (FBP.smartBreaking)
-								toSpawn = new FBPParticleDigging(world, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1.0f, 1.0f, 1.0f,
-										iblockstate, side, -2, null)
+								toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1.0f, 1.0f,
+										1.0f, iblockstate, side, -2, null)
 												.MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F)
 												.multipleParticleScaleBy(0.325F + (damage / 8.125F) * 0.325F);
 							else
-								toSpawn = new FBPParticleDigging(world, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1, 1, 1,
+								toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1, 1, 1,
 										iblockstate, side, -2, null).multiplyVelocity(0.2F)
 												.multipleParticleScaleBy(0.6F);
 
@@ -363,7 +371,7 @@ public class FBPParticleManager extends ParticleManager {
 					}
 				} else
 					addEffect(particleFactory
-							.createParticle(0, world, d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(iblockstate))
+							.createParticle(0, worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(iblockstate))
 							.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
 			} catch (Throwable e) {
 				e.printStackTrace();

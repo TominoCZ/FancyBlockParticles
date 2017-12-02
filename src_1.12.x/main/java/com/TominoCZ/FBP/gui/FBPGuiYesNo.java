@@ -76,7 +76,7 @@ public class FBPGuiYesNo extends GuiScreen {
 
 		this.drawDefaultBackground();
 
-		this.drawCenteredString(fontRenderer, "Are you sure?", this.width / 2, yes.y - 30,
+		this.drawCenteredString(fontRendererObj, "Are you sure?", this.width / 2, yes.yPosition - 30,
 				Integer.parseInt("FFAA00", 16));
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}

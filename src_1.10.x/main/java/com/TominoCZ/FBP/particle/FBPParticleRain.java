@@ -186,8 +186,8 @@ public class FBPParticleRain extends ParticleDigging {
 		Vec3d rgb = mc.theWorld.getSkyColor(mc.thePlayer, mc.getRenderPartialTicks());
 
 		this.particleRed = (float) rgb.xCoord;
-		this.particleGreen = (float) MathHelper.clamp_double(rgb.yCoord + 0.25, 0.25, 1f);
-		this.particleBlue = (float) MathHelper.clamp_double(rgb.zCoord + 0.5, 0.5, 1f);
+		this.particleGreen = (float) MathHelper.clamp_double(rgb.yCoord + 0.25, 0.25, 1);
+		this.particleBlue = (float) MathHelper.clamp_double(rgb.zCoord + 0.5, 0.5, 1);
 
 		if (this.particleGreen > 1)
 			particleGreen = 1;
@@ -195,7 +195,6 @@ public class FBPParticleRain extends ParticleDigging {
 			particleBlue = 1;
 	}
 
-	@Override
 	public void moveEntity(double x, double y, double z) {
 		double X = x;
 		double Y = y;

@@ -7,9 +7,9 @@ import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
@@ -19,7 +19,7 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 
 public class FBPRenderUtil {
-	public static void renderCubeShaded_S(BufferBuilder buf, Vec2f[] par, float f5, float f6, float f7, double scale,
+	public static void renderCubeShaded_S(VertexBuffer buf, Vec2f[] par, float f5, float f6, float f7, double scale,
 			FBPVector3d rotVec, int j, int k, float r, float g, float b, float a, boolean cartoon) {
 		// switch to vertex format that supports normals
 		Tessellator.getInstance().draw();
@@ -37,7 +37,7 @@ public class FBPRenderUtil {
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
 		GlStateManager.enableLighting();
 		GlStateManager.enableLight(0);
-
+		GlStateManager.enableLight(1);
 		// render particle
 		buf.setTranslation(f5, f6, f7);
 
@@ -53,7 +53,7 @@ public class FBPRenderUtil {
 		GlStateManager.disableLighting();
 	}
 
-	public static void renderCubeShaded_WH(BufferBuilder buf, Vec2f[] par, float f5, float f6, float f7, double width,
+	public static void renderCubeShaded_WH(VertexBuffer buf, Vec2f[] par, float f5, float f6, float f7, double width,
 			double height, FBPVector3d rotVec, int j, int k, float r, float g, float b, float a, boolean cartoon) {
 		// switch to vertex format that supports normals
 		Tessellator.getInstance().draw();
@@ -71,6 +71,7 @@ public class FBPRenderUtil {
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
 		GlStateManager.enableLighting();
 		GlStateManager.enableLight(0);
+		GlStateManager.enableLight(1);
 
 		// render particle
 		buf.setTranslation(f5, f6, f7);
@@ -87,7 +88,7 @@ public class FBPRenderUtil {
 		GlStateManager.disableLighting();
 	}
 
-	static void putCube_S(BufferBuilder worldRendererIn, Vec2f[] par, double scale, FBPVector3d rotVec, int j, int k,
+	static void putCube_S(VertexBuffer worldRendererIn, Vec2f[] par, double scale, FBPVector3d rotVec, int j, int k,
 			float r, float g, float b, float a, boolean cartoon) {
 		float radsX = (float) Math.toRadians(rotVec.x);
 		float radsY = (float) Math.toRadians(rotVec.y);
@@ -120,7 +121,7 @@ public class FBPRenderUtil {
 		}
 	}
 
-	static void putCube_WH(BufferBuilder worldRendererIn, Vec2f[] par, double width, double height, FBPVector3d rotVec,
+	static void putCube_WH(VertexBuffer worldRendererIn, Vec2f[] par, double width, double height, FBPVector3d rotVec,
 			int j, int k, float r, float g, float b, float a, boolean cartoon) {
 		float radsX = (float) Math.toRadians(rotVec.x);
 		float radsY = (float) Math.toRadians(rotVec.y);
@@ -153,25 +154,25 @@ public class FBPRenderUtil {
 		}
 	}
 
-	static void addVt_S(BufferBuilder worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k,
+	static void addVt_S(VertexBuffer worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k,
 			float r, float g, float b, float a, Vec3d n) {
-		worldRendererIn.pos(pos.x * scale, pos.y * scale, pos.z * scale).tex(u, v).color(r, g, b, a).lightmap(j, k)
-				.normal((float) n.x, (float) n.y, (float) n.z).endVertex();
+		worldRendererIn.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a)
+				.lightmap(j, k).normal((float) n.xCoord, (float) n.yCoord, (float) n.zCoord).endVertex();
 	}
 
-	static void addVt_WH(BufferBuilder worldRendererIn, double width, double height, Vec3d pos, double u, double v,
+	static void addVt_WH(VertexBuffer worldRendererIn, double width, double height, Vec3d pos, double u, double v,
 			int j, int k, float r, float g, float b, float a, Vec3d n) {
-		worldRendererIn.pos(pos.x * width, pos.y * height, pos.z * width).tex(u, v).color(r, g, b, a).lightmap(j, k)
-				.normal((float) n.x, (float) n.y, (float) n.z).endVertex();
+		worldRendererIn.pos(pos.xCoord * width, pos.yCoord * height, pos.zCoord * width).tex(u, v).color(r, g, b, a)
+				.lightmap(j, k).normal((float) n.xCoord, (float) n.yCoord, (float) n.zCoord).endVertex();
 	}
 
 	public static Vec3d rotatef_d(Vec3d vec, float AngleX, float AngleY, float AngleZ) {
 		FBPVector3d sin = new FBPVector3d(MathHelper.sin(AngleX), MathHelper.sin(AngleY), MathHelper.sin(AngleZ));
 		FBPVector3d cos = new FBPVector3d(MathHelper.cos(AngleX), MathHelper.cos(AngleY), MathHelper.cos(AngleZ));
 
-		vec = new Vec3d(vec.x, vec.y * cos.x - vec.z * sin.x, vec.y * sin.x + vec.z * cos.x);
-		vec = new Vec3d(vec.x * cos.y + vec.z * sin.y, vec.y, vec.x * sin.y - vec.z * cos.y);
-		vec = new Vec3d(vec.x * cos.z - vec.y * sin.z, vec.x * sin.z + vec.y * cos.z, vec.z);
+		vec = new Vec3d(vec.xCoord, vec.yCoord * cos.x - vec.zCoord * sin.x, vec.yCoord * sin.x + vec.zCoord * cos.x);
+		vec = new Vec3d(vec.xCoord * cos.y + vec.zCoord * sin.y, vec.yCoord, vec.xCoord * sin.y - vec.zCoord * cos.y);
+		vec = new Vec3d(vec.xCoord * cos.z - vec.yCoord * sin.z, vec.xCoord * sin.z + vec.yCoord * cos.z, vec.zCoord);
 
 		return vec;
 	}

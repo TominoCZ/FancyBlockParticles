@@ -71,7 +71,7 @@ public class FBP {
 	public static boolean randomRotation = true, cartoonMode = false, spawnWhileFrozen = true,
 			spawnRedstoneBlockParticles = false, smoothTransitions = true, randomFadingSpeed = true,
 			entityCollision = false, bounceOffWalls = true, lowTraction = false, smartBreaking = true,
-			fancyPlaceAnim = true, spawnPlaceParticles = true, fancyWeather = true, fancyFlame = true,
+			fancyPlaceAnim = true, spawnPlaceParticles = true, fancyRain = true, fancySnow = true, fancyFlame = true,
 			fancySmoke = true, enableDing = true, frozen = false;
 
 	public List<String> blockParticleExceptions;
@@ -184,7 +184,7 @@ public class FBP {
 		if (FBP.enabled != enabled) {
 			if (enabled) {
 				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
-				if (fancyWeather)
+				if (fancyRain || fancySnow) // just to ensure compatibility once more..
 					Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			} else {
 				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;

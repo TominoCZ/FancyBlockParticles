@@ -42,7 +42,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-@Mod(clientSideOnly = true, modid = FBP.MODID, acceptedMinecraftVersions = "[1.12,1.13)")
+@Mod(clientSideOnly = true, modid = FBP.MODID, acceptedMinecraftVersions = "[1.10,1.11)")
 public class FBP {
 	@Instance(FBP.MODID)
 	public static FBP INSTANCE;
@@ -71,7 +71,7 @@ public class FBP {
 	public static boolean randomRotation = true, cartoonMode = false, spawnWhileFrozen = true,
 			spawnRedstoneBlockParticles = false, smoothTransitions = true, randomFadingSpeed = true,
 			entityCollision = false, bounceOffWalls = true, lowTraction = false, smartBreaking = true,
-			fancyPlaceAnim = true, spawnPlaceParticles = true, fancyWeather = true, fancyFlame = true,
+			fancyPlaceAnim = true, spawnPlaceParticles = true, fancyRain = true, fancySnow = true, fancyFlame = true,
 			fancySmoke = true, enableDing = true, frozen = false;
 
 	public List<String> blockParticleExceptions;
@@ -184,11 +184,11 @@ public class FBP {
 		if (FBP.enabled != enabled) {
 			if (enabled) {
 				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
-				if (fancyWeather)
-					Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
+				if (fancyRain || fancySnow) // just to ensure compatibility once more..
+					Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			} else {
 				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;
-				Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
+				Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
 			}
 		}
 		FBP.enabled = enabled;

@@ -8,9 +8,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -22,7 +22,7 @@ public class FBPGuiHelper extends GuiScreen {
 		GlStateManager.disableLighting();
 		GlStateManager.disableFog();
 		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder BufferBuilder = tessellator.getBuffer();
+		VertexBuffer BufferBuilder = tessellator.getBuffer();
 
 		drawContainerBackground(tessellator, top, bottom, 0, width);
 
@@ -58,7 +58,7 @@ public class FBPGuiHelper extends GuiScreen {
 
 	public static void drawRect(double x, double y, double x2, double y2, int red, int green, int blue, int alpha) {
 		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder BufferBuilder = tessellator.getBuffer();
+		VertexBuffer BufferBuilder = tessellator.getBuffer();
 
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableBlend();
@@ -90,7 +90,7 @@ public class FBPGuiHelper extends GuiScreen {
 	protected static void overlayBackground(int startY, int endY, int startAlpha, int endAlpha, int top, int bottom,
 			int left, int right) {
 		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder BufferBuilder = tessellator.getBuffer();
+		VertexBuffer BufferBuilder = tessellator.getBuffer();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.OPTIONS_BACKGROUND);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		float f = 32.0F;
@@ -106,7 +106,7 @@ public class FBPGuiHelper extends GuiScreen {
 	}
 
 	protected static void drawContainerBackground(Tessellator tessellator, int top, int bottom, int left, int right) {
-		BufferBuilder buffer = tessellator.getBuffer();
+		VertexBuffer buffer = tessellator.getBuffer();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.OPTIONS_BACKGROUND);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 

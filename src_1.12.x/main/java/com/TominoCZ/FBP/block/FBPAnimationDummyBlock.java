@@ -52,18 +52,19 @@ public class FBPAnimationDummyBlock extends Block {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (blockNodes.containsKey(pos)) {
 			BlockNode n = blockNodes.get(pos);
 
 			try {
-				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
+				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY,
+						hitZ);
 			} catch (Throwable t) {
 				return false;
 			}
 		}
 
-		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 
 	@Override
@@ -109,7 +110,7 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
 		try {
 			if (blockNodes.containsKey(pos)) {
 				BlockNode n = blockNodes.get(pos);
@@ -184,10 +185,10 @@ public class FBPAnimationDummyBlock extends Block {
 
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
-			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b) {
+			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn) {
 		try {
 			if (blockNodes.containsKey(pos))
-				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn, b);
+				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn);
 		} catch (Exception e) {
 
 		}
