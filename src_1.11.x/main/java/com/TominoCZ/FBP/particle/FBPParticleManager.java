@@ -2,10 +2,13 @@ package com.TominoCZ.FBP.particle;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+
+import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
 import com.google.common.base.Throwables;
@@ -22,9 +25,14 @@ import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.particle.ParticleRain;
 import net.minecraft.client.particle.ParticleSmokeNormal;
 import net.minecraft.client.renderer.DestroyBlockProgress;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
@@ -54,11 +62,14 @@ public class FBPParticleManager extends ParticleManager {
 	private static IBlockState blockState;
 	private static TextureAtlasSprite white;
 
+	private ArrayDeque<Particle>[][] fxLayers;
+
 	Minecraft mc;
 
 	public FBPParticleManager(World worldIn, TextureManager rendererIn, IParticleFactory particleFactory) {
 		super(worldIn, rendererIn);
-		FBPParticleManager.particleFactory = particleFactory;
+
+		this.particleFactory = particleFactory;
 
 		mc = Minecraft.getMinecraft();
 
@@ -89,6 +100,11 @@ public class FBPParticleManager extends ParticleManager {
 					ReflectionHelper.findField(ParticleDigging.class, "field_174847_a", "sourceState"));
 			getBlockDamage = lookup
 					.unreflectGetter(ReflectionHelper.findField(RenderGlobal.class, "field_72738_E", "damagedBlocks"));
+
+			MethodHandle getFxLayers = lookup
+					.unreflectGetter(ReflectionHelper.findField(ParticleManager.class, "field_78876_b", "fxLayers"));
+
+			fxLayers = (ArrayDeque<Particle>[][]) getFxLayers.invokeExact((ParticleManager) this);
 		} catch (Throwable e) {
 			throw Throwables.propagate(e);
 		}
@@ -176,6 +192,34 @@ public class FBPParticleManager extends ParticleManager {
 		}
 
 		super.addEffect(toAdd);
+	}
+
+	public void renderShadedParticles(float partialTicks) {
+		if (fxLayers.length < 2 || fxLayers[1].length < 2 || fxLayers[1][1].size() == 0)
+			return;
+
+		Tessellator tes = Tessellator.getInstance();
+		VertexBuffer buff = tes.getBuffer();
+
+		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		buff.begin(GL11.GL_QUADS, FBP.POSITION_TEX_COLOR_LMAP_NORMAL);
+
+		mc.entityRenderer.enableLightmap();
+
+		GlStateManager.enableCull();
+		GlStateManager.enableBlend();
+		RenderHelper.enableStandardItemLighting();
+		
+		Object[] particles = (Object[]) fxLayers[1][1].toArray();
+
+		for (int i = 0; i < particles.length; i++) {
+			Particle p = (Particle) particles[i];
+
+			if (p instanceof IFBPShadedParticle)
+				((IFBPShadedParticle) p).renderShadedParticle(buff, partialTicks);
+		}
+
+		tes.draw();
 	}
 
 	@Nullable

@@ -12,7 +12,7 @@ public class FBPGuiButton extends GuiButton {
 
 	boolean toggle;
 
-	int offsetX;
+	public int offsetX;
 
 	public int size;
 
@@ -37,7 +37,7 @@ public class FBPGuiButton extends GuiButton {
 			offsetX = (this.height - 10) / 2;
 			break;
 		case "...":
-			this.displayString = "\u00A7a\u00A7L...";// "\u00A7a\u2699";
+			this.displayString = "\u00A7a\u00A7L...";
 			offsetX = 6;
 			break;
 		default:
@@ -119,8 +119,8 @@ public class FBPGuiButton extends GuiButton {
 
 	@Override
 	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-		if (this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition
-				&& mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height) {
+		if (this.enabled && this.visible && hovered) {
+			playPressSound(mc.getSoundHandler());
 			toggle = !toggle;
 			return true;
 		} else

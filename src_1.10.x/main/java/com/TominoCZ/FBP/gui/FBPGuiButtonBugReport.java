@@ -81,4 +81,13 @@ public class FBPGuiButtonBugReport extends GuiButton {
 						_fr.getColorCode('a'));
 		}
 	}
+
+	@Override
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+		if (this.enabled && this.visible && this.hovered) {
+			playPressSound(mc.getSoundHandler());
+			return true;
+		} else
+			return false;
+	}
 }

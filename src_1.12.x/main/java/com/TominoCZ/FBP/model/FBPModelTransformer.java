@@ -12,17 +12,14 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 public final class FBPModelTransformer {
-	private FBPModelTransformer() {
-
-	}
-
-	public static IBakedModel transform(IBakedModel model, IBlockState state, long rand,
+	public static FBPSimpleBakedModel transform(IBakedModel model, IBlockState state, long rand,
 			IVertexTransformer transformer) {
 		try {
 			FBPSimpleBakedModel out = new FBPSimpleBakedModel(model);
 
 			for (int i = 0; i <= 6; i++) {
 				EnumFacing side = (i == 6 ? null : EnumFacing.getFront(i));
+
 				for (BakedQuad quad : model.getQuads(state, side, rand)) {
 					out.addQuad(side, transform(quad, transformer));
 				}

@@ -17,6 +17,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumBlockRenderType;
@@ -25,6 +26,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -52,19 +54,18 @@ public class FBPAnimationDummyBlock extends Block {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (blockNodes.containsKey(pos)) {
 			BlockNode n = blockNodes.get(pos);
 
 			try {
-				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY,
-						hitZ);
+				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
 			} catch (Throwable t) {
 				return false;
 			}
 		}
 
-		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
 	}
 
 	@Override
@@ -79,7 +80,7 @@ public class FBPAnimationDummyBlock extends Block {
 			t.printStackTrace();
 		}
 
-		return worldIn.getBlockState(pos).getMaterial().isReplaceable();
+		return this.blockMaterial.isReplaceable();
 	}
 
 	@Override
@@ -110,7 +111,7 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
 		try {
 			if (blockNodes.containsKey(pos)) {
 				BlockNode n = blockNodes.get(pos);
@@ -185,10 +186,10 @@ public class FBPAnimationDummyBlock extends Block {
 
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
-			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn) {
+			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b) {
 		try {
 			if (blockNodes.containsKey(pos))
-				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn);
+				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn, b);
 		} catch (Exception e) {
 
 		}
@@ -243,6 +244,22 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
+	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos,
+			EntityPlayer player) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode node = blockNodes.get(pos);
+
+				if (node.originalBlock != this && node.state.getBlock() == node.originalBlock)
+					return blockNodes.get(pos).originalBlock.getPickBlock(node.state, target, world, pos, player);
+			}
+		} catch (Throwable t) {
+		}
+
+		return new ItemStack(Blocks.AIR);
+	}
+
+	@Override
 	public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).state.getWeakPower(blockAccess, pos, side);
@@ -289,7 +306,7 @@ public class FBPAnimationDummyBlock extends Block {
 
 		BlockNode n = blockNodes.get(pos);
 
-		return n.state.getBlock().getSoundType(state, world, pos, entity);
+		return n.state.getBlock().getSoundType(n.state, world, pos, entity);
 	}
 
 	@Override
@@ -301,8 +318,9 @@ public class FBPAnimationDummyBlock extends Block {
 			return new ItemStack(Item.getItemFromBlock(this), 1, this.damageDropped(state));
 		} catch (Throwable t) {
 			t.printStackTrace();
-			return null;
 		}
+
+		return null;
 	}
 
 	@Override

@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class FBPGuiMenuPage3 extends GuiScreen {
 
-	GuiButton Reload, Done, Defaults, Back, Next, ReportBug, Enable, b1, b2, b3, b4, b5, b6;// , b5_settings;
+	GuiButton Reload, Done, Defaults, Back, Next, ReportBug, Enable, b1, b2, b3, b4, b5, b6, b7;// , b5_settings;
 
 	String b1Text = "Collide With Entities";
 	String b2Text = "Bounce Off Walls";
@@ -44,8 +44,8 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		b5 = new FBPGuiButton(5, x, b4.yPosition + b1.height + 6, b5Text, FBP.fancyPlaceAnim, true);
 		b6 = new FBPGuiButton(6, x, b5.yPosition + b1.height + 1, b6Text, FBP.spawnPlaceParticles, true);
 
-		// b5_settings = new FBPGuiButton(7, x + b1.width + 5, b5.y, "...", false,
-		// false);
+		b7 = new FBPGuiButton(7, x + b5.width + 5, b5.yPosition,
+				FBP.animSmoothLighting ? "\u00A7a\u00A7LS" : "\u00A7c\u00A7LF", false, false);
 
 		Back = new FBPGuiButton(-3, b6.xPosition - 44, 6 * b1.height + b1.yPosition - 5 + 10 - GUIOffsetY, "<<", false,
 				false);
@@ -64,10 +64,10 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		Defaults.width = Done.width = 98;
 		Reload.width = b1.width = 200;
 
-		Back.width = Next.width = 20;
+		Back.width = Next.width = b7.width = 20;
 
 		this.buttonList.addAll(java.util.Arrays.asList(
-				new GuiButton[] { b1, b2, b3, b4, b5, b6, Defaults, Done, Reload, Back, Next, Enable, ReportBug }));
+				new GuiButton[] { b1, b2, b3, b4, b5, b6, b7, Defaults, Done, Reload, Back, Next, Enable, ReportBug }));
 	}
 
 	@Override
@@ -116,6 +116,10 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		case 6:
 			FBP.spawnPlaceParticles = !FBP.spawnPlaceParticles;
 			break;
+		case 7:
+			b7.displayString = (FBP.animSmoothLighting = !FBP.animSmoothLighting) ? "\u00A7a\u00A7LS"
+					: "\u00A7c\u00A7LF";
+			break;
 		}
 
 		FBPConfigHandler.check();
@@ -138,7 +142,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		getDescription();
 
 		if ((mouseX >= b1.xPosition && mouseX < b1.xPosition + b1.width)
-				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height)) {
+				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height) || b7.isMouseOver()) {
 			moveText();
 
 			this.drawCenteredString(fontRendererObj, description, (int) (this.width / 2 + offsetX), posY,
@@ -171,6 +175,10 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 					break;
 				case 6:
 					description = "Enables\u00A76 block place particles\u00A7a.";
+					break;
+				case 7:
+					description = "Set animation \u00A76render mode\u00A7a to \u00A76\u00A7L"
+							+ (FBP.animSmoothLighting ? "Flat" : "Smooth") + "\u00A7a.";
 					break;
 				}
 			}

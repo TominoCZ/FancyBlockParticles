@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -44,14 +45,14 @@ public class FBPGuiFastAdd extends GuiScreen {
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = selected;
-		IBlockState state = mc.theWorld.getBlockState(selectedPos);
+		IBlockState state = mc.world.getBlockState(selectedPos);
 
 		selectedBlock = state.getBlock() == FBP.FBPBlock ? FBP.FBPBlock.blockNodes.get(selectedPos).state : state;
 
-		ItemStack is = selectedBlock.getActualState(mc.theWorld, selectedPos).getBlock().getPickBlock(selectedBlock,
-				mc.objectMouseOver, mc.theWorld, selectedPos, mc.thePlayer);
+		ItemStack is = selectedBlock.getActualState(mc.world, selectedPos).getBlock().getPickBlock(selectedBlock,
+				mc.objectMouseOver, mc.world, selectedPos, mc.player);
 
-		TileEntity te = mc.theWorld.getTileEntity(selectedPos);
+		TileEntity te = mc.world.getTileEntity(selectedPos);
 
 		try {
 			if (te != null)
@@ -93,7 +94,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 				&& FBPModelHelper.isModelValid(b.getDefaultState());
 		particle.enabled = selectedBlock.getBlock() != Blocks.REDSTONE_BLOCK;
 
-		FBPGuiButton guide = new FBPGuiButton(-1, animation.xPosition + 30, animation.yPosition + 30 - 10,
+		FBPGuiButton guide = new FBPGuiButton(-1, animation.x + 30, animation.y + 30 - 10,
 				(animation.enabled ? "\u00A7a<" : "\u00A7c<") + "             "
 						+ (particle.enabled ? "\u00A7a>" : "\u00A7c>"),
 				false, false);
@@ -110,8 +111,8 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 		if (selectedPos != null && (mc.objectMouseOver == null
 				|| !mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK)
-				|| mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != selectedBlock.getBlock()
-						&& mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != FBP.FBPBlock)) {
+				|| mc.world.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != selectedBlock.getBlock()
+						&& mc.world.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != FBP.FBPBlock)) {
 			keyUp = true;
 			FBPKeyInputHandler.INSTANCE.onInput();
 		}
@@ -151,8 +152,8 @@ public class FBPGuiFastAdd extends GuiScreen {
 					else
 						FBPConfigHandler.writeAnimExceptions();
 
-					if (FBP.enableDing)
-						mc.thePlayer.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.045f, 1.6f);
+					mc.getSoundHandler()
+							.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 				}
 			}
 
@@ -177,7 +178,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 		// LIMIT MOUSE POS
 		int optionRadius = 30;
-		mouseX = MathHelper.clamp_int(mouseX, animation.xPosition + optionRadius, particle.xPosition + optionRadius);
+		mouseX = MathHelper.clamp(mouseX, animation.x + optionRadius, particle.x + optionRadius);
 		mouseY = height / 2 + 35;
 
 		// RENDER BLOCK
@@ -189,7 +190,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 		GlStateManager.translate(x, y, 0);
 		GlStateManager.scale(4, 4, 4);
 		GlStateManager.enableColorMaterial();
-		this.itemRender.renderItemAndEffectIntoGUI(this.mc.thePlayer, displayItemStack, 0, 0);
+		this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, displayItemStack, 0, 0);
 
 		this.itemRender.zLevel = 0.0F;
 		this.zLevel = 0.0F;
@@ -203,7 +204,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 		itemName = ((itemName.contains(":") ? "\u00A76\u00A7l" : "\u00A7a\u00A7l") + itemName).replaceAll(":",
 				"\u00A7c\u00A7l:\u00A7a\u00A7l");
 
-		FBPGuiHelper._drawCenteredString(fontRendererObj, itemName, width / 2, height / 2 - 19, 0);
+		FBPGuiHelper._drawCenteredString(fontRenderer, itemName, width / 2, height / 2 - 19, 0);
 
 		// EXCEPTIONS INFO
 		String animationText1 = animation.enabled
@@ -215,20 +216,18 @@ public class FBPGuiFastAdd extends GuiScreen {
 						: "")
 				: "\u00A7c\u00A7lCAN'T BE ADDED";
 
-		FBPGuiHelper._drawCenteredString(fontRendererObj, animationText1, animation.xPosition + 30,
-				animation.yPosition + 65, 0);
-		FBPGuiHelper._drawCenteredString(fontRendererObj, particleText1, particle.xPosition + 30,
-				particle.yPosition + 65, 0);
+		FBPGuiHelper._drawCenteredString(fontRenderer, animationText1, animation.x + 30, animation.y + 65, 0);
+		FBPGuiHelper._drawCenteredString(fontRenderer, particleText1, particle.x + 30, particle.y + 65, 0);
 
 		if (animation.isMouseOver())
-			FBPGuiHelper._drawCenteredString(fontRendererObj, "\u00A7a\u00A7lPLACE ANIMATION", animation.xPosition + 30,
-					animation.yPosition - 12, 0);
+			FBPGuiHelper._drawCenteredString(fontRenderer, "\u00A7a\u00A7lPLACE ANIMATION", animation.x + 30,
+					animation.y - 12, 0);
 		if (particle.isMouseOver())
-			FBPGuiHelper._drawCenteredString(fontRendererObj, "\u00A7a\u00A7lPARTICLES", particle.xPosition + 30,
-					particle.yPosition - 12, 0);
+			FBPGuiHelper._drawCenteredString(fontRenderer, "\u00A7a\u00A7lPARTICLES", particle.x + 30, particle.y - 12,
+					0);
 
-		this.drawCenteredString(fontRendererObj, "\u00A7LAdd Block to Exceptions", width / 2, 20,
-				fontRendererObj.getColorCode('a'));
+		this.drawCenteredString(fontRenderer, "\u00A7LAdd Block to Exceptions", width / 2, 20,
+				fontRenderer.getColorCode('a'));
 
 		mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/widgets.png"));
 

@@ -7,8 +7,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.TominoCZ.FBP.FBP;
 
 import net.minecraft.util.math.MathHelper;
@@ -67,7 +65,6 @@ public class FBPConfigHandler {
 
 			PrintWriter writer = new PrintWriter(FBP.config.getPath(), "UTF-8");
 			writer.println("enabled=" + FBP.enabled);
-			writer.println("enableDing=" + FBP.enableDing);
 			writer.println("weatherParticleDensity=" + FBP.weatherParticleDensity);
 			writer.println("particlesPerAxis=" + FBP.particlesPerAxis);
 			writer.println("fancyFlame=" + FBP.fancyFlame);
@@ -76,6 +73,7 @@ public class FBPConfigHandler {
 			writer.println("fancySnow=" + FBP.fancySnow);
 			writer.println("spawnPlaceParticles=" + FBP.spawnPlaceParticles);
 			writer.println("fancyPlaceAnim=" + FBP.fancyPlaceAnim);
+			writer.println("animSmoothLighting=" + FBP.animSmoothLighting);
 			writer.println("smartBreaking=" + FBP.smartBreaking);
 			writer.println("lowTraction=" + FBP.lowTraction);
 			writer.println("bounceOffWalls=" + FBP.bounceOffWalls);
@@ -173,8 +171,6 @@ public class FBPConfigHandler {
 
 				if (line.contains("enabled="))
 					FBP.enabled = Boolean.valueOf(line.replace("enabled=", ""));
-				else if (line.contains("enableDing="))
-					FBP.enableDing = Boolean.valueOf(line.replace("enableDing=", ""));
 				else if (line.contains("weatherParticleDensity="))
 					FBP.weatherParticleDensity = Double.valueOf(line.replace("weatherParticleDensity=", ""));
 				else if (line.contains("particlesPerAxis="))
@@ -191,6 +187,8 @@ public class FBPConfigHandler {
 					FBP.spawnPlaceParticles = Boolean.valueOf(line.replace("spawnPlaceParticles=", ""));
 				else if (line.contains("fancyPlaceAnim="))
 					FBP.fancyPlaceAnim = Boolean.valueOf(line.replace("fancyPlaceAnim=", ""));
+				else if (line.contains("animSmoothLighting="))
+					FBP.animSmoothLighting = Boolean.valueOf(line.replace("animSmoothLighting=", ""));
 				else if (line.contains("smartBreaking="))
 					FBP.smartBreaking = Boolean.valueOf(line.replace("smartBreaking=", ""));
 				else if (line.contains("lowTraction="))
@@ -249,8 +247,8 @@ public class FBPConfigHandler {
 
 			FBP.INSTANCE.resetExceptions(false);
 
-			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line))
-				FBP.INSTANCE.addException(line.replaceAll(" ", "").toLowerCase(), false);
+			while ((line = br.readLine()) != null && !(line = line.replaceAll(" ", "").toLowerCase()).equals(""))
+				FBP.INSTANCE.addException(line, false);
 		} catch (Exception e) {
 
 		}
@@ -268,8 +266,8 @@ public class FBPConfigHandler {
 
 			FBP.INSTANCE.resetExceptions(true);
 
-			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line))
-				FBP.INSTANCE.addException(line.replaceAll(" ", "").toLowerCase(), true);
+			while ((line = br.readLine()) != null && !(line = line.replaceAll(" ", "").toLowerCase()).equals(""))
+				FBP.INSTANCE.addException(line, true);
 		} catch (Exception e) {
 
 		}
@@ -306,30 +304,30 @@ public class FBPConfigHandler {
 		FBP.infiniteDuration = false;
 		FBP.spawnWhileFrozen = true;
 		FBP.smartBreaking = true;
-		FBP.fancyPlaceAnim = true;
+		FBP.fancyPlaceAnim = false;
+		FBP.animSmoothLighting = false;
 		FBP.spawnPlaceParticles = true;
 		FBP.fancyRain = true;
 		FBP.fancySnow = true;
 		FBP.fancySmoke = true;
 		FBP.fancyFlame = true;
-		FBP.enableDing = true;
 
 		if (write)
 			write();
 	}
 
 	public static void check() {
-		FBP.maxAge = MathHelper.clamp_int(FBP.maxAge, 10, 100);
-		FBP.minAge = MathHelper.clamp_int(FBP.minAge, 10, FBP.maxAge);
+		FBP.maxAge = MathHelper.clamp(FBP.maxAge, 10, 100);
+		FBP.minAge = MathHelper.clamp(FBP.minAge, 10, FBP.maxAge);
 
-		FBP.particlesPerAxis = MathHelper.clamp_int(FBP.particlesPerAxis, 2, 5);
+		FBP.particlesPerAxis = MathHelper.clamp(FBP.particlesPerAxis, 2, 5);
 
-		FBP.scaleMult = MathHelper.clamp_double(FBP.scaleMult, 0.75D, 1.25D);
+		FBP.scaleMult = MathHelper.clamp(FBP.scaleMult, 0.75D, 1.25D);
 
-		FBP.gravityMult = MathHelper.clamp_double(FBP.gravityMult, 0.5D, 2.0D);
+		FBP.gravityMult = MathHelper.clamp(FBP.gravityMult, 0.5D, 2.0D);
 
-		FBP.rotationMult = MathHelper.clamp_double(FBP.rotationMult, 0.0D, 1.5D);
+		FBP.rotationMult = MathHelper.clamp(FBP.rotationMult, 0.0D, 1.5D);
 
-		FBP.weatherParticleDensity = MathHelper.clamp_double(FBP.weatherParticleDensity, 0.75D, 5.0D);
+		FBP.weatherParticleDensity = MathHelper.clamp(FBP.weatherParticleDensity, 0.75D, 5.0D);
 	}
 }

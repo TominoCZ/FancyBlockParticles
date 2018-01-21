@@ -44,26 +44,25 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		int x = this.width / 2 - (96 * 2 + 8) / 2;
 
 		b1 = new FBPGuiButton(1, x, this.height / 5 - 10 + GUIOffsetY, b1Text, FBP.randomRotation, true);
-		b2 = new FBPGuiButton(2, x, b1.yPosition + b1.height + 1, b2Text, FBP.cartoonMode, true);
+		b2 = new FBPGuiButton(2, x, b1.y + b1.height + 1, b2Text, FBP.cartoonMode, true);
 
-		b3 = new FBPGuiButton(3, x, b2.yPosition + b2.height + 6, b3Text, FBP.smoothTransitions, true);
-		b4 = new FBPGuiButton(4, x, b3.yPosition + b3.height + 1, b4Text, FBP.randomFadingSpeed, true);
+		b3 = new FBPGuiButton(3, x, b2.y + b2.height + 6, b3Text, FBP.smoothTransitions, true);
+		b4 = new FBPGuiButton(4, x, b3.y + b3.height + 1, b4Text, FBP.randomFadingSpeed, true);
 
-		b5 = new FBPGuiButton(5, x, b4.yPosition + b4.height + 6, b5Text, FBP.spawnRedstoneBlockParticles, true);
-		b6 = new FBPGuiButton(6, x, b5.yPosition + b5.height + 1, b6Text, FBP.spawnWhileFrozen, true);
+		b5 = new FBPGuiButton(5, x, b4.y + b4.height + 6, b5Text, FBP.spawnRedstoneBlockParticles, true);
+		b6 = new FBPGuiButton(6, x, b5.y + b5.height + 1, b6Text, FBP.spawnWhileFrozen, true);
 
-		Back = new FBPGuiButton(-3, b6.xPosition - 44, b6.yPosition + 10 - GUIOffsetY, "<<", false, false);
-		Next = new FBPGuiButton(-5, b6.xPosition + b6.width + 25, b6.yPosition + 10 - GUIOffsetY, ">>", false, false);
+		Back = new FBPGuiButton(-3, b6.x - 44, b6.y + 10 - GUIOffsetY, "<<", false, false);
+		Next = new FBPGuiButton(-5, b6.x + b6.width + 25, b6.y + 10 - GUIOffsetY, ">>", false, false);
 
-		Defaults = new FBPGuiButton(0, this.width / 2 + 2, b6.yPosition + b6.height + 24 - GUIOffsetY, "Defaults",
-				false, false);
-		Done = new FBPGuiButton(-1, this.width / 2 - 100, Defaults.yPosition, "Done", false, false);
-		Reload = new FBPGuiButton(-2, this.width / 2 - 100, Defaults.yPosition + Defaults.height + 1, "Reload Config",
-				false, false);
-		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 27, 2, new Dimension(width, height),
-				this.fontRendererObj);
+		Defaults = new FBPGuiButton(0, this.width / 2 + 2, b6.y + b6.height + 24 - GUIOffsetY, "Defaults", false,
+				false);
+		Done = new FBPGuiButton(-1, this.width / 2 - 100, Defaults.y, "Done", false, false);
+		Reload = new FBPGuiButton(-2, this.width / 2 - 100, Defaults.y + Defaults.height + 1, "Reload Config", false,
+				false);
+		ReportBug = new FBPGuiButtonBugReport(-4, this.width - 27, 2, new Dimension(width, height), this.fontRenderer);
 		Enable = new FBPGuiButtonEnable(-6, (this.width - 25 - 27) - 4, 2, new Dimension(width, height),
-				this.fontRendererObj);
+				this.fontRenderer);
 		Defaults.width = Done.width = 98;
 		Reload.width = b1.width = b2.width = b3.width = b4.width = b5.width = b6.width = 200;
 
@@ -134,28 +133,27 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		FBPGuiHelper.background(b1.yPosition - 6 - GUIOffsetY, Done.yPosition - 4, width, height);
+		FBPGuiHelper.background(b1.y - 6 - GUIOffsetY, Done.y - 4, width, height);
 
-		int posY = Done.yPosition - 18;
+		int posY = Done.y - 18;
 
 		getDescription();
 
-		if ((mouseX >= b1.xPosition && mouseX < b1.xPosition + b1.width)
-				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height)) {
+		if ((mouseX >= b1.x && mouseX < b1.x + b1.width) && (mouseY >= b1.y && mouseY < b6.y + b1.height)) {
 
 			moveText();
 
-			this.drawCenteredString(fontRendererObj, description, (int) (this.width / 2 + offsetX), posY,
-					fontRendererObj.getColorCode('a'));
+			this.drawCenteredString(fontRenderer, description, (int) (this.width / 2 + offsetX), posY,
+					fontRenderer.getColorCode('a'));
 		}
 
-		FBPGuiHelper.drawTitle(b1.yPosition - GUIOffsetY, width, height, fontRendererObj);
+		FBPGuiHelper.drawTitle(b1.y - GUIOffsetY, width, height, fontRenderer);
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	private void moveText() {
-		int textWidth = this.fontRendererObj.getStringWidth(description);
+		int textWidth = this.fontRenderer.getStringWidth(description);
 		int outsideSizeX = textWidth - this.width;
 
 		if (textWidth > width) {

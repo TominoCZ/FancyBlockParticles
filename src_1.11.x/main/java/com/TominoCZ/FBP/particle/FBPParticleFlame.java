@@ -58,10 +58,6 @@ public class FBPParticleFlame extends ParticleFlame {
 
 		mc = Minecraft.getMinecraft();
 
-		// this.spawnAnother = spawnAnother && worldObj.getBlockState(new
-		// BlockPos(startPos)).getBlock() == Blocks.TORCH &&
-		// mc.gameSettings.particleSetting == 0;
-
 		this.motionY = -0.00085f;
 		this.particleGravity = -0.05f;
 
@@ -165,14 +161,13 @@ public class FBPParticleFlame extends ParticleFlame {
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
 
-		// RENDER
-		Tessellator.getInstance().draw();
-		mc.getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		worldRendererIn.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
-
 		GlStateManager.enableCull();
 
 		par = new Vec2f(f, f1);
+
+		Tessellator.getInstance().draw();
+		mc.getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		worldRendererIn.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 
 		worldRendererIn.setTranslation(f5, f6, f7);
 		putCube(worldRendererIn, f4 / 80, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue, alpha);
@@ -200,7 +195,7 @@ public class FBPParticleFlame extends ParticleFlame {
 			G = g * brightnessForRender;
 			B = b * brightnessForRender;
 
-			brightnessForRender *= 0.95;// TODO
+			brightnessForRender *= 0.95;
 
 			addVt(worldRendererIn, scale, v1, par.x, par.y, j, k, R, G, B, a);
 			addVt(worldRendererIn, scale, v2, par.x, par.y, j, k, R, G, B, a);

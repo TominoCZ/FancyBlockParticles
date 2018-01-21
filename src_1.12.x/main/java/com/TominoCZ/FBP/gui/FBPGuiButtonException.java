@@ -22,10 +22,10 @@ public class FBPGuiButtonException extends FBPGuiButton {
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (this.visible) {
-			int centerX1 = xPosition + this.height / 2;
-			int centerY1 = yPosition + this.height / 2 - 1;
+			int centerX1 = x + this.height / 2;
+			int centerY1 = y + this.height / 2 - 1;
 
 			double distance = Math
 					.sqrt((mouseX - centerX1) * (mouseX - centerX1) + (mouseY - centerY1) * (mouseY - centerY1));
@@ -44,13 +44,13 @@ public class FBPGuiButtonException extends FBPGuiButton {
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-			this.drawTexturedModalRect(xPosition, yPosition, enabled ? (isInExceptions ? 60 : 0) : 120, 196, 60, 60);
+			this.drawTexturedModalRect(x, y, enabled ? (isInExceptions ? 60 : 0) : 120, 196, 60, 60);
 
 			if (!enabled)
 				GlStateManager.color(0.25f, 0.25f, 0.25f);
 			// render icon
-			this.drawTexturedModalRect(xPosition + width / 2.0f - 22.5f + (particle ? 0 : 2),
-					yPosition + height / 2.0f - 22.5f, 256 - 45, particle ? 45 : 0, 45, 45);
+			this.drawTexturedModalRect(x + width / 2.0f - 22.5f + (particle ? 0 : 2), y + height / 2.0f - 22.5f,
+					256 - 45, particle ? 45 : 0, 45, 45);
 
 			this.mouseDragged(mc, mouseX, mouseY);
 		}

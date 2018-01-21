@@ -40,7 +40,7 @@ public class FBPGuiButtonEnable extends GuiButton {
 			boolean flag = distance <= (radius / 2);
 			int i = FBP.isEnabled() ? 0 : 50;
 
-			if (hovered = enabled = flag)
+			if (hovered = flag)
 				i += 25;
 
 			Gui.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, i, 25, 25, 25, 100);
@@ -50,5 +50,14 @@ public class FBPGuiButtonEnable extends GuiButton {
 			if (flag)
 				this.drawString(_fr, text, mouseX - _fr.getStringWidth(text) - 25, mouseY - 3, _fr.getColorCode('a'));
 		}
+	}
+
+	@Override
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+		if (this.visible && hovered) {
+			playPressSound(mc.getSoundHandler());
+			return true;
+		} else
+			return false;
 	}
 }

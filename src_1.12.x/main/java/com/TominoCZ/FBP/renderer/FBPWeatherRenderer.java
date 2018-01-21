@@ -8,9 +8,9 @@ import com.TominoCZ.FBP.particle.FBPParticleSnow;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -43,7 +43,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 			for (int j = 0; j < 32; ++j) {
 				float f = (float) (j - 16);
 				float f1 = (float) (i - 16);
-				float f2 = MathHelper.sqrt_float(f * f + f1 * f1);
+				float f2 = MathHelper.sqrt(f * f + f1 * f1);
 				this.rainXCoords[i << 5 | j] = -f1 / f2;
 				this.rainYCoords[i << 5 | j] = f / f2;
 			}
@@ -55,16 +55,16 @@ public class FBPWeatherRenderer extends IRenderHandler {
 		if (FBP.fancySnow && FBP.fancyRain)
 			return;
 
-		float f = this.mc.theWorld.getRainStrength(partialTicks);
+		float f = this.mc.world.getRainStrength(partialTicks);
 
 		if (f > 0.0F) {
 			mc.entityRenderer.enableLightmap();
 			Entity entity = this.mc.getRenderViewEntity();
-			int i = MathHelper.floor_double(entity.posX);
-			int j = MathHelper.floor_double(entity.posY);
-			int k = MathHelper.floor_double(entity.posZ);
+			int i = MathHelper.floor(entity.posX);
+			int j = MathHelper.floor(entity.posY);
+			int k = MathHelper.floor(entity.posZ);
 			Tessellator tessellator = Tessellator.getInstance();
-			VertexBuffer bufferbuilder = tessellator.getBuffer();
+			BufferBuilder bufferbuilder = tessellator.getBuffer();
 			GlStateManager.disableCull();
 			GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
 			GlStateManager.enableBlend();
@@ -75,7 +75,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 			double d0 = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) partialTicks;
 			double d1 = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) partialTicks;
 			double d2 = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) partialTicks;
-			int l = MathHelper.floor_double(d1);
+			int l = MathHelper.floor(d1);
 			int i1 = 5;
 
 			if (this.mc.gameSettings.fancyGraphics) {
@@ -118,7 +118,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 						if (k2 != l2) {
 							random.setSeed((long) (l1 * l1 * 3121 + l1 * 45238971 ^ k1 * k1 * 418711 + k1 * 13761));
 							blockpos$mutableblockpos.setPos(l1, k2, k1);
-							float f2 = biome.getFloatTemperature(blockpos$mutableblockpos);
+							float f2 = biome.getTemperature(blockpos$mutableblockpos);
 
 							if (world.getBiomeProvider().getTemperatureAtHeight(f2, j2) >= 0.15F) {
 								if (!FBP.fancyRain) {
@@ -137,7 +137,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 											* (3.0D + random.nextDouble());
 									double d6 = (double) ((float) l1 + 0.5F) - entity.posX;
 									double d7 = (double) ((float) k1 + 0.5F) - entity.posZ;
-									float f3 = MathHelper.sqrt_double(d6 * d6 + d7 * d7) / (float) i1;
+									float f3 = MathHelper.sqrt(d6 * d6 + d7 * d7) / (float) i1;
 									float f4 = ((1.0F - f3 * f3) * 0.5F + 0.5F) * f;
 									blockpos$mutableblockpos.setPos(l1, i3, k1);
 									int j3 = world.getCombinedLight(blockpos$mutableblockpos, 0);
@@ -175,7 +175,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 										+ (double) (f1 * (float) random.nextGaussian()) * 0.001D;
 								double d11 = (double) ((float) l1 + 0.5F) - entity.posX;
 								double d12 = (double) ((float) k1 + 0.5F) - entity.posZ;
-								float f6 = MathHelper.sqrt_double(d11 * d11 + d12 * d12) / (float) i1;
+								float f6 = MathHelper.sqrt(d11 * d11 + d12 * d12) / (float) i1;
 								float f5 = ((1.0F - f6 * f6) * 0.3F + 0.5F) * f;
 								blockpos$mutableblockpos.setPos(l1, i3, k1);
 								int i4 = (world.getCombinedLight(blockpos$mutableblockpos, 0) * 3 + 15728880) / 4;
@@ -213,15 +213,15 @@ public class FBPWeatherRenderer extends IRenderHandler {
 
 	public void onUpdate() {
 		if (FBP.fancySnow || FBP.fancyRain) {
-			float f = this.mc.theWorld.getRainStrength(mc.getRenderPartialTicks());
+			float f = this.mc.world.getRainStrength(mc.getRenderPartialTicks());
 
 			if (f > 0.0F) {
 				if (tickCounter++ >= 2) {
 					int r = 35;
 
-					double mX = mc.thePlayer.motionX * 26;
-					double mZ = mc.thePlayer.motionZ * 26;
-					double mT = MathHelper.sqrt_double(mX * mX + mZ * mZ) / 25;
+					double mX = mc.player.motionX * 26;
+					double mZ = mc.player.motionZ * 26;
+					double mT = MathHelper.sqrt(mX * mX + mZ * mZ) / 25;
 
 					BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
@@ -229,39 +229,36 @@ public class FBPWeatherRenderer extends IRenderHandler {
 						// get random position within radius of a little over the player's render
 						// distance
 						double angle = FBP.random.nextDouble() * Math.PI * 2;
-						double radius = MathHelper.sqrt_double(FBP.random.nextDouble()) * r;
-						double X = mc.thePlayer.posX + mX + radius * Math.cos(angle);
-						double Z = mc.thePlayer.posZ + mZ + radius * Math.sin(angle);
+						double radius = MathHelper.sqrt(FBP.random.nextDouble()) * r;
+						double X = mc.player.posX + mX + radius * Math.cos(angle);
+						double Z = mc.player.posZ + mZ + radius * Math.sin(angle);
 
-						if (mc.thePlayer.getDistance(X, mc.thePlayer.posY, Z) > mc.gameSettings.renderDistanceChunks
-								* 16)
+						if (mc.player.getDistance(X, mc.player.posY, Z) > mc.gameSettings.renderDistanceChunks * 16)
 							continue;
 
 						// check if position is within a snow biome
-						blockpos$mutableblockpos.setPos(X, mc.thePlayer.posY, Z);
-						Biome biome = mc.theWorld.getBiome(blockpos$mutableblockpos);
+						blockpos$mutableblockpos.setPos(X, mc.player.posY, Z);
+						Biome biome = mc.world.getBiome(blockpos$mutableblockpos);
 
-						int surfaceHeight = mc.theWorld.getPrecipitationHeight(blockpos$mutableblockpos).getY();
+						int surfaceHeight = mc.world.getPrecipitationHeight(blockpos$mutableblockpos).getY();
 
-						int Y = (int) (mc.thePlayer.posY + 15 + FBP.random.nextDouble() * 10
-								+ (mc.thePlayer.motionY * 6));
+						int Y = (int) (mc.player.posY + 15 + FBP.random.nextDouble() * 10 + (mc.player.motionY * 6));
 
 						if (Y <= surfaceHeight + 2)
 							Y = surfaceHeight + 10;
 
 						if (biome.canRain() || biome.getEnableSnow()) {
-							float temp = biome.getFloatTemperature(blockpos$mutableblockpos);
-							float finalTemp = mc.theWorld.getBiomeProvider().getTemperatureAtHeight(temp,
-									surfaceHeight);
+							float temp = biome.getTemperature(blockpos$mutableblockpos);
+							float finalTemp = mc.world.getBiomeProvider().getTemperatureAtHeight(temp, surfaceHeight);
 
 							if (finalTemp >= 0.15F) {
 								if (FBP.fancyRain) {
-									mc.effectRenderer.addEffect(new FBPParticleRain(mc.theWorld, X, Y, Z, 0.1,
+									mc.effectRenderer.addEffect(new FBPParticleRain(mc.world, X, Y, Z, 0.1,
 											FBP.random.nextDouble(0.75, 0.99) + mT / 2, 0.1,
 											Blocks.SNOW.getDefaultState()));
 								}
 							} else if (FBP.fancySnow) {
-								mc.effectRenderer.addEffect(new FBPParticleSnow(mc.theWorld, X, Y, Z,
+								mc.effectRenderer.addEffect(new FBPParticleSnow(mc.world, X, Y, Z,
 										FBP.random.nextDouble(-0.5, 0.5), FBP.random.nextDouble(0.25, 1) + mT * 1.5f,
 										FBP.random.nextDouble(-0.5, 0.5), Blocks.SNOW.getDefaultState()));
 							}

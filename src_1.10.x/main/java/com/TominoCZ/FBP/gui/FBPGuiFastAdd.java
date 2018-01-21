@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -151,8 +152,8 @@ public class FBPGuiFastAdd extends GuiScreen {
 					else
 						FBPConfigHandler.writeAnimExceptions();
 
-					if (FBP.enableDing)
-						mc.thePlayer.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.045f, 1.6f);
+					mc.getSoundHandler()
+							.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 				}
 			}
 

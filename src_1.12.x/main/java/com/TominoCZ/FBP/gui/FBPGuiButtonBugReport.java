@@ -30,13 +30,13 @@ public class FBPGuiButtonBugReport extends GuiButton {
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (this.visible) {
 			mc.getTextureManager().bindTexture(FBP.FBP_BUG);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-			int centerX = xPosition + 25 / 2;
-			int centerY = yPosition + 25 / 2;
+			int centerX = x + 25 / 2;
+			int centerY = y + 25 / 2;
 
 			double distance = Math
 					.sqrt((mouseX - centerX) * (mouseX - centerX) + (mouseY - centerY) * (mouseY - centerY));
@@ -74,11 +74,20 @@ public class FBPGuiButtonBugReport extends GuiButton {
 			else
 				fadeAmmount = 0;
 
-			Gui.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, i, 25, 25, 25, 50);
+			Gui.drawModalRectWithCustomSizedTexture(this.x, this.y, 0, i, 25, 25, 25, 50);
 
 			if (flag)
 				this.drawString(_fr, _textOnHover, mouseX - _fr.getStringWidth(_textOnHover) - 25, mouseY - 3,
 						_fr.getColorCode('a'));
 		}
+	}
+
+	@Override
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+		if (this.enabled && this.visible && this.hovered) {
+			playPressSound(mc.getSoundHandler());
+			return true;
+		} else
+			return false;
 	}
 }

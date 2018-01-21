@@ -23,7 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleSnow extends ParticleDigging {
+public class FBPParticleSnow extends ParticleDigging implements IFBPShadedParticle {
 	private final IBlockState sourceState;
 
 	Minecraft mc;
@@ -131,7 +131,7 @@ public class FBPParticleSnow extends ParticleDigging {
 			particleAge++;
 
 			if (posY < mc.thePlayer.posY - (mc.gameSettings.renderDistanceChunks * 16))
-				this.isExpired = true;
+				setExpired();
 
 			rot.add(rotStep.multiply(FBP.rotationMult * 5));
 
@@ -228,6 +228,23 @@ public class FBPParticleSnow extends ParticleDigging {
 	@Override
 	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+
+	}
+
+	@Override
+	public int getBrightnessForRender(float p_189214_1_) {
+		int i = super.getBrightnessForRender(p_189214_1_);
+		int j = 0;
+
+		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		}
+
+		return i == 0 ? j : i;
+	}
+
+	@Override
+	public void renderShadedParticle(VertexBuffer buf, float partialTicks) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
@@ -286,23 +303,11 @@ public class FBPParticleSnow extends ParticleDigging {
 
 		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
-		worldRendererIn.setTranslation(f5, f6, f7);
+		buf.setTranslation(f5, f6, f7);
 
-		FBPRenderUtil.renderCubeShaded_S(worldRendererIn, par, f5, f6, f7, f4 / 20, smoothRot, i >> 16 & 65535,
-				i & 65535, particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
+		FBPRenderUtil.renderCubeShaded_S(buf, par, f5, f6, f7, f4 / 20, smoothRot, i >> 16 & 65535, i & 65535,
+				particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
 
-		worldRendererIn.setTranslation(0, 0, 0);
-	}
-
-	@Override
-	public int getBrightnessForRender(float p_189214_1_) {
-		int i = super.getBrightnessForRender(p_189214_1_);
-		int j = 0;
-
-		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
-		}
-
-		return i == 0 ? j : i;
+		buf.setTranslation(0, 0, 0);
 	}
 }

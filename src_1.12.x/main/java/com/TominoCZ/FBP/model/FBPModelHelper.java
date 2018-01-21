@@ -6,16 +6,21 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 
 public class FBPModelHelper {
 	static int vertexes = 0;
 
+	static boolean isAllCorruptedTexture = true;
+
 	public static boolean isModelValid(IBlockState state) {
 		IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
 				.getModelForState(state);
 
-		if (model.getParticleTexture() != null && model.getParticleTexture().getIconName().equals("missingno"))
+		TextureAtlasSprite s = model.getParticleTexture();
+
+		if (s == null || s.getIconName().equals("missingno"))
 			return false;
 
 		vertexes = 0;
@@ -27,6 +32,11 @@ public class FBPModelHelper {
 					if (element.getUsage() == VertexFormatElement.EnumUsage.POSITION)
 						vertexes++;
 
+					TextureAtlasSprite s = quad.getSprite();
+
+					if (s != null && !s.getIconName().equals("missingno"))
+						isAllCorruptedTexture = false;
+
 					return data;
 				}
 			});
@@ -34,6 +44,6 @@ public class FBPModelHelper {
 
 		}
 
-		return (vertexes >= 3);
+		return (vertexes >= 3) && !isAllCorruptedTexture;
 	}
 }

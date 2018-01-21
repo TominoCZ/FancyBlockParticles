@@ -1,17 +1,12 @@
 package com.TominoCZ.FBP.util;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -21,71 +16,20 @@ import net.minecraft.util.math.Vec3d;
 public class FBPRenderUtil {
 	public static void renderCubeShaded_S(VertexBuffer buf, Vec2f[] par, float f5, float f6, float f7, double scale,
 			FBPVector3d rotVec, int j, int k, float r, float g, float b, float a, boolean cartoon) {
-		// switch to vertex format that supports normals
-		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		buf.begin(GL11.GL_QUADS, FBP.POSITION_TEX_COLOR_LMAP_NORMAL);
-
-		// switch to vertex format that supports normals
-		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		buf.begin(GL11.GL_QUADS, FBP.POSITION_TEX_COLOR_LMAP_NORMAL);
-
-		// some GL commands
-		GlStateManager.enableCull();
-		GlStateManager.enableColorMaterial();
-		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
-		GlStateManager.enableLighting();
-		GlStateManager.enableLight(0);
-		GlStateManager.enableLight(1);
-		// render particle
 		buf.setTranslation(f5, f6, f7);
 
 		putCube_S(buf, par, scale, rotVec, j, k, r, g, b, a, FBP.cartoonMode);
 
 		buf.setTranslation(0, 0, 0);
-
-		// continue with the regular vertex format
-		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		buf.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
-
-		GlStateManager.disableLighting();
 	}
 
 	public static void renderCubeShaded_WH(VertexBuffer buf, Vec2f[] par, float f5, float f6, float f7, double width,
 			double height, FBPVector3d rotVec, int j, int k, float r, float g, float b, float a, boolean cartoon) {
-		// switch to vertex format that supports normals
-		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		buf.begin(GL11.GL_QUADS, FBP.POSITION_TEX_COLOR_LMAP_NORMAL);
-
-		// switch to vertex format that supports normals
-		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		buf.begin(GL11.GL_QUADS, FBP.POSITION_TEX_COLOR_LMAP_NORMAL);
-
-		// some GL commands
-		GlStateManager.enableCull();
-		GlStateManager.enableColorMaterial();
-		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
-		GlStateManager.enableLighting();
-		GlStateManager.enableLight(0);
-		GlStateManager.enableLight(1);
-
-		// render particle
 		buf.setTranslation(f5, f6, f7);
 
 		putCube_WH(buf, par, width, height, rotVec, j, k, r, g, b, a, FBP.cartoonMode);
 
 		buf.setTranslation(0, 0, 0);
-
-		// continue with the regular vertex format
-		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		buf.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
-
-		GlStateManager.disableLighting();
 	}
 
 	static void putCube_S(VertexBuffer worldRendererIn, Vec2f[] par, double scale, FBPVector3d rotVec, int j, int k,

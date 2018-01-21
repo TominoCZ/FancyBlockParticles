@@ -17,6 +17,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumBlockRenderType;
@@ -25,6 +26,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -79,7 +81,7 @@ public class FBPAnimationDummyBlock extends Block {
 			t.printStackTrace();
 		}
 
-		return worldIn.getBlockState(pos).getMaterial().isReplaceable();
+		return this.blockMaterial.isReplaceable();
 	}
 
 	@Override
@@ -243,6 +245,22 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
+	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos,
+			EntityPlayer player) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode node = blockNodes.get(pos);
+
+				if (node.originalBlock != this && node.state.getBlock() == node.originalBlock)
+					return blockNodes.get(pos).originalBlock.getPickBlock(node.state, target, world, pos, player);
+			}
+		} catch (Throwable t) {
+		}
+
+		return new ItemStack(Blocks.AIR);
+	}
+
+	@Override
 	public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).state.getWeakPower(blockAccess, pos, side);
@@ -289,7 +307,7 @@ public class FBPAnimationDummyBlock extends Block {
 
 		BlockNode n = blockNodes.get(pos);
 
-		return n.state.getBlock().getSoundType(state, world, pos, entity);
+		return n.state.getBlock().getSoundType(n.state, world, pos, entity);
 	}
 
 	@Override

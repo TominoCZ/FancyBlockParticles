@@ -12,7 +12,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
 
 import com.TominoCZ.FBP.block.FBPAnimationDummyBlock;
-import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPEventHandler;
 import com.TominoCZ.FBP.handler.FBPGuiHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
@@ -68,11 +67,10 @@ public class FBP {
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
 	public static boolean infiniteDuration = false;
-	public static boolean randomRotation = true, cartoonMode = false, spawnWhileFrozen = true,
-			spawnRedstoneBlockParticles = false, smoothTransitions = true, randomFadingSpeed = true,
-			entityCollision = false, bounceOffWalls = true, lowTraction = false, smartBreaking = true,
-			fancyPlaceAnim = true, spawnPlaceParticles = true, fancyRain = true, fancySnow = true, fancyFlame = true,
-			fancySmoke = true, enableDing = true, frozen = false;
+
+	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
+			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyPlaceAnim,
+			animSmoothLighting, spawnPlaceParticles, fancyRain, fancySnow, fancyFlame, fancySmoke, frozen;
 
 	public List<String> blockParticleExceptions;
 	public List<String> blockAnimExceptions;
@@ -88,6 +86,7 @@ public class FBP {
 
 			// FRONT
 			new Vec3d(-1, -1, 1), new Vec3d(-1, 1, 1), new Vec3d(1, 1, 1), new Vec3d(1, -1, 1),
+
 			// BACK
 			new Vec3d(1, -1, -1), new Vec3d(1, 1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, -1, -1),
 
@@ -138,8 +137,6 @@ public class FBP {
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
 		animExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
 		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
-
-		FBPConfigHandler.init();
 
 		FBPKeyBindings.init();
 

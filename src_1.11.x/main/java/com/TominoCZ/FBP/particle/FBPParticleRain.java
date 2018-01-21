@@ -24,7 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleRain extends ParticleDigging {
+public class FBPParticleRain extends ParticleDigging implements IFBPShadedParticle {
 	private final IBlockState sourceState;
 
 	Minecraft mc;
@@ -119,7 +119,7 @@ public class FBPParticleRain extends ParticleDigging {
 			particleAge++;
 
 			if (posY < mc.player.posY - (mc.gameSettings.renderDistanceChunks * 9))
-				this.isExpired = true;
+				setExpired();
 
 			if (this.particleAge < this.particleMaxAge) {
 				if (!onGround) {
@@ -186,8 +186,8 @@ public class FBPParticleRain extends ParticleDigging {
 		Vec3d rgb = mc.world.getSkyColor(mc.player, mc.getRenderPartialTicks());
 
 		this.particleRed = (float) rgb.xCoord;
-		this.particleGreen = (float) MathHelper.clamp(rgb.yCoord + 0.25f, 0.25, 1);
-		this.particleBlue = (float) MathHelper.clamp(rgb.zCoord + 0.5f, 0.5, 1);
+		this.particleGreen = (float) MathHelper.clamp(rgb.yCoord + 0.25, 0.25, 1);
+		this.particleBlue = (float) MathHelper.clamp(rgb.zCoord + 0.5, 0.5, 1);
 
 		if (this.particleGreen > 1)
 			particleGreen = 1;
@@ -229,6 +229,23 @@ public class FBPParticleRain extends ParticleDigging {
 	@Override
 	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+
+	}
+
+	@Override
+	public int getBrightnessForRender(float p_189214_1_) {
+		int i = super.getBrightnessForRender(p_189214_1_);
+		int j = 0;
+
+		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		}
+
+		return i == 0 ? j : i;
+	}
+
+	@Override
+	public void renderShadedParticle(VertexBuffer buf, float partialTicks) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
@@ -264,20 +281,7 @@ public class FBPParticleRain extends ParticleDigging {
 		// RENDER
 		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
-		FBPRenderUtil.renderCubeShaded_WH(worldRendererIn, par, f5, f6, f7, f4 / 20, height / 20,
-				new FBPVector3d(0, AngleY, 0), i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue,
-				alpha, FBP.cartoonMode);
-	}
-
-	@Override
-	public int getBrightnessForRender(float p_189214_1_) {
-		int i = super.getBrightnessForRender(p_189214_1_);
-		int j = 0;
-
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
-		}
-
-		return i == 0 ? j : i;
+		FBPRenderUtil.renderCubeShaded_WH(buf, par, f5, f6, f7, f4 / 20, height / 20, new FBPVector3d(0, AngleY, 0),
+				i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
 	}
 }

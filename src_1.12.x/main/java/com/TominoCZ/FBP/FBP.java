@@ -12,7 +12,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
 
 import com.TominoCZ.FBP.block.FBPAnimationDummyBlock;
-import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPEventHandler;
 import com.TominoCZ.FBP.handler.FBPGuiHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
@@ -42,7 +41,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-@Mod(clientSideOnly = true, modid = FBP.MODID, acceptedMinecraftVersions = "[1.10,1.11)")
+@Mod(clientSideOnly = true, modid = FBP.MODID, acceptedMinecraftVersions = "[1.12,1.13)")
 public class FBP {
 	@Instance(FBP.MODID)
 	public static FBP INSTANCE;
@@ -68,11 +67,10 @@ public class FBP {
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
 	public static boolean infiniteDuration = false;
-	public static boolean randomRotation = true, cartoonMode = false, spawnWhileFrozen = true,
-			spawnRedstoneBlockParticles = false, smoothTransitions = true, randomFadingSpeed = true,
-			entityCollision = false, bounceOffWalls = true, lowTraction = false, smartBreaking = true,
-			fancyPlaceAnim = true, spawnPlaceParticles = true, fancyRain = true, fancySnow = true, fancyFlame = true,
-			fancySmoke = true, enableDing = true, frozen = false;
+
+	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
+			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyPlaceAnim,
+			animSmoothLighting, spawnPlaceParticles, fancyRain, fancySnow, fancyFlame, fancySmoke, frozen;
 
 	public List<String> blockParticleExceptions;
 	public List<String> blockAnimExceptions;
@@ -88,6 +86,7 @@ public class FBP {
 
 			// FRONT
 			new Vec3d(-1, -1, 1), new Vec3d(-1, 1, 1), new Vec3d(1, 1, 1), new Vec3d(1, -1, 1),
+
 			// BACK
 			new Vec3d(1, -1, -1), new Vec3d(1, 1, -1), new Vec3d(-1, 1, -1), new Vec3d(-1, -1, -1),
 
@@ -139,8 +138,6 @@ public class FBP {
 		animExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
 		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
 
-		FBPConfigHandler.init();
-
 		FBPKeyBindings.init();
 
 		FMLCommonHandler.instance().bus().register(new FBPKeyInputHandler());
@@ -185,10 +182,10 @@ public class FBP {
 			if (enabled) {
 				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
 				if (fancyRain || fancySnow) // just to ensure compatibility once more..
-					Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
+					Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			} else {
 				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;
-				Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
+				Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
 			}
 		}
 		FBP.enabled = enabled;

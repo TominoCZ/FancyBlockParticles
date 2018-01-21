@@ -25,13 +25,13 @@ public class FBPGuiButtonEnable extends GuiButton {
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (this.visible) {
 			mc.getTextureManager().bindTexture(FBP.FBP_FBP);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-			int centerX = xPosition + 25 / 2;
-			int centerY = yPosition + 25 / 2;
+			int centerX = x + 25 / 2;
+			int centerY = y + 25 / 2;
 
 			double distance = Math
 					.sqrt((mouseX - centerX) * (mouseX - centerX) + (mouseY - centerY) * (mouseY - centerY));
@@ -40,15 +40,24 @@ public class FBPGuiButtonEnable extends GuiButton {
 			boolean flag = distance <= (radius / 2);
 			int i = FBP.isEnabled() ? 0 : 50;
 
-			if (hovered = enabled = flag)
+			if (hovered = flag)
 				i += 25;
 
-			Gui.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, i, 25, 25, 25, 100);
+			Gui.drawModalRectWithCustomSizedTexture(this.x, this.y, 0, i, 25, 25, 25, 100);
 
 			String text = (FBP.isEnabled() ? "Disable" : "Enable") + " FBP";
 
 			if (flag)
 				this.drawString(_fr, text, mouseX - _fr.getStringWidth(text) - 25, mouseY - 3, _fr.getColorCode('a'));
 		}
+	}
+
+	@Override
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+		if (this.visible && hovered) {
+			playPressSound(mc.getSoundHandler());
+			return true;
+		} else
+			return false;
 	}
 }

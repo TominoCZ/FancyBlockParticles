@@ -28,8 +28,9 @@ public class FBPGuiSlider extends GuiButton {
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
-		FontRenderer fontrenderer = mc.fontRendererObj;
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+		FontRenderer fontrenderer = mc.fontRenderer;
+		mc.getTextureManager().bindTexture(FBP.FBP_WIDGETS);
 
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -39,7 +40,7 @@ public class FBPGuiSlider extends GuiButton {
 		GlStateManager.enableBlend();
 
 		// text
-		this.drawCenteredString(fontrenderer, displayString, this.xPosition + width / 2, this.yPosition + 6 - 9,
+		this.drawCenteredString(fontrenderer, displayString, this.x + width / 2, this.y + 6 - 9,
 				fontrenderer.getColorCode('f'));
 
 		mc.getTextureManager().bindTexture(FBP.FBP_WIDGETS);
@@ -49,9 +50,9 @@ public class FBPGuiSlider extends GuiButton {
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO);
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 60 + i * 20, this.width / 2, this.height);
-		this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 60 + i * 20,
-				this.width / 2, this.height);
+		this.drawTexturedModalRect(this.x, this.y, 0, 60 + i * 20, this.width / 2, this.height);
+		this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 60 + i * 20, this.width / 2,
+				this.height);
 
 		// slider
 		boolean tmpMouseDown = Mouse.isButtonDown(0);
@@ -65,17 +66,17 @@ public class FBPGuiSlider extends GuiButton {
 
 		mouseDown = tmpMouseDown;
 
-		sliderPosX = this.xPosition + (15 + (value * (width - 30)));
+		sliderPosX = this.x + (15 + (value * (width - 30)));
 
 		if (dragging) {
-			double max = this.xPosition + width - 15;
-			double min = this.xPosition + 15;
+			double max = this.x + width - 15;
+			double min = this.x + 15;
 
-			sliderPosX = MathHelper.clamp_double(mouseX - mouseGap, min, max);
+			sliderPosX = MathHelper.clamp(mouseX - mouseGap, min, max);
 
 			double val = sliderPosX - min;
 
-			value = MathHelper.clamp_float(MathHelper.abs((float) (val / (width - 30))), 0, 1);
+			value = MathHelper.clamp(MathHelper.abs((float) (val / (width - 30))), 0, 1);
 		}
 
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
@@ -83,8 +84,8 @@ public class FBPGuiSlider extends GuiButton {
 				GlStateManager.DestFactor.ZERO);
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-		this.drawTexturedModalRect((float) sliderPosX - 15, this.yPosition, 0, 100 + j * 20, 15, this.height);
-		this.drawTexturedModalRect((float) sliderPosX, this.yPosition, 185, 100 + j * 20, 15, this.height);
+		this.drawTexturedModalRect((float) sliderPosX - 15, this.y, 0, 100 + j * 20, 15, this.height);
+		this.drawTexturedModalRect((float) sliderPosX, this.y, 185, 100 + j * 20, 15, this.height);
 	}
 
 	@Override
@@ -96,9 +97,9 @@ public class FBPGuiSlider extends GuiButton {
 			mouseGap = mouseX - sliderPosX;
 		else {
 			if (isMouseOverBar(mouseX, mouseY)) {
-				float posX = MathHelper.clamp_int(mouseX - (this.xPosition + 4), 0, width - 5);
+				float posX = MathHelper.clamp(mouseX - (this.x + 4), 0, width - 5);
 
-				value = MathHelper.clamp_float(posX / (width - 10), 0, 1);
+				value = MathHelper.clamp(posX / (width - 10), 0, 1);
 
 				dragging = true;
 
@@ -110,11 +111,11 @@ public class FBPGuiSlider extends GuiButton {
 	}
 
 	boolean isMouseOverBar(int mouseX, int mouseY) {
-		int X1 = this.xPosition + 4;
-		int X2 = this.xPosition + width - 6;
+		int X1 = this.x + 4;
+		int X2 = this.x + width - 6;
 
-		int Y1 = this.yPosition + 4;
-		int Y2 = this.yPosition + 15;
+		int Y1 = this.y + 4;
+		int Y2 = this.y + 15;
 
 		boolean inRectangle = mouseX > X1 && mouseX < X2 && mouseY > Y1 && mouseY <= Y2;
 
@@ -128,8 +129,8 @@ public class FBPGuiSlider extends GuiButton {
 		int X1 = (int) (sliderPosX - 15 + 5);
 		int X2 = (int) (sliderPosX + 15 - 5);
 
-		int Y1 = this.yPosition + 4;
-		int Y2 = this.yPosition + 15;
+		int Y1 = this.y + 4;
+		int Y2 = this.y + 15;
 
 		boolean inRectangle = mouseX > X1 && mouseX < X2 && mouseY > Y1 && mouseY <= Y2;
 

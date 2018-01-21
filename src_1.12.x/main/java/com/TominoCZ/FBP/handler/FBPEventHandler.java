@@ -7,7 +7,6 @@ import com.TominoCZ.FBP.node.BlockPosNode;
 import com.TominoCZ.FBP.particle.FBPParticleBlock;
 import com.TominoCZ.FBP.particle.FBPParticleManager;
 import com.TominoCZ.FBP.renderer.FBPWeatherRenderer;
-import com.TominoCZ.FBP.util.FBPRenderUtil;
 
 import io.netty.util.internal.ConcurrentSet;
 import net.minecraft.block.Block;
@@ -33,6 +32,7 @@ import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.IRenderHandler;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.world.BlockEvent;
@@ -66,6 +66,11 @@ public class FBPEventHandler {
 
 			@Override
 			public void onEntityAdded(Entity entityIn) {
+			}
+
+			@Override
+			public void spawnParticle(int id, boolean ignoreRange, boolean p_190570_3_, double x, double y, double z,
+					double xSpeed, double ySpeed, double zSpeed, int... parameters) {
 			}
 
 			@Override
@@ -105,17 +110,20 @@ public class FBPEventHandler {
 					BlockPosNode node = getNodeWithPos(pos);
 
 					if (node != null && !node.checked) {
-						if (newState.getBlock() == FBP.FBPBlock || newState.getBlock() == Blocks.AIR) {
-							if (newState.getBlock() == Blocks.AIR)
-								removePosEntry(pos);
+						if (newState.getBlock() == FBP.FBPBlock || newState.getBlock() == Blocks.AIR
+								|| oldState.getBlock() == newState.getBlock()) {
+							removePosEntry(pos);
 
 							return;
 						}
 
 						IBlockState state = newState.getActualState(worldIn, pos);
-						if (state.getBlock() instanceof BlockDoublePlant || !FBPModelHelper.isModelValid(state))
-							return;
 
+						if (state.getBlock() instanceof BlockDoublePlant || !FBPModelHelper.isModelValid(state)) {
+							removePosEntry(pos);
+							return;
+						}
+						
 						long seed = MathHelper.getPositionRandom(pos);
 
 						boolean isNotFalling = true;
@@ -135,13 +143,6 @@ public class FBPEventHandler {
 							mc.effectRenderer.addEffect(p);
 
 							FBP.FBPBlock.copyState(worldIn, pos, state, p);
-							mc.theWorld.setBlockState(pos, FBP.FBPBlock.getDefaultState(), 2);
-
-							Chunk c = mc.theWorld.getChunkFromBlockCoords(pos);
-							c.resetRelightChecks();
-							c.setLightPopulated(true);
-
-							FBPRenderUtil.markBlockForRender(pos);
 						}
 					}
 				}
@@ -165,16 +166,16 @@ public class FBPEventHandler {
 
 			boolean bool = false;
 
-			float f = (float) (e.getHitVec().xCoord - pos.getX());
-			float f1 = (float) (e.getHitVec().yCoord - pos.getY());
-			float f2 = (float) (e.getHitVec().zCoord - pos.getZ());
+			float f = (float) (e.getHitVec().x - pos.getX());
+			float f1 = (float) (e.getHitVec().y - pos.getY());
+			float f2 = (float) (e.getHitVec().z - pos.getZ());
 
 			if (atPos.getBlock() == FBP.FBPBlock) {
 				BlockNode n = FBP.FBPBlock.blockNodes.get(pos);
 
 				if (n != null && n.state.getBlock() != null) {
-					boolean activated = n.originalBlock.onBlockActivated(e.getWorld(), pos, n.state, mc.thePlayer,
-							EnumHand.MAIN_HAND, null, e.getFace(), f, f1, f2);
+					boolean activated = n.originalBlock.onBlockActivated(e.getWorld(), pos, n.state, mc.player,
+							EnumHand.MAIN_HAND, e.getFace(), f, f1, f2);
 
 					if (activated)
 						return;
@@ -258,7 +259,7 @@ public class FBPEventHandler {
 					if (last_o != null && addedOffset && (last_o.checked || replaceable)) // place on side
 						return;
 
-					Chunk c = mc.theWorld.getChunkFromBlockCoords((addedOffset ? pos_o : pos));
+					Chunk c = mc.world.getChunkFromBlockCoords((addedOffset ? pos_o : pos));
 					c.resetRelightChecks();
 					c.setLightPopulated(true);
 
@@ -272,26 +273,38 @@ public class FBPEventHandler {
 
 	@SubscribeEvent
 	public void onTick(TickEvent.ClientTickEvent e) {
-		if (!mc.isGamePaused() && mc.theWorld != null
-				&& mc.theWorld.provider.getWeatherRenderer() == FBP.fancyWeatherRenderer && FBP.enabled)
+		if (!mc.isGamePaused() && mc.world != null && mc.world.provider.getWeatherRenderer() == FBP.fancyWeatherRenderer
+				&& FBP.enabled) {
 			((FBPWeatherRenderer) FBP.fancyWeatherRenderer).onUpdate();
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onWorldLoadEvent(WorldEvent.Load e) {
+		FBPConfigHandler.init();
+
 		e.getWorld().addEventListener(listener);
 		list.clear();
+	}
+
+	@SubscribeEvent
+	public void onRenderWorldLastEvent(RenderWorldLastEvent e) {
+		if (mc.effectRenderer instanceof FBPParticleManager) {
+			FBPParticleManager pm = (FBPParticleManager) mc.effectRenderer;
+
+			pm.renderShadedParticles(e.getPartialTicks());
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
-		if (e.getEntity() == mc.thePlayer) {
+		if (e.getEntity() == mc.player) {
 			FBP.fancyEffectRenderer = new FBPParticleManager(e.getWorld(), mc.renderEngine, new Factory());
 			FBP.fancyWeatherRenderer = new FBPWeatherRenderer();
 
-			IRenderHandler currentWeatherRenderer = mc.theWorld.provider.getCloudRenderer();
+			IRenderHandler currentWeatherRenderer = mc.world.provider.getCloudRenderer();
 
 			if (FBP.originalWeatherRenderer == null || (FBP.originalWeatherRenderer != currentWeatherRenderer
 					&& currentWeatherRenderer != FBP.fancyWeatherRenderer))
@@ -304,7 +317,7 @@ public class FBPEventHandler {
 				mc.effectRenderer = FBP.fancyEffectRenderer;
 
 				if (FBP.fancyRain || FBP.fancySnow)
-					mc.theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
+					mc.world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			}
 		}
 	}

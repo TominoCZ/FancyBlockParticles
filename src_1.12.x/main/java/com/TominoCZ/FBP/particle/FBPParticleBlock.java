@@ -3,10 +3,8 @@ package com.TominoCZ.FBP.particle;
 import javax.vecmath.Vector2d;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.model.FBPModelTransformer;
 import com.TominoCZ.FBP.util.FBPRenderUtil;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
@@ -16,15 +14,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.BlockModelRenderer;
-import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
@@ -74,6 +69,7 @@ public class FBPParticleBlock extends Particle {
 
 	TileEntity tileEntity;
 
+	@SuppressWarnings("incomplete-switch")
 	public FBPParticleBlock(World worldIn, double posXIn, double posYIn, double posZIn, IBlockState state, long rand) {
 		super(worldIn, posXIn, posYIn, posZIn);
 
@@ -81,26 +77,44 @@ public class FBPParticleBlock extends Particle {
 
 		mc = Minecraft.getMinecraft();
 
-		facing = mc.thePlayer.getHorizontalFacing();
+		facing = mc.player.getHorizontalFacing();
 
-		lookingUp = Float.valueOf(MathHelper.wrapDegrees(mc.thePlayer.rotationPitch)) <= 0;
+		lookingUp = Float.valueOf(MathHelper.wrapDegrees(mc.player.rotationPitch)) <= 0;
 
-		height = startingHeight = (float) FBP.random.nextDouble(0.065, 0.115);
+		prevHeight = height = startingHeight = (float) FBP.random.nextDouble(0.065, 0.115);
 		startingAngle = (float) FBP.random.nextDouble(0.03125, 0.0635);
 
 		prevRot = new FBPVector3d();
 		rot = new FBPVector3d();
 
+		switch (facing) {
+		case EAST:
+			rot.z = -startingAngle;
+			rot.x = -startingAngle;
+			break;
+		case NORTH:
+			rot.x = -startingAngle;
+			rot.z = startingAngle;
+			break;
+		case SOUTH:
+			rot.x = startingAngle;
+			rot.z = -startingAngle;
+			break;
+		case WEST:
+			rot.z = startingAngle;
+			rot.x = startingAngle;
+			break;
+		}
+
 		textureSeed = rand;
 
 		block = (blockState = state).getBlock();
 
-		prepareModelForRender(state);
-
-		prevRot.x = rot.x = 0;
-		prevRot.z = rot.z = 0;
+		mr = mc.getBlockRendererDispatcher().getBlockModelRenderer();
 
 		this.canCollide = false;
+
+		modelPrefab = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
 
 		if (modelPrefab == null) {
 			canCollide = true;
@@ -110,69 +124,6 @@ public class FBPParticleBlock extends Particle {
 		tileEntity = worldIn.getTileEntity(pos);
 	}
 
-	private void prepareModelForRender(IBlockState state) {
-		mr = mc.getBlockRendererDispatcher().getBlockModelRenderer();
-
-		BlockModelShapes shapes = mc.getBlockRendererDispatcher().getBlockModelShapes();
-		modelPrefab = mc.getBlockRendererDispatcher().getModelForState(state);
-		this.particleTexture = shapes.getModelManager().getBlockModelShapes().getTexture(state);
-
-		modelPrefab = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
-				new FBPModelTransformer.IVertexTransformer() {
-
-					@SuppressWarnings("incomplete-switch")
-					@Override
-					public float[] transform(BakedQuad quad, VertexFormatElement element, float... data) {
-						if (element.getUsage() == VertexFormatElement.EnumUsage.POSITION) {
-							Vector3f vec = new Vector3f(data[0], data[1], data[2]);
-
-							switch (facing) {
-							case EAST:
-								rot.z = -startingAngle;
-								rot.x = -startingAngle;
-
-								vec.x += 0.00469011612D;
-								vec.z -= 0.00319011612D;
-								break;
-							case NORTH:
-								rot.x = -startingAngle;
-								rot.z = startingAngle;
-
-								vec.x -= 0.003989D;
-								vec.z -= 0.00469011612D;// orig
-								break;
-							case SOUTH:
-								rot.x = startingAngle;
-								rot.z = -startingAngle;
-
-								vec.x += 0.003989D;
-								vec.z += 0.00469011612D;// orig
-								break;
-							case WEST:
-								rot.z = startingAngle;
-								rot.x = startingAngle;
-
-								vec.x -= 0.00469011612D;
-								vec.z += 0.00469011612D;
-								break;
-							}
-
-							vec.y += 0.00448325;
-
-							vec = FBPRenderUtil.rotatef_f(vec, (float) rot.x, (float) rot.y, (float) rot.z, facing);
-
-							return new float[] {
-									vec.x + (facing == EnumFacing.EAST ? -startingHeight
-											: (facing == EnumFacing.WEST ? startingHeight : 0)),
-									vec.y + startingHeight, vec.z + (facing == EnumFacing.NORTH ? -startingHeight
-											: (facing == EnumFacing.SOUTH ? startingHeight : 0)) };
-						}
-
-						return data;
-					}
-				});
-	}
-
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void onUpdate() {
@@ -180,22 +131,22 @@ public class FBPParticleBlock extends Particle {
 			killParticle();
 
 		if (!canCollide) {
-			IBlockState s = mc.theWorld.getBlockState(pos);
+			IBlockState s = mc.world.getBlockState(pos);
 
 			if (s.getBlock() != FBP.FBPBlock || s.getBlock() == block) {
 				if (blockSet && s.getBlock() == Blocks.AIR) {
 					// the block was destroyed during the animation
 					killParticle();
 
-					FBP.FBPBlock.onBlockDestroyedByPlayer(mc.theWorld, pos, s);
-					mc.theWorld.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
+					FBP.FBPBlock.onBlockDestroyedByPlayer(mc.world, pos, s);
+					mc.world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
 					return;
 				}
 
-				FBP.FBPBlock.copyState(mc.theWorld, pos, blockState, this);
-				mc.theWorld.setBlockState(pos, FBP.FBPBlock.getDefaultState(), 2);
+				FBP.FBPBlock.copyState(mc.world, pos, blockState, this);
+				mc.world.setBlockState(pos, FBP.FBPBlock.getDefaultState(), 2);
 
-				Chunk c = mc.theWorld.getChunkFromBlockCoords(pos);
+				Chunk c = mc.world.getChunkFromBlockCoords(pos);
 				c.resetRelightChecks();
 				c.setLightPopulated(true);
 
@@ -217,19 +168,19 @@ public class FBPParticleBlock extends Particle {
 		switch (facing) {
 		case EAST:
 			rot.z += step;
-			rot.x -= step;
+			rot.x += step;
 			break;
 		case NORTH:
-			rot.x -= step;
+			rot.x += step;
 			rot.z -= step;
 			break;
 		case SOUTH:
-			rot.x += step;
+			rot.x -= step;
 			rot.z += step;
 			break;
 		case WEST:
 			rot.z -= step;
-			rot.x += step;
+			rot.x -= step;
 			break;
 		}
 
@@ -240,20 +191,20 @@ public class FBPParticleBlock extends Particle {
 
 	@SuppressWarnings("incomplete-switch")
 	@Override
-	public void renderParticle(VertexBuffer buff, Entity entityIn, float partialTicks, float rotationX, float rotationZ,
-			float rotationYZ, float rotationXY, float rotationXZ) {
+	public void renderParticle(BufferBuilder buff, Entity entityIn, float partialTicks, float rotationX,
+			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (this.isExpired)
 			return;
 
 		if (canCollide) {
-			Block b = mc.theWorld.getBlockState(pos).getBlock();
-			if (block != b && b != Blocks.AIR && mc.theWorld.getBlockState(pos).getBlock() != blockState.getBlock()) {
-				mc.theWorld.setBlockState(pos, blockState, 2);
+			Block b = mc.world.getBlockState(pos).getBlock();
+			if (block != b && b != Blocks.AIR && mc.world.getBlockState(pos).getBlock() != blockState.getBlock()) {
+				mc.world.setBlockState(pos, blockState, 2);
 
 				if (tileEntity != null)
-					mc.theWorld.setTileEntity(pos, tileEntity);
+					mc.world.setTileEntity(pos, tileEntity);
 
-				mc.theWorld.sendPacketToServer(new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos, facing));
+				mc.world.sendPacketToServer(new CPacketPlayerDigging(Action.ABORT_DESTROY_BLOCK, pos, facing));
 
 				FBPRenderUtil.markBlockForRender(pos);
 
@@ -276,41 +227,63 @@ public class FBPParticleBlock extends Particle {
 		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) - 0.5f;
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ) - 0.5f;
 
-		final FBPVector3d smoothRot = rot.partialVec(prevRot, partialTicks);
-
 		smoothHeight = ((float) (prevHeight + (height - prevHeight) * (double) partialTicks));
+
+		final FBPVector3d smoothRot = rot.partialVec(prevRot, partialTicks);
 
 		if (smoothHeight <= 0)
 			smoothHeight = 0;
 
+		FBPVector3d t = new FBPVector3d(0, smoothHeight, 0);
+		FBPVector3d tRot = new FBPVector3d(0, smoothHeight, 0);
+
 		switch (facing) {
 		case EAST:
-			if (smoothRot.z >= startingAngle) {
+			if (smoothRot.z > 0) {
 				this.canCollide = true;
-				smoothRot.z = startingAngle;
-				smoothRot.x = -startingAngle;
+				smoothRot.z = 0;
+				smoothRot.x = 0;
 			}
+
+			t.x = -smoothHeight;
+			t.z = smoothHeight;
+
+			tRot.x = 1;
 			break;
 		case NORTH:
-			if (smoothRot.x <= -startingAngle) {
+			if (smoothRot.z < 0) {
 				this.canCollide = true;
-				smoothRot.x = -startingAngle;
-				smoothRot.z = -startingAngle;
+				smoothRot.x = 0;
+				smoothRot.z = 0;
 			}
+
+			t.x = smoothHeight;
+			t.z = smoothHeight;
 			break;
 		case SOUTH:
-			if (smoothRot.x >= startingAngle) {
+			if (smoothRot.x < 0) {
 				this.canCollide = true;
-				smoothRot.x = startingAngle;
-				smoothRot.z = startingAngle;
+				smoothRot.x = 0;
+				smoothRot.z = 0;
 			}
+
+			t.x = -smoothHeight;
+			t.z = -smoothHeight;
+
+			tRot.x = 1;
+			tRot.z = 1;
 			break;
 		case WEST:
-			if (smoothRot.z <= -startingAngle) {
+			if (smoothRot.z < 0) {
 				this.canCollide = true;
-				smoothRot.z = -startingAngle;
-				smoothRot.x = startingAngle;
+				smoothRot.z = 0;
+				smoothRot.x = 0;
 			}
+
+			t.x = smoothHeight;
+			t.z = -smoothHeight;
+
+			tRot.z = 1;
 			break;
 		}
 
@@ -321,51 +294,47 @@ public class FBPParticleBlock extends Particle {
 				spawnParticles();
 			}
 		}
-		buff.setTranslation(f5 - pos.getX(), f6 - pos.getY(), f7 - pos.getZ());
+		buff.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
 
 		Tessellator.getInstance().draw();
 		mc.getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		buff.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-		IBakedModel modelForRender = FBPModelTransformer.transform(modelPrefab, blockState, textureSeed,
-				new FBPModelTransformer.IVertexTransformer() {
-					@Override
-					public float[] transform(BakedQuad quad, VertexFormatElement element, float... data) {
-						if (element.getUsage() == VertexFormatElement.EnumUsage.POSITION) {
-							Vector3f vec = FBPRenderUtil.rotatef_f(new Vector3f(data[0], data[1], data[2]),
-									(float) smoothRot.x, (float) smoothRot.y, (float) smoothRot.z, facing);
-
-							float f = (startingHeight - smoothHeight);
-
-							float x = (facing == EnumFacing.EAST ? f : (facing == EnumFacing.WEST ? -f : 0));
-							float y = -f;
-							float z = (facing == EnumFacing.NORTH ? -f : (facing == EnumFacing.SOUTH ? f : 0));
-
-							return new float[] { vec.x + x, vec.y + y, vec.z + z };
-						}
-
-						return data;
-					}
-				});
+		GlStateManager.pushMatrix();
 
 		GlStateManager.enableCull();
 		GlStateManager.enableColorMaterial();
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
 
-		mr.renderModel(mc.theWorld, modelForRender, blockState, pos, buff, false, textureSeed);
+		GlStateManager.translate(f5, f6, f7);
+
+		GlStateManager.translate(tRot.x, tRot.y, tRot.z);
+
+		GlStateManager.rotate((float) Math.toDegrees(smoothRot.x), 1, 0, 0);
+		GlStateManager.rotate((float) Math.toDegrees(smoothRot.z), 0, 0, 1);
+
+		GlStateManager.translate(-tRot.x, -tRot.y, -tRot.z);
+		GlStateManager.translate(t.x, t.y, t.z);
+
+		if (FBP.animSmoothLighting)
+			mr.renderModelSmooth(mc.world, modelPrefab, blockState, pos, buff, false, textureSeed);
+		else
+			mr.renderModelFlat(mc.world, modelPrefab, blockState, pos, buff, false, textureSeed);
 
 		buff.setTranslation(0, 0, 0);
 
 		Tessellator.getInstance().draw();
+		GlStateManager.popMatrix();
+
 		mc.getTextureManager().bindTexture(FBP.LOCATION_PARTICLE_TEXTURE);
 		buff.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 	}
 
 	private void spawnParticles() {
-		if (mc.theWorld.getBlockState(pos.offset(EnumFacing.DOWN)).getBlock() instanceof BlockAir)
+		if (mc.world.getBlockState(pos.offset(EnumFacing.DOWN)).getBlock() instanceof BlockAir)
 			return;
 
-		AxisAlignedBB aabb = block.getSelectedBoundingBox(blockState, mc.theWorld, pos);
+		AxisAlignedBB aabb = block.getSelectedBoundingBox(blockState, mc.world, pos);
 
 		// z- = north
 		// x- = west // block pos
@@ -383,10 +352,9 @@ public class FBPParticleBlock extends Particle {
 			mX /= -0.5;
 			mZ /= -0.5;
 
-			mc.effectRenderer
-					.addEffect(new FBPParticleDigging(mc.theWorld, corner.x, pos.getY() + 0.1f, corner.y, mX, 0, mZ, 1,
-							1, 1, block.getActualState(blockState, mc.theWorld, pos), null, 0.6f, this.particleTexture)
-									.multipleParticleScaleBy(0.5f).multiplyVelocity(0.5f));
+			mc.effectRenderer.addEffect(new FBPParticleDigging(mc.world, corner.x, pos.getY() + 0.1f, corner.y, mX, 0,
+					mZ, 1, 1, 1, block.getActualState(blockState, mc.world, pos), null, 0.6f, this.particleTexture)
+							.multipleParticleScaleBy(0.5f).multiplyVelocity(0.5f));
 		}
 
 		for (Vector2d corner : corners) {
@@ -400,8 +368,8 @@ public class FBPParticleBlock extends Particle {
 			mZ /= -0.45;
 
 			mc.effectRenderer.addEffect(
-					new FBPParticleDigging(mc.theWorld, corner.x, pos.getY() + 0.1f, corner.y, mX / 3, 0, mZ / 3, 1, 1,
-							1, block.getActualState(blockState, mc.theWorld, pos), null, 0.6f, this.particleTexture)
+					new FBPParticleDigging(mc.world, corner.x, pos.getY() + 0.1f, corner.y, mX / 3, 0, mZ / 3, 1, 1, 1,
+							block.getActualState(blockState, mc.world, pos), null, 0.6f, this.particleTexture)
 									.multipleParticleScaleBy(0.75f).multiplyVelocity(0.75f));
 		}
 	}
