@@ -10,8 +10,8 @@ import java.nio.charset.Charset;
 import org.apache.commons.lang3.StringUtils;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.util.FBPMathUtil;
 
+import net.minecraft.util.MathHelper;
 import scala.reflect.io.Path;
 
 public class FBPConfigHandler {
@@ -32,12 +32,6 @@ public class FBPConfigHandler {
 				write();
 			}
 
-			if (!FBP.animExceptionsFile.exists()) {
-				if (!Path.apply(FBP.animExceptionsFile.getParent()).exists())
-					Path.apply(FBP.animExceptionsFile.getParent()).createDirectory(true, false);
-
-				FBP.animExceptionsFile.createNewFile();
-			}
 			if (!FBP.particleExceptionsFile.exists()) {
 				if (!Path.apply(FBP.particleExceptionsFile.getParent()).exists())
 					Path.apply(FBP.particleExceptionsFile.getParent()).createDirectory(true, false);
@@ -46,11 +40,9 @@ public class FBPConfigHandler {
 			}
 
 			read();
-			readAnimExceptions();
 			readParticleExceptions();
 
 			write();
-			writeAnimExceptions();
 			writeParticleExceptions();
 
 			closeStreams();
@@ -73,8 +65,6 @@ public class FBPConfigHandler {
 			writer.println("fancySmoke=" + FBP.fancySmoke);
 			writer.println("fancyRain=" + FBP.fancyRain);
 			writer.println("fancySnow=" + FBP.fancySnow);
-			writer.println("spawnPlaceParticles=" + FBP.spawnPlaceParticles);
-			writer.println("fancyPlaceAnim=" + FBP.fancyPlaceAnim);
 			writer.println("smartBreaking=" + FBP.smartBreaking);
 			writer.println("lowTraction=" + FBP.lowTraction);
 			writer.println("bounceOffWalls=" + FBP.bounceOffWalls);
@@ -108,30 +98,6 @@ public class FBPConfigHandler {
 			}
 
 			write();
-		}
-	}
-
-	public static void writeAnimExceptions() {
-		try {
-			PrintWriter writer = new PrintWriter(FBP.animExceptionsFile.getPath(), "UTF-8");
-
-			for (String ex : FBP.INSTANCE.blockAnimExceptions)
-				writer.println(ex);
-
-			writer.close();
-		} catch (Exception e) {
-			closeStreams();
-
-			if (!FBP.animExceptionsFile.exists()) {
-				if (!Path.apply(FBP.animExceptionsFile.getParent()).exists())
-					Path.apply(FBP.animExceptionsFile.getParent()).createDirectory(true, false);
-
-				try {
-					FBP.animExceptionsFile.createNewFile();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -184,10 +150,6 @@ public class FBPConfigHandler {
 					FBP.fancyRain = Boolean.valueOf(line.replace("fancyRain=", ""));
 				else if (line.contains("fancySnow="))
 					FBP.fancySnow = Boolean.valueOf(line.replace("fancySnow=", ""));
-				else if (line.contains("spawnPlaceParticles="))
-					FBP.spawnPlaceParticles = Boolean.valueOf(line.replace("spawnPlaceParticles=", ""));
-				else if (line.contains("fancyPlaceAnim="))
-					FBP.fancyPlaceAnim = Boolean.valueOf(line.replace("fancyPlaceAnim=", ""));
 				else if (line.contains("smartBreaking="))
 					FBP.smartBreaking = Boolean.valueOf(line.replace("smartBreaking=", ""));
 				else if (line.contains("lowTraction="))
@@ -236,25 +198,6 @@ public class FBPConfigHandler {
 		}
 	}
 
-	static void readAnimExceptions() {
-		try {
-			fis = new FileInputStream(FBP.animExceptionsFile);
-			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
-			br = new BufferedReader(isr);
-
-			String line;
-
-			FBP.INSTANCE.resetExceptions(false);
-
-			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line))
-				FBP.INSTANCE.addException(line.replaceAll(" ", "").toLowerCase(), false);
-		} catch (Exception e) {
-
-		}
-
-		closeStreams();
-	}
-
 	static void readParticleExceptions() {
 		try {
 			fis = new FileInputStream(FBP.particleExceptionsFile);
@@ -263,10 +206,10 @@ public class FBPConfigHandler {
 
 			String line;
 
-			FBP.INSTANCE.resetExceptions(true);
+			FBP.INSTANCE.resetExceptions();
 
 			while ((line = br.readLine()) != null && !StringUtils.isEmpty(line))
-				FBP.INSTANCE.addException(line.replaceAll(" ", "").toLowerCase(), true);
+				FBP.INSTANCE.addException(line.replaceAll(" ", "").toLowerCase());
 		} catch (Exception e) {
 
 		}
@@ -303,8 +246,6 @@ public class FBPConfigHandler {
 		FBP.infiniteDuration = false;
 		FBP.spawnWhileFrozen = true;
 		FBP.smartBreaking = true;
-		FBP.fancyPlaceAnim = true;
-		FBP.spawnPlaceParticles = true;
 		FBP.fancyRain = true;
 		FBP.fancySnow = true;
 		FBP.fancySmoke = true;
@@ -315,17 +256,17 @@ public class FBPConfigHandler {
 	}
 
 	public static void check() {
-		FBP.maxAge = FBPMathUtil.clamp(FBP.maxAge, 10, 100);
-		FBP.minAge = FBPMathUtil.clamp(FBP.minAge, 10, FBP.maxAge);
+		FBP.maxAge = MathHelper.clamp_int(FBP.maxAge, 10, 100);
+		FBP.minAge = MathHelper.clamp_int(FBP.minAge, 10, FBP.maxAge);
 
-		FBP.particlesPerAxis = FBPMathUtil.clamp(FBP.particlesPerAxis, 2, 5);
+		FBP.particlesPerAxis = MathHelper.clamp_int(FBP.particlesPerAxis, 2, 5);
 
-		FBP.scaleMult = FBPMathUtil.clamp(FBP.scaleMult, 0.75D, 1.25D);
+		FBP.scaleMult = MathHelper.clamp_double(FBP.scaleMult, 0.75D, 1.25D);
 
-		FBP.gravityMult = FBPMathUtil.clamp(FBP.gravityMult, 0.5D, 2.0D);
+		FBP.gravityMult = MathHelper.clamp_double(FBP.gravityMult, 0.5D, 2.0D);
 
-		FBP.rotationMult = FBPMathUtil.clamp(FBP.rotationMult, 0.0D, 1.5D);
+		FBP.rotationMult = MathHelper.clamp_double(FBP.rotationMult, 0.0D, 1.5D);
 
-		FBP.weatherParticleDensity = FBPMathUtil.clamp(FBP.weatherParticleDensity, 0.75D, 5.0D);
+		FBP.weatherParticleDensity = MathHelper.clamp_double(FBP.weatherParticleDensity, 0.75D, 5.0D);
 	}
 }

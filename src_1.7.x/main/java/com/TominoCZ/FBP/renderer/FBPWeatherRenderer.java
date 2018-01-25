@@ -1,10 +1,13 @@
 package com.TominoCZ.FBP.renderer;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.block.FBPBlockPos;
 import com.TominoCZ.FBP.particle.FBPParticleRain;
 import com.TominoCZ.FBP.particle.FBPParticleSnow;
 
@@ -250,6 +253,8 @@ public class FBPWeatherRenderer extends IRenderHandler {
 					double mX = mc.thePlayer.motionX * 26;
 					double mZ = mc.thePlayer.motionZ * 26;
 					double mT = MathHelper.sqrt_double(mX * mX + mZ * mZ) / 25;
+					
+					int j = 0;
 
 					for (int i = 0; i < 8 * FBP.weatherParticleDensity; i++) {
 						// get random position within radius of a little over the player's render
@@ -279,16 +284,19 @@ public class FBPWeatherRenderer extends IRenderHandler {
 							float finalTemp = mc.theWorld.getWorldChunkManager().getTemperatureAtHeight(temp,
 									surfaceHeight);
 
-							if (finalTemp >= 0.15F) {
-								if (FBP.fancyRain) {
-									mc.effectRenderer.addEffect(new FBPParticleRain(mc.theWorld, X, Y, Z, 0.1,
-											FBP.random.nextDouble(0.75, 0.99) + mT / 2, 0.1));
+							if (finalTemp < 0.15F) {
+								if (FBP.fancySnow && i % 2 == 0) {
+									mc.effectRenderer.addEffect(
+											new FBPParticleSnow(mc.theWorld, X, Y, Z, FBP.random.nextDouble(-0.5, 0.5),
+													FBP.random.nextDouble(0.25, 1) + mT * 1.5f,
+													FBP.random.nextDouble(-0.5, 0.5)));
 								}
-							} else if (FBP.fancySnow) {
-								mc.effectRenderer.addEffect(new FBPParticleSnow(mc.theWorld, X, Y, Z,
-										FBP.random.nextDouble(-0.5, 0.5), FBP.random.nextDouble(0.25, 1) + mT * 1.5f,
-										FBP.random.nextDouble(-0.5, 0.5)));
+							} else if (FBP.fancyRain) {
+								mc.effectRenderer.addEffect(new FBPParticleRain(mc.theWorld, X, Y, Z, 0.1,
+										FBP.random.nextDouble(0.75, 0.99) + mT / 2, 0.1));
 							}
+
+							j++;
 						}
 					}
 					weatherTickCount = 0;
@@ -298,7 +306,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 		}
 
 		if (!FBP.fancySnow || !FBP.fancyRain)
-			rendererUpdateCount++;
+			++rendererUpdateCount;
 		else
 			rendererUpdateCount = 0;
 	}

@@ -8,8 +8,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.TominoCZ.FBP.block.FBPAnimationDummyBlock;
-import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPEventHandler;
 import com.TominoCZ.FBP.handler.FBPGuiHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
@@ -23,7 +21,6 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
@@ -32,7 +29,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.common.MinecraftForge;;
 
-@Mod(modid = FBP.MODID, acceptedMinecraftVersions = "1.7.10")
+@Mod(modid = FBP.MODID, acceptedMinecraftVersions = "[1.7,1.8)")
 public class FBP {
 	@Instance(FBP.MODID)
 	public static FBP INSTANCE;
@@ -46,7 +43,7 @@ public class FBP {
 	public static final ResourceLocation FBP_FBP = new ResourceLocation(FBP.MODID + ":textures/gui/fbp.png");
 	public static final ResourceLocation FBP_WIDGETS = new ResourceLocation(FBP.MODID + ":textures/gui/widgets.png");
 
-	public static File animExceptionsFile = null, particleExceptionsFile = null;
+	public static File particleExceptionsFile = null;
 	public static File config = null;
 
 	public static int minAge, maxAge, particlesPerAxis;
@@ -58,14 +55,11 @@ public class FBP {
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
 	public static boolean infiniteDuration = false;
-	public static boolean randomRotation = true, cartoonMode = false, spawnWhileFrozen = true,
-			spawnRedstoneBlockParticles = false, smoothTransitions = true, randomFadingSpeed = true,
-			entityCollision = false, bounceOffWalls = true, lowTraction = false, smartBreaking = true,
-			fancyPlaceAnim = true, spawnPlaceParticles = true, fancyRain = true, fancySnow = true, fancyFlame = true,
-			fancySmoke = true, frozen = false;
+	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
+			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyRain, fancySnow,
+			fancyFlame, fancySmoke, frozen;
 
 	public List<String> blockParticleExceptions;
-	public List<String> blockAnimExceptions;
 
 	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
@@ -97,8 +91,6 @@ public class FBP {
 
 			new FBPVector3d(-1, 0, 0), new FBPVector3d(1, 0, 0) };
 
-	public static FBPAnimationDummyBlock FBPBlock = new FBPAnimationDummyBlock();
-
 	public static IRenderHandler fancyWeatherRenderer, originalWeatherRenderer;
 	public static EffectRenderer fancyEffectRenderer, originalEffectRenderer;
 
@@ -109,7 +101,6 @@ public class FBP {
 		INSTANCE = this;
 
 		blockParticleExceptions = Collections.synchronizedList(new ArrayList<String>());
-		blockAnimExceptions = Collections.synchronizedList(new ArrayList<String>());
 	}
 
 	@EventHandler
@@ -118,10 +109,7 @@ public class FBP {
 			isServer = true;
 
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-		animExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
 		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
-
-		FBPConfigHandler.init();
 
 		FBPKeyBindings.init();
 
@@ -132,8 +120,6 @@ public class FBP {
 	public void init(FMLInitializationEvent evt) {
 		MinecraftForge.EVENT_BUS.register(eventHandler);
 		FMLCommonHandler.instance().bus().register(eventHandler);
-
-		GameRegistry.registerBlock(FBPBlock, "FBPBlock");
 	}
 
 	@EventHandler
@@ -168,46 +154,43 @@ public class FBP {
 		return (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 	}
 
-	public boolean isInExceptions(Block b, boolean particle) {
+	public boolean isInExceptions(Block b) {
 		if (b == null)
 			return true;
 
-		return (particle ? blockParticleExceptions : blockAnimExceptions).contains(b.blockRegistry.getNameForObject(b));
+		return blockParticleExceptions.contains(b.blockRegistry.getNameForObject(b));
 	}
 
-	public void addException(Block b, boolean particle) {
+	public void addException(Block b) {
 		if (b == null)
 			return;
 
 		String name = Block.blockRegistry.getNameForObject(b);
 
-		if (!(particle ? blockParticleExceptions : blockAnimExceptions).contains(name))
-			(particle ? blockParticleExceptions : blockAnimExceptions).add(name);
+		if (!blockParticleExceptions.contains(name))
+			blockParticleExceptions.add(name);
 	}
 
-	public void removeException(Block b, boolean particle) {
+	public void removeException(Block b) {
 		if (b == null)
 			return;
 
 		String name = Block.blockRegistry.getNameForObject(b);
 
-		if ((particle ? blockParticleExceptions : blockAnimExceptions).contains(name))
-			(particle ? blockParticleExceptions : blockAnimExceptions).remove(name);
+		if (blockParticleExceptions.contains(name))
+			blockParticleExceptions.remove(name);
 	}
 
-	public void addException(String name, boolean particle) {
+	public void addException(String name) {
 		if (StringUtils.isEmpty(name))
 			return;
 
 		Block b = (Block) Block.blockRegistry.getObject(name);
 
-		addException(b, particle);
+		addException(b);
 	}
 
-	public void resetExceptions(boolean particle) {
-		if (particle)
-			blockParticleExceptions.clear();
-		else
-			blockAnimExceptions.clear();
+	public void resetExceptions() {
+		blockParticleExceptions.clear();
 	}
 }

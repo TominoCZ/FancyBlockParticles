@@ -3,6 +3,7 @@ package com.TominoCZ.FBP.particle;
 import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.block.FBPBlockPos;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.block.Block;
@@ -47,10 +48,12 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 		scaleAlpha = particleScale * 0.85;
 
-		Block b = worldIn.getBlock((int) xCoordIn, (int) yCoordIn, (int) zCoordIn);
+		FBPBlockPos pos = new FBPBlockPos(xCoordIn, yCoordIn, zCoordIn);
+
+		Block b = worldIn.getBlock(pos.getX(), pos.getY(), pos.getZ());
 
 		if (b == Blocks.fire) {
-			particleScale *= 1.35f;
+			particleScale *= 0.65f;
 			this.particleGravity *= 0.25f;
 
 			this.motionX = FBP.random.nextDouble(-0.05, 0.05);
@@ -63,7 +66,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 			particleMaxAge = FBP.random.nextInt(7, 18);
 		} else if (b == Blocks.torch) {
-			particleScale *= 0.5f;
+			particleScale *= 0.45f;
 
 			this.motionX = FBP.random.nextDouble(-0.05, 0.05);
 			this.motionY = FBP.random.nextDouble() * 0.5;
@@ -72,7 +75,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 			this.motionX *= 0.925f;
 			this.motionY = 0.005f;
 			this.motionZ *= 0.925f;
-
+			
 			this.particleRed = 0.275f;
 			this.particleGreen = 0.275f;
 			this.particleBlue = 0.275f;
@@ -81,11 +84,11 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 			particleMaxAge = FBP.random.nextInt(5, 10);
 		} else {
-			particleScale = scale * 0.65f;
-			particleGravity *= 0.85;
+			particleScale = scale;
+			motionY *= 0.935;
 		}
 
-		particleScale *= FBP.scaleMult * 0.75;
+		particleScale *= FBP.scaleMult;
 
 		startScale = particleScale;
 

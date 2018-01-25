@@ -107,7 +107,7 @@ public class FBPGuiButton extends GuiButton {
 				this.drawString(fontrenderer, this.displayString, this.xPosition + 8,
 						this.yPosition + (this.height - 8) / 2, j);
 
-				this.drawString(fontrenderer, toggle ? FBPGuiHelper.on : FBPGuiHelper.off,
+				this.drawString(fontrenderer, FBPGuiHelper.getToggleString(toggle, enabled),
 						this.xPosition + this.width - 25, this.yPosition + (this.height - 8) / 2, j);
 			}
 		}
@@ -115,8 +115,8 @@ public class FBPGuiButton extends GuiButton {
 
 	@Override
 	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-		if (this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition
-				&& mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height) {
+		if (this.enabled && this.visible && field_146123_n) {
+			func_146113_a(mc.getSoundHandler());
 			toggle = !toggle;
 			return true;
 		} else

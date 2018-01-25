@@ -3,13 +3,14 @@ package com.TominoCZ.FBP.particle;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.lwjgl.opengl.GL11;
+
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.block.FBPAnimationDummyBlock;
 import com.TominoCZ.FBP.block.FBPBlockPos;
-import com.TominoCZ.FBP.node.BlockNode;
 import com.google.common.base.Throwables;
 
 import cpw.mods.fml.relauncher.ReflectionHelper;
@@ -27,10 +28,12 @@ import net.minecraft.client.particle.EntityRainFX;
 import net.minecraft.client.particle.EntitySmokeFX;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -47,6 +50,8 @@ public class FBPParticleManager extends EffectRenderer {
 
 	private static MethodHandle X, Y, Z;
 	private static MethodHandle mX, mY, mZ;
+
+	private List[] fxLayers = new List[4];
 
 	Minecraft mc;
 	private Random rand;
@@ -80,6 +85,11 @@ public class FBPParticleManager extends EffectRenderer {
 			getParticleIcon = lookup
 					.unreflectGetter(ReflectionHelper.findField(EntityFX.class, "field_70550_a", "particleIcon"));
 			getParticleBlockSide = lookup.unreflectGetter(ReflectionHelper.findField(EntityDiggingFX.class, "side"));
+
+			MethodHandle getFxLayers = lookup
+					.unreflectGetter(ReflectionHelper.findField(EffectRenderer.class, "field_78876_b", "fxLayers"));
+
+			fxLayers = (List[]) getFxLayers.invokeExact((EffectRenderer) this);
 		} catch (Throwable e) {
 			throw Throwables.propagate(e);
 		}
@@ -99,6 +109,7 @@ public class FBPParticleManager extends EffectRenderer {
 					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact((Entity) effect),
 							(double) Y.invokeExact((Entity) effect), (double) Z.invokeExact((Entity) effect), 0,
 							FBP.random.nextDouble() * 0.25, 0, true);
+
 					effect.setDead();
 				} catch (Throwable t) {
 					t.printStackTrace();
@@ -128,41 +139,33 @@ public class FBPParticleManager extends EffectRenderer {
 			} else if (toAdd instanceof EntityDiggingFX && !(toAdd instanceof FBPParticleDigging)) {
 				try {
 					Block b = (Block) getSourceBlock.invokeExact((EntityDiggingFX) effect);
-					IIcon icon = null;
+					IIcon icon = (IIcon) getParticleIcon.invokeExact((EntityFX) effect);
 
- 					double x = (double) X.invokeExact((Entity) effect);
+					double x = (double) X.invokeExact((Entity) effect);
 					double y = (double) Y.invokeExact((Entity) effect);
 					double z = (double) Z.invokeExact((Entity) effect);
-
-					if (b instanceof FBPAnimationDummyBlock) {
-						FBPBlockPos pos = new FBPBlockPos(x, y, z);
-						BlockNode n = FBP.FBPBlock.getNode(pos);
-
-						if (n == null)
-							n = FBP.FBPBlock.getNode(pos.offset(EnumFacing.DOWN));
-
-						if (n != null)
-							b = n.block;
-					} else
-						icon = (IIcon) getParticleIcon.invokeExact((EntityFX) effect);
 
 					if (b != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)) {
 						effect.setDead();
 
-						if (!(b instanceof BlockLiquid) && !FBP.INSTANCE.isInExceptions(b, true)) {
-							FBPBlockPos pos = new FBPBlockPos(x, y, z);
+						if (!(b instanceof BlockLiquid) && !FBP.INSTANCE.isInExceptions(b)) {
+							float R = toAdd.getRedColorF();
+							float G = toAdd.getGreenColorF();
+							float B = toAdd.getBlueColorF();
 
-							toAdd = new FBPParticleDigging(worldObj, x, y + 0.05000000149011612D, z, 0, 0, 0,
-									toAdd.getRedColorF(), toAdd.getGreenColorF(), toAdd.getBlueColorF(),
+							toAdd = new FBPParticleDigging(worldObj, x, y + 0.05000000149011612D, z, 0, 0, 0, R, G, B,
 									(float) getParticleScale.invokeExact((EntityFX) effect), b, 0,
-									(int) getParticleBlockSide.invokeExact((EntityDiggingFX) effect))
-											.applyColourMultiplier(pos.getX(), pos.getY(), pos.getZ());
+									(int) getParticleBlockSide.invokeExact((EntityDiggingFX) effect));
 
-							if (!(b instanceof FBPAnimationDummyBlock) && icon != null)
-								toAdd.setParticleIcon(icon);
+							if (b == Blocks.grass){
+								toAdd.setRBGColorF(1, 1, 1);
+								((EntityDiggingFX) toAdd).applyColourMultiplier((int) x, (int) y, (int) z);
+							}
+							toAdd.setParticleIcon(icon);
 
 							icon = (IIcon) getParticleIcon.invokeExact((EntityFX) toAdd);
+
 							if (icon == null || icon.getIconName().equals("missingno")) {
 								effect.setDead();
 								toAdd.setDead();
@@ -181,7 +184,7 @@ public class FBPParticleManager extends EffectRenderer {
 					if (b != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)) {
 
-						if (b instanceof BlockLiquid || FBP.INSTANCE.isInExceptions(b, true))
+						if (b instanceof BlockLiquid || FBP.INSTANCE.isInExceptions(b))
 							toAdd = null;
 					}
 				} catch (Throwable e) {
@@ -194,6 +197,30 @@ public class FBPParticleManager extends EffectRenderer {
 			super.addEffect(toAdd);
 	}
 
+	public void renderShadedParticles(float partialTicks) {
+		if (fxLayers.length < 2 || fxLayers[1].size() == 0)
+			return;
+
+		Tessellator tes = Tessellator.instance;
+
+		mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+		tes.startDrawingQuads();
+
+		RenderHelper.enableStandardItemLighting();
+		mc.entityRenderer.enableLightmap(partialTicks);
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glEnable(GL11.GL_BLEND);
+
+		for (int i = 0; i < fxLayers[1].size(); i++) {
+			EntityFX p = (EntityFX) fxLayers[1].get(i);
+
+			if (p instanceof IFBPShadedParticle)
+				((IFBPShadedParticle) p).renderShadedParticle(tes, partialTicks);
+		}
+
+		tes.draw();
+	}
+
 	@Override
 	public void addBlockDestroyEffects(int x, int y, int z, Block b, int meta) {
 		if (!b.isAir(worldObj, x, y, z) && !b.addDestroyEffects(worldObj, x, y, z, meta, this)) {
@@ -202,27 +229,20 @@ public class FBPParticleManager extends EffectRenderer {
 			for (int i1 = 0; i1 < FBP.particlesPerAxis; ++i1) {
 				for (int j1 = 0; j1 < FBP.particlesPerAxis; ++j1) {
 					for (int k1 = 0; k1 < FBP.particlesPerAxis; ++k1) {
-						double d0 = (double) x + ((double) i1 + 0.5D) / (double) b0;
-						double d1 = (double) y + ((double) j1 + 0.5D) / (double) b0;
-						double d2 = (double) z + ((double) k1 + 0.5D) / (double) b0;
+						double d0 = (double) x + ((double) i1 + 0.5D) / FBP.particlesPerAxis;
+						double d1 = (double) y + ((double) j1 + 0.5D) / FBP.particlesPerAxis;
+						double d2 = (double) z + ((double) k1 + 0.5D) / FBP.particlesPerAxis;
 
 						if (FBP.enabled) {
 							if ((!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 									&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)
-									&& !FBP.INSTANCE.isInExceptions(b, true)) {
-								if (b == FBP.FBPBlock) {
-									BlockNode n = FBP.FBPBlock.getNode(new FBPBlockPos(x, y, z));
-
-									if (n != null)
-										b = n.block;
-								}
-
-								if (b == FBP.FBPBlock)
-									return;
-
+									&& !FBP.INSTANCE.isInExceptions(b)) {
 								EntityDiggingFX toSpawn = new FBPParticleDigging(this.worldObj, d0, d1, d2,
 										d0 - (double) x - 0.5D, d1 - (double) y - 0.5D, d2 - (double) z - 0.5D, 1, 1, 1,
-										-1, b, meta).applyColourMultiplier(x, y, z);
+										-1, b, meta);
+
+								toSpawn.setRBGColorF(1, 1, 1);
+								toSpawn.applyColourMultiplier(x, y, z);
 
 								addEffect(toSpawn);
 							}
@@ -298,47 +318,42 @@ public class FBPParticleManager extends EffectRenderer {
 						&& (FBP.spawnRedstoneBlockParticles || block != Blocks.redstone_block)) {
 					int damage = 0;
 
-					try {
-						DestroyBlockProgress progress = null;
-						Map mp = (Map<Integer, DestroyBlockProgress>) getBlockDamage
-								.invokeExact(Minecraft.getMinecraft().renderGlobal);
+					if (FBP.smartBreaking) {
+						try {
+							DestroyBlockProgress progress = null;
+							Map mp = (Map<Integer, DestroyBlockProgress>) getBlockDamage
+									.invokeExact(Minecraft.getMinecraft().renderGlobal);
 
-						if (!mp.isEmpty()) {
-							Iterator it = mp.values().iterator();
+							if (!mp.isEmpty()) {
+								Iterator it = mp.values().iterator();
 
-							while (it.hasNext()) {
-								progress = (DestroyBlockProgress) it.next();
+								while (it.hasNext()) {
+									progress = (DestroyBlockProgress) it.next();
 
-								FBPBlockPos _pos = new FBPBlockPos(progress.getPartialBlockX(),
-										progress.getPartialBlockY(), progress.getPartialBlockZ());
-								FBPBlockPos pos = new FBPBlockPos(x, y, z);
+									FBPBlockPos _pos = new FBPBlockPos(progress.getPartialBlockX(),
+											progress.getPartialBlockY(), progress.getPartialBlockZ());
+									FBPBlockPos pos = new FBPBlockPos(x, y, z);
 
-								if (_pos.equals(pos)) {
-									damage = progress.getPartialBlockDamage();
-									break;
+									if (_pos.isSame(pos)) {
+										damage = progress.getPartialBlockDamage();
+										break;
+									}
 								}
 							}
-						}
-					} catch (Throwable e) {
+						} catch (Throwable e) {
 
+						}
 					}
 
 					EntityFX toSpawn;
 
-					if (!FBP.INSTANCE.isInExceptions(block, true)) {
-						if (block == FBP.FBPBlock) {
-							BlockNode n = FBP.FBPBlock.getNode(new FBPBlockPos(x, y, z));
-
-							if (n != null)
-								block = n.block;
-						}
-
+					if (!FBP.INSTANCE.isInExceptions(block)) {
 						toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1.0f, 1.0f, 1.0f, -1,
 								block, worldObj.getBlockMetadata(x, y, z), side).applyColourMultiplier(x, y, z);
 
 						if (FBP.smartBreaking) {
 							toSpawn = toSpawn.multiplyVelocity(side == 1 ? 0.7F : 0.15F);
-							toSpawn = toSpawn.multipleParticleScaleBy(0.325F + (damage / 8.125F) * 0.325F);
+							toSpawn = toSpawn.multipleParticleScaleBy(0.325F + (damage / 10f) * 0.5F);
 						} else {
 							toSpawn = toSpawn.multiplyVelocity(0.2F);
 							toSpawn = toSpawn.multipleParticleScaleBy(0.6F);

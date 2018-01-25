@@ -1,13 +1,13 @@
 package com.TominoCZ.FBP.particle;
 
-import org.lwjgl.opengl.GL11;
-
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.block.FBPBlockPos;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockTorch;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityFlameFX;
 import net.minecraft.client.renderer.Tessellator;
@@ -40,22 +40,22 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 	protected FBPParticleFlame(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double mX, double mY,
 			double mZ, boolean spawnAnother) {
-		super(worldIn, xCoordIn, yCoordIn - 0.11, zCoordIn, mX, mY, mZ);
-		Block b = worldIn.getBlock((int) xCoordIn, (int) yCoordIn, (int) zCoordIn);
+		super(worldIn, xCoordIn, yCoordIn - 0.1, zCoordIn, mX, mY, mZ);
+		FBPBlockPos pos = new FBPBlockPos(xCoordIn, yCoordIn, zCoordIn);
 
+		Block b = worldIn.getBlock(pos.getX(), pos.getY(), pos.getZ());
+		
 		this.spawnAnother = spawnAnother;
 		this.particleIcon = Blocks.snow.getIcon(1, 0);
 
 		if (b != Blocks.torch)
 			spawnAnother = false;
-		else
-			yCoordIn += 0.11f;
 
 		startPos = new FBPVector3d(xCoordIn, yCoordIn, zCoordIn);
 
 		mc = Minecraft.getMinecraft();
 
-		this.motionY = -0.00085f;
+		this.motionY = -0.00085f * 2.5f;
 		this.particleGravity = -0.05f;
 
 		particleScale *= FBP.scaleMult * 2.5f;
@@ -160,8 +160,6 @@ public class FBPParticleFlame extends EntityFlameFX {
 		tes.startDrawingQuads();
 
 		par = new FBPVector3d(f, f1, 0);
-
-		GL11.glDepthMask(true);
 
 		tes.setTranslation(f5, f6, f7);
 		putCube(tes, f4 / 80, i, particleRed, particleGreen, particleBlue, alpha);

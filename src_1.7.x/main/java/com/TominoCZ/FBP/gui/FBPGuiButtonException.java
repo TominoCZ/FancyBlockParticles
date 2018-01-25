@@ -52,8 +52,4 @@ public class FBPGuiButtonException extends FBPGuiButton {
 			this.mouseDragged(mc, mouseX, mouseY);
 		}
 	}
-
-	public boolean isMouseOver() {
-		return field_146123_n;
-	}
 }

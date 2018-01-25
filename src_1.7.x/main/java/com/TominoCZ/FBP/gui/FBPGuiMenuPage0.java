@@ -366,7 +366,7 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		GravitiyForceSlider.displayString = "Gravity Force Mult. [\u00A76" + FBP.gravityMult + "\u00A7f]";
 
 		RotSpeedSlider.displayString = "Rotation Speed Mult. [\u00A76"
-				+ (FBP.rotationMult != 0 ? FBP.rotationMult : FBPGuiHelper.off) + "\u00A7f]";
+				+ (FBP.rotationMult != 0 ? FBP.rotationMult : FBPGuiHelper.getToggleString(false, true)) + "\u00A7f]";
 	}
 
 	boolean func_146115_aSliders(int mouseX, int mouseY) {

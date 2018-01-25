@@ -8,15 +8,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.block.FBPBlockHelper;
 import com.TominoCZ.FBP.block.FBPBlockPos;
 import com.TominoCZ.FBP.handler.FBPConfigHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
-import com.TominoCZ.FBP.node.BlockNode;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
@@ -47,9 +44,8 @@ public class FBPGuiFastAdd extends GuiScreen {
 		selectedPos = selected;
 
 		Block b = mc.theWorld.getBlock(selected.getX(), selected.getY(), selected.getZ());
-		BlockNode node = FBP.FBPBlock.getNode(selectedPos);
 
-		selectedBlock = b == Blocks.ladder ? (node != null ? node.block : null) : b;
+		selectedBlock = b;
 
 		ItemStack is = b.getPickBlock(mc.objectMouseOver, mc.theWorld, selected.getX(), selected.getY(),
 				selected.getZ(), mc.thePlayer);
@@ -75,15 +71,14 @@ public class FBPGuiFastAdd extends GuiScreen {
 	public void initGui() {
 		this.buttonList.clear();
 
-		animation = new FBPGuiButtonException(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
-				FBP.INSTANCE.isInExceptions(selectedBlock, false));
+		animation = new FBPGuiButtonException(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false, true);
 		particle = new FBPGuiButtonException(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
-				FBP.INSTANCE.isInExceptions(selectedBlock, true));
+				FBP.INSTANCE.isInExceptions(selectedBlock));
 
 		Item ib = Item.getItemFromBlock(selectedBlock);
 		Block b = ib instanceof ItemBlock ? Block.getBlockFromItem(ib) : null;
 
-		animation.enabled = b != null && !(b instanceof BlockDoublePlant) && FBPBlockHelper.isModelValid(b);
+		animation.enabled = false;
 		particle.enabled = selectedBlock != Blocks.redstone_block;
 
 		FBPGuiButton guide = new FBPGuiButton(-1, animation.xPosition + 30, animation.yPosition + 30 - 10,
@@ -106,7 +101,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 			Block b = mc.theWorld.getBlock(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY,
 					mc.objectMouseOver.blockZ);
 
-			if (b != selectedBlock && b != FBP.FBPBlock) {
+			if (b != selectedBlock) {
 				keyUp = true;
 				FBPKeyInputHandler.INSTANCE.onInput();
 			}
@@ -131,21 +126,16 @@ public class FBPGuiFastAdd extends GuiScreen {
 		if (closing || keyUp) {
 			Block b = selectedBlock;
 
-			GuiButton selected = animation.isMouseOver() ? animation : (particle.isMouseOver() ? particle : null);
+			GuiButton selected = animation.func_146115_a() ? animation : (particle.func_146115_a() ? particle : null);
 
 			if (selected != null) {
-				boolean isParticle = particle.isMouseOver();
-
 				if (selected.enabled) {
-					if (!FBP.INSTANCE.isInExceptions(b, isParticle))
-						FBP.INSTANCE.addException(b, isParticle);
+					if (!FBP.INSTANCE.isInExceptions(b))
+						FBP.INSTANCE.addException(b);
 					else
-						FBP.INSTANCE.removeException(b, isParticle);
+						FBP.INSTANCE.removeException(b);
 
-					if (isParticle)
-						FBPConfigHandler.writeParticleExceptions();
-					else
-						FBPConfigHandler.writeAnimExceptions();
+					FBPConfigHandler.writeParticleExceptions();
 
 					mc.getSoundHandler().playSound(
 							PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1));
@@ -161,7 +151,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int button) {
-		GuiButton clicked = animation.isMouseOver() ? animation : (particle.isMouseOver() ? particle : null);
+		GuiButton clicked = animation.func_146115_a() ? animation : (particle.func_146115_a() ? particle : null);
 
 		if (clicked != null && clicked.enabled)
 			closing = true;
@@ -217,24 +207,20 @@ public class FBPGuiFastAdd extends GuiScreen {
 		FBPGuiHelper._drawCenteredString(fontRendererObj, itemName, width / 2, height / 2 - 19, 0);
 
 		// EXCEPTIONS INFO
-		String animationText1 = animation.enabled
-				? (animation.isMouseOver() ? (animation.isInExceptions ? "\u00A7c\u00A7lREMOVE" : "\u00A7a\u00A7lADD")
-						: "")
-				: "\u00A7c\u00A7lCAN'T BE ANIMATED";
 		String particleText1 = particle.enabled
-				? (particle.isMouseOver() ? (particle.isInExceptions ? "\u00A7c\u00A7lREMOVE" : "\u00A7a\u00A7lADD")
+				? (particle.func_146115_a() ? (particle.isInExceptions ? "\u00A7c\u00A7lREMOVE" : "\u00A7a\u00A7lADD")
 						: "")
 				: "\u00A7c\u00A7lCAN'T BE ADDED";
 
-		FBPGuiHelper._drawCenteredString(fontRendererObj, animationText1, animation.xPosition + 30,
+		FBPGuiHelper._drawCenteredString(fontRendererObj, "\u00A7c\u00A7lNOT AVAILABLE", animation.xPosition + 30,
 				animation.yPosition + 65, 0);
 		FBPGuiHelper._drawCenteredString(fontRendererObj, particleText1, particle.xPosition + 30,
 				particle.yPosition + 65, 0);
 
-		if (animation.isMouseOver())
+		if (animation.func_146115_a())
 			FBPGuiHelper._drawCenteredString(fontRendererObj, "\u00A7a\u00A7lPLACE ANIMATION", animation.xPosition + 30,
 					animation.yPosition - 12, 0);
-		if (particle.isMouseOver())
+		if (particle.func_146115_a())
 			FBPGuiHelper._drawCenteredString(fontRendererObj, "\u00A7a\u00A7lPARTICLES", particle.xPosition + 30,
 					particle.yPosition - 12, 0);
 
@@ -251,7 +237,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-		GuiButton mouseOver = animation.isMouseOver() ? animation : (particle.isMouseOver() ? particle : null);
+		GuiButton mouseOver = animation.func_146115_a() ? animation : (particle.func_146115_a() ? particle : null);
 
 		int imageDiameter = 20;
 

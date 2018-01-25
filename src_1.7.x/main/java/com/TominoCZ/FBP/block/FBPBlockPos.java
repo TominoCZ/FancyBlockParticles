@@ -1,8 +1,6 @@
 package com.TominoCZ.FBP.block;
 
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class FBPBlockPos {
 	private int x, y, z;
@@ -29,15 +27,10 @@ public class FBPBlockPos {
 		return z;
 	}
 
-	public FBPBlockPos offset(ForgeDirection fd) {
-		return new FBPBlockPos(x + fd.offsetX, y + fd.offsetY, z + fd.offsetZ);
-	}
-
-	public FBPBlockPos add(int x, int y, int z) {
-		return new FBPBlockPos(this.x + x, this.y + y, this.z + z);
-	}
-
-	public FBPBlockPos offset(EnumFacing f) {
-		return new FBPBlockPos(x + f.getFrontOffsetX(), y + f.getFrontOffsetY(), z + f.getFrontOffsetZ());
+	public boolean isSame(FBPBlockPos pos) {
+		return 
+				x == pos.getX() &&
+				y == pos.getY() &&
+				z == pos.getZ();
 	}
 }

@@ -15,7 +15,7 @@ import net.minecraft.client.gui.GuiScreen;
 @SideOnly(Side.CLIENT)
 public class FBPGuiMenuPage3 extends GuiScreen {
 
-	GuiButton Reload, Done, Defaults, Back, Next, ReportBug, Enable, b1, b2, b3, b4, b5, b6;// , b5_settings;
+	GuiButton Reload, Done, Defaults, Back, Next, ReportBug, Enable, b1, b2, b3, b4, b5, b6, b7;// , b5_settings;
 
 	String b1Text = "Collide With Entities";
 	String b2Text = "Bounce Off Walls";
@@ -40,8 +40,12 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		b2 = new FBPGuiButton(2, x, b1.yPosition + b1.height + 1, b2Text, FBP.bounceOffWalls, true);
 		b3 = new FBPGuiButton(3, x, b2.yPosition + b1.height + 6, b3Text, FBP.lowTraction, true);
 		b4 = new FBPGuiButton(4, x, b3.yPosition + b1.height + 1, b4Text, FBP.smartBreaking, true);
-		b5 = new FBPGuiButton(5, x, b4.yPosition + b1.height + 6, b5Text, FBP.fancyPlaceAnim, true);
-		b6 = new FBPGuiButton(6, x, b5.yPosition + b1.height + 1, b6Text, FBP.spawnPlaceParticles, true);
+		b5 = new FBPGuiButton(5, x, b4.yPosition + b1.height + 6, b5Text, false, true);
+		b6 = new FBPGuiButton(6, x, b5.yPosition + b1.height + 1, b6Text, false, true);
+
+		b7 = new FBPGuiButton(7, x + b5.width + 5, b5.yPosition, "\u00A72\u00A7LS", false, false);
+
+		b5.enabled = b6.enabled = b7.enabled = false;
 
 		// b5_settings = new FBPGuiButton(7, x + b1.width + 5, b5.y, "...", false,
 		// false);
@@ -63,10 +67,10 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		Defaults.width = Done.width = 98;
 		Reload.width = b1.width = 200;
 
-		Back.width = Next.width = 20;
+		Back.width = Next.width = b7.width = 20;
 
 		this.buttonList.addAll(java.util.Arrays.asList(
-				new GuiButton[] { b1, b2, b3, b4, b5, b6, Defaults, Done, Reload, Back, Next, Enable, ReportBug }));
+				new GuiButton[] { b1, b2, b3, b4, b5, b6, b7, Defaults, Done, Reload, Back, Next, Enable, ReportBug }));
 	}
 
 	@Override
@@ -109,12 +113,6 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		case 4:
 			FBP.smartBreaking = !FBP.smartBreaking;
 			break;
-		case 5:
-			FBP.fancyPlaceAnim = !FBP.fancyPlaceAnim;
-			break;
-		case 6:
-			FBP.spawnPlaceParticles = !FBP.spawnPlaceParticles;
-			break;
 		}
 
 		FBPConfigHandler.check();
@@ -137,7 +135,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 		getDescription();
 
 		if ((mouseX >= b1.xPosition && mouseX < b1.xPosition + b1.width)
-				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height)) {
+				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height) || b7.func_146115_a()) {
 			moveText();
 
 			this.drawCenteredString(fontRendererObj, "\u00A7a" + description, (int) (this.width / 2 + offsetX), posY,
@@ -168,10 +166,13 @@ public class FBPGuiMenuPage3 extends GuiScreen {
 					description = "Smart particle \u00A76motion\u00A7a and \u00A76scaling\u00A7a.";
 					break;
 				case 5:
-					description = "Adds a \u00A76fancy block placing\u00A7a animation \u00A76[\u00A7cALPHA\u00A76]\u00A7a.";
+					description = "\u00A76[\u00A7cN\u00A7a/\u00A7cA\u00A76]\u00A7a Adds a \u00A76fancy block placing\u00A7a animation \u00A76[\u00A7cALPHA\u00A76]\u00A7a.";
 					break;
 				case 6:
-					description = "Enables\u00A76 block place particles\u00A7a.";
+					description = "\u00A76[\u00A7cN\u00A7a/\u00A7cA\u00A76]\u00A7a Enables\u00A76 block place particles\u00A7a.";
+					break;
+				case 7:
+					description = "\u00A76[\u00A7cN\u00A7a/\u00A7cA\u00A76]\u00A7a Set animation \u00A76render mode\u00A7a.";
 					break;
 				}
 			}

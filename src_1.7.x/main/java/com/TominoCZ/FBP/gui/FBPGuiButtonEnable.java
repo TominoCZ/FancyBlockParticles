@@ -52,4 +52,13 @@ public class FBPGuiButtonEnable extends GuiButton {
 				this.drawString(_fr, "\u00A7a" + text, mouseX - _fr.getStringWidth(text) - 25, mouseY - 3, 0);
 		}
 	}
+
+	@Override
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+		if (this.enabled && this.visible && field_146123_n) {
+			func_146113_a(mc.getSoundHandler());
+			return true;
+		} else
+			return false;
+	}
 }

@@ -6,7 +6,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.block.FBPBlockPos;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.client.Minecraft;
@@ -197,14 +196,5 @@ public class FBPRenderUtil {
 		}
 
 		return new Vector3d(pos2.x, pos2.y, pos2.z);
-	}
-
-	public static void markBlockForRender(FBPBlockPos pos) {
-		FBPBlockPos bp1, bp2;
-		bp1 = pos.add(1, 1, 1);
-		bp2 = pos.add(-1, -1, -1);
-
-		Minecraft.getMinecraft().renderGlobal.markBlockRangeForRenderUpdate(bp1.getX(), bp1.getY(), bp1.getZ(),
-				bp2.getX(), bp2.getY(), bp2.getZ());
 	}
 }

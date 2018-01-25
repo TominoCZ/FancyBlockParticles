@@ -12,8 +12,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.Tessellator;
 
 public class FBPGuiHelper extends GuiScreen {
-	public static final String on = "\u00A7a ON";
-	public static final String off = "\u00A7cOFF";
 
 	public static void background(int top, int bottom, int width, int height) {
 		Tessellator tes = Tessellator.instance;
@@ -111,7 +109,7 @@ public class FBPGuiHelper extends GuiScreen {
 		_drawCenteredString(fr, "\u00A7a" + "\u00A7L= " + version + " =", screenWidth / 2, y - 17, 0x02);
 	}
 
-	protected static void _drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
+	public static void _drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
 		fontRendererIn.drawStringWithShadow(text, x - fontRendererIn.getStringWidth(text) / 2, y, color);
 	}
 
@@ -134,5 +132,18 @@ public class FBPGuiHelper extends GuiScreen {
 		double Y = e - mouseY;
 
 		return Math.sqrt(X * X + Y * Y) <= radius;
+	}
+
+	public static String getToggleString(boolean on, boolean enabled)
+	{
+		return on ? getONString(enabled) : getOFFString(enabled);
+	}
+
+	static String getONString(boolean enabled) {
+		return (enabled ? "\u00A7a" : "\u00A72") + " ON";
+	}
+
+	static String getOFFString(boolean enabled) {
+		return (enabled ? "\u00A7c" : "\u00A74") + "OFF";
 	}
 }

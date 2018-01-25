@@ -18,7 +18,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleRain extends EntityDiggingFX {
+public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedParticle {
 
 	Minecraft mc;
 
@@ -197,6 +197,25 @@ public class FBPParticleRain extends EntityDiggingFX {
 	@Override
 	public void renderParticle(Tessellator tes, float partialTicks, float rotationX, float rotationZ, float rotationYZ,
 			float rotationXY, float rotationXZ) {
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getBrightnessForRender(float partialTicks) {
+		int i = MathHelper.floor_double(this.posX);
+		int j = MathHelper.floor_double(this.posZ);
+
+		if (this.worldObj.blockExists(i, 0, j)) {
+			double d0 = (this.boundingBox.maxY - this.boundingBox.minY) * 0.66D + 0.1D;
+			int k = MathHelper.floor_double(this.posY - (double) this.yOffset + d0);
+			return this.worldObj.getLightBrightnessForSkyBlocks(i, k, j, 0);
+		} else {
+			return 0;
+		}
+	}
+
+	@Override
+	public void renderShadedParticle(Tessellator tes, float partialTicks) {
 		this.partialTicks = partialTicks;
 
 		if (!FBP.isEnabled() && particleMaxAge != 0)
@@ -237,20 +256,5 @@ public class FBPParticleRain extends EntityDiggingFX {
 
 		FBPRenderUtil.renderCubeShaded_WH(tes, par, f5, f6, f7, f4 / 20, height / 20, new FBPVector3d(0, AngleY, 0), i,
 				particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public int getBrightnessForRender(float partialTicks) {
-		int i = MathHelper.floor_double(this.posX);
-		int j = MathHelper.floor_double(this.posZ);
-
-		if (this.worldObj.blockExists(i, 0, j)) {
-			double d0 = (this.boundingBox.maxY - this.boundingBox.minY) * 0.66D + 0.1D;
-			int k = MathHelper.floor_double(this.posY - (double) this.yOffset + d0);
-			return this.worldObj.getLightBrightnessForSkyBlocks(i, k, j, 0);
-		} else {
-			return 0;
-		}
 	}
 }
