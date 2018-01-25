@@ -230,7 +230,6 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 	@Override
 	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
 			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-
 	}
 
 	@Override

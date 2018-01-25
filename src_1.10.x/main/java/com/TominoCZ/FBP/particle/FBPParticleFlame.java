@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
@@ -63,7 +64,7 @@ public class FBPParticleFlame extends ParticleFlame {
 
 		this.particleTexture = mc.getBlockRendererDispatcher().getBlockModelShapes()
 				.getTexture(Blocks.SNOW.getDefaultState());
-
+		
 		particleScale *= FBP.scaleMult * 2.5f;
 		particleMaxAge = FBP.random.nextInt(3, 5);
 

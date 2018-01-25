@@ -402,15 +402,16 @@ public class FBPParticleManager extends ParticleManager {
 						Particle toSpawn;
 
 						if (!FBP.INSTANCE.isInExceptions(iblockstate.getBlock(), true)) {
-							if (FBP.smartBreaking)
-								toSpawn = new FBPParticleDigging(world, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1.0f, 1.0f, 1.0f,
-										iblockstate, side, -2, null)
-												.MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F)
-												.multipleParticleScaleBy(0.325F + (damage / 8.125F) * 0.325F);
-							else
-								toSpawn = new FBPParticleDigging(world, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1, 1, 1,
-										iblockstate, side, -2, null).multiplyVelocity(0.2F)
-												.multipleParticleScaleBy(0.6F);
+							toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1, 1, 1,
+									iblockstate, side, -2, null);
+							
+							if (FBP.smartBreaking) {
+								toSpawn = ((FBPParticleDigging)toSpawn).MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F);
+								toSpawn = toSpawn.multipleParticleScaleBy(0.325F + (damage / 10f) * 0.5F);
+							} else {
+								toSpawn = ((FBPParticleDigging)toSpawn).MultiplyVelocity(0.2F);
+								toSpawn = toSpawn.multipleParticleScaleBy(0.6F);
+							}
 
 							addEffect(toSpawn);
 						}
