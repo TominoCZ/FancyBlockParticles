@@ -134,8 +134,7 @@ public class FBPGuiHelper extends GuiScreen {
 		return Math.sqrt(X * X + Y * Y) <= radius;
 	}
 
-	public static String getToggleString(boolean on, boolean enabled)
-	{
+	public static String getToggleString(boolean on, boolean enabled) {
 		return on ? getONString(enabled) : getOFFString(enabled);
 	}
 

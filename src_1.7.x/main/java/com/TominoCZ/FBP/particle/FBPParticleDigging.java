@@ -46,8 +46,8 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 	long tick = 0;
 
-	protected FBPParticleDigging(World w, double X, double Y, double Z, double mx, double my, double mz, float R, float G,
-			float B, float scale, Block b, int meta, int side) {
+	protected FBPParticleDigging(World w, double X, double Y, double Z, double mx, double my, double mz, float R,
+			float G, float B, float scale, Block b, int meta, int side) {
 		super(w, X, Y, Z, mx, my, mz, b, meta < 0 ? 0 : meta, side);
 
 		this.particleRed = R;

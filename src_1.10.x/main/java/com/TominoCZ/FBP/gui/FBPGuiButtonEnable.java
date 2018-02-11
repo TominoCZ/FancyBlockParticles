@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class FBPGuiButtonEnable extends GuiButton {
 	FontRenderer _fr;
 	Dimension _screen;
-	
+
 	public FBPGuiButtonEnable(int buttonID, int xPos, int yPos, Dimension screen, FontRenderer fr) {
 		super(buttonID, xPos, yPos, 25, 25, "");
 
@@ -30,7 +30,7 @@ public class FBPGuiButtonEnable extends GuiButton {
 			mc.getTextureManager().bindTexture(FBP.FBP_FBP);
 
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			
+
 			int centerX = xPosition + 25 / 2;
 			int centerY = yPosition + 25 / 2;
 

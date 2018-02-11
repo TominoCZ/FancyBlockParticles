@@ -1,7 +1,5 @@
 package com.TominoCZ.FBP.renderer;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 
 import com.TominoCZ.FBP.FBP;

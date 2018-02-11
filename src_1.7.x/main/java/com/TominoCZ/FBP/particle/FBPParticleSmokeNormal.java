@@ -75,7 +75,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 			this.motionX *= 0.925f;
 			this.motionY = 0.005f;
 			this.motionZ *= 0.925f;
-			
+
 			this.particleRed = 0.275f;
 			this.particleGreen = 0.275f;
 			this.particleBlue = 0.275f;
@@ -178,8 +178,6 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
-		int i = getBrightnessForRender(partialTicks);
-
 		float alpha = particleAlpha;
 
 		// SMOOTH TRANSITION
@@ -191,7 +189,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		GL11.glDepthMask(true);
 
 		tes.setTranslation(f5, f6, f7);
-		putCube(tes, f4 * 0.05F, i, particleRed, particleGreen, particleBlue, alpha);
+		putCube(tes, f4 * 0.05F, 240, particleRed, particleGreen, particleBlue, alpha);
 		tes.setTranslation(0, 0, 0);
 	}
 

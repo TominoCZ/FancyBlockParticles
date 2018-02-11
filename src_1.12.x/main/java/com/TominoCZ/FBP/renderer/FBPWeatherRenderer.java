@@ -226,7 +226,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 					BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
 					int j = 0;
-					
+
 					for (int i = 0; i < 8 * FBP.weatherParticleDensity; i++) {
 						// get random position within radius of a little over the player's render
 						// distance
@@ -256,12 +256,12 @@ public class FBPWeatherRenderer extends IRenderHandler {
 							if (finalTemp < 0.15F) {
 								if (FBP.fancySnow && i % 2 == 0) {
 									mc.effectRenderer.addEffect(
-											new FBPParticleSnow(mc.theWorld, X, Y, Z, FBP.random.nextDouble(-0.5, 0.5),
+											new FBPParticleSnow(mc.world, X, Y, Z, FBP.random.nextDouble(-0.5, 0.5),
 													FBP.random.nextDouble(0.25, 1) + mT * 1.5f,
 													FBP.random.nextDouble(-0.5, 0.5), Blocks.SNOW.getDefaultState()));
 								}
 							} else if (FBP.fancyRain) {
-								mc.effectRenderer.addEffect(new FBPParticleRain(mc.theWorld, X, Y, Z, 0.1,
+								mc.effectRenderer.addEffect(new FBPParticleRain(mc.world, X, Y, Z, 0.1,
 										FBP.random.nextDouble(0.75, 0.99) + mT / 2, 0.1,
 										Blocks.SNOW.getDefaultState()));
 							}

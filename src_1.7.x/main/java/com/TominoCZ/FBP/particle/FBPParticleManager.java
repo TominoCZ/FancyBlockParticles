@@ -158,7 +158,7 @@ public class FBPParticleManager extends EffectRenderer {
 									(float) getParticleScale.invokeExact((EntityFX) effect), b, 0,
 									(int) getParticleBlockSide.invokeExact((EntityDiggingFX) effect));
 
-							if (b == Blocks.grass){
+							if (b == Blocks.grass) {
 								toAdd.setRBGColorF(1, 1, 1);
 								((EntityDiggingFX) toAdd).applyColourMultiplier((int) x, (int) y, (int) z);
 							}
@@ -197,7 +197,14 @@ public class FBPParticleManager extends EffectRenderer {
 			super.addEffect(toAdd);
 	}
 
-	public void renderShadedParticles(float partialTicks) {
+	@Override
+	public void renderParticles(Entity e, float f) {
+		super.renderParticles(e, f);
+		
+		renderShadedParticles(f);
+	}
+
+	private void renderShadedParticles(float partialTicks) {
 		if (fxLayers.length < 2 || fxLayers[1].size() == 0)
 			return;
 

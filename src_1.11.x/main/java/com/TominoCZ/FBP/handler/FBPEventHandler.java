@@ -32,7 +32,6 @@ import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.IRenderHandler;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.world.BlockEvent;
@@ -110,7 +109,7 @@ public class FBPEventHandler {
 					BlockPosNode node = getNodeWithPos(pos);
 
 					if (node != null && !node.checked) {
-						if (newState.getBlock() == FBP.FBPBlock || newState.getBlock() == Blocks.AIR 
+						if (newState.getBlock() == FBP.FBPBlock || newState.getBlock() == Blocks.AIR
 								|| oldState.getBlock() == newState.getBlock()) {
 							removePosEntry(pos);
 
@@ -118,12 +117,12 @@ public class FBPEventHandler {
 						}
 
 						IBlockState state = newState.getActualState(worldIn, pos);
-						
+
 						if (state.getBlock() instanceof BlockDoublePlant || !FBPModelHelper.isModelValid(state)) {
 							removePosEntry(pos);
 							return;
 						}
-						
+
 						long seed = MathHelper.getPositionRandom(pos);
 
 						boolean isNotFalling = true;
@@ -285,15 +284,6 @@ public class FBPEventHandler {
 
 		e.getWorld().addEventListener(listener);
 		list.clear();
-	}
-
-	@SubscribeEvent
-	public void onRenderWorldLastEvent(RenderWorldLastEvent e) {
-		if (mc.effectRenderer instanceof FBPParticleManager) {
-			FBPParticleManager pm = (FBPParticleManager) mc.effectRenderer;
-
-			pm.renderShadedParticles(e.getPartialTicks());
-		}
 	}
 
 	@SideOnly(Side.CLIENT)

@@ -1,13 +1,10 @@
 package com.TominoCZ.FBP.renderer;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.block.FBPBlockPos;
 import com.TominoCZ.FBP.particle.FBPParticleRain;
 import com.TominoCZ.FBP.particle.FBPParticleSnow;
 
@@ -253,7 +250,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 					double mX = mc.thePlayer.motionX * 26;
 					double mZ = mc.thePlayer.motionZ * 26;
 					double mT = MathHelper.sqrt_double(mX * mX + mZ * mZ) / 25;
-					
+
 					int j = 0;
 
 					for (int i = 0; i < 8 * FBP.weatherParticleDensity; i++) {

@@ -28,9 +28,6 @@ public class FBPBlockPos {
 	}
 
 	public boolean isSame(FBPBlockPos pos) {
-		return 
-				x == pos.getX() &&
-				y == pos.getY() &&
-				z == pos.getZ();
+		return x == pos.getX() && y == pos.getY() && z == pos.getZ();
 	}
 }

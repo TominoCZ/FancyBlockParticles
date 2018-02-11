@@ -1,5 +1,7 @@
 package com.TominoCZ.FBP.particle;
 
+import org.lwjgl.opengl.GL11;
+
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.block.FBPBlockPos;
 import com.TominoCZ.FBP.vector.FBPVector3d;
@@ -7,12 +9,10 @@ import com.TominoCZ.FBP.vector.FBPVector3d;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockTorch;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityFlameFX;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
@@ -32,8 +32,6 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 	FBPVector3d[] cube;
 
-	FBPVector3d par;
-
 	FBPVector3d startPos;
 
 	boolean spawnAnother = true;
@@ -44,7 +42,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 		FBPBlockPos pos = new FBPBlockPos(xCoordIn, yCoordIn, zCoordIn);
 
 		Block b = worldIn.getBlock(pos.getX(), pos.getY(), pos.getZ());
-		
+
 		this.spawnAnother = spawnAnother;
 		this.particleIcon = Blocks.snow.getIcon(1, 0);
 
@@ -55,7 +53,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 		mc = Minecraft.getMinecraft();
 
-		this.motionY = -0.00085f * 2.5f;
+		this.motionY = 0.00585f;
 		this.particleGravity = -0.05f;
 
 		particleScale *= FBP.scaleMult * 2.5f;
@@ -147,8 +145,6 @@ public class FBPParticleFlame extends EntityFlameFX {
 		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
-		int i = ((Entity) this).getBrightnessForRender(partialTicks) >> 16 & 65535;
-
 		float alpha = particleAlpha;
 
 		// SMOOTH TRANSITION
@@ -159,15 +155,17 @@ public class FBPParticleFlame extends EntityFlameFX {
 		mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 		tes.startDrawingQuads();
 
-		par = new FBPVector3d(f, f1, 0);
+		GL11.glDepthMask(true);
 
 		tes.setTranslation(f5, f6, f7);
-		putCube(tes, f4 / 80, i, particleRed, particleGreen, particleBlue, alpha);
+		putCube(tes, f4 / 80, 240, particleRed, particleGreen, particleBlue, alpha, f, f1);
 		tes.setTranslation(0, 0, 0);
 
 		tes.draw();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(FBP.LOCATION_PARTICLE_TEXTURE);
 		tes.startDrawingQuads();
+
+		GL11.glDepthMask(false);
 	}
 
 	@Override
@@ -185,7 +183,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 		}
 	}
 
-	public void putCube(Tessellator tes, double scale, int j, float r, float g, float b, float a) {
+	public void putCube(Tessellator tes, double scale, int j, float r, float g, float b, float a, float f0, float f1) {
 		float brightnessForRender = _brightnessForRender;
 
 		float R = 0;
@@ -204,10 +202,10 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 			brightnessForRender *= 0.95;
 
-			addVt(tes, scale, v1, par.x, par.y, j, R, G, B, a);
-			addVt(tes, scale, v2, par.x, par.y, j, R, G, B, a);
-			addVt(tes, scale, v3, par.x, par.y, j, R, G, B, a);
-			addVt(tes, scale, v4, par.x, par.y, j, R, G, B, a);
+			addVt(tes, scale, v1, f0, f1, j, R, G, B, a);
+			addVt(tes, scale, v2, f0, f1, j, R, G, B, a);
+			addVt(tes, scale, v3, f0, f1, j, R, G, B, a);
+			addVt(tes, scale, v4, f0, f1, j, R, G, B, a);
 		}
 	}
 

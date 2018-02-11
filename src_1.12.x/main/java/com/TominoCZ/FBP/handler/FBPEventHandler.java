@@ -32,7 +32,6 @@ import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.IRenderHandler;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.world.BlockEvent;
@@ -123,7 +122,7 @@ public class FBPEventHandler {
 							removePosEntry(pos);
 							return;
 						}
-						
+
 						long seed = MathHelper.getPositionRandom(pos);
 
 						boolean isNotFalling = true;
@@ -286,15 +285,6 @@ public class FBPEventHandler {
 
 		e.getWorld().addEventListener(listener);
 		list.clear();
-	}
-
-	@SubscribeEvent
-	public void onRenderWorldLastEvent(RenderWorldLastEvent e) {
-		if (mc.effectRenderer instanceof FBPParticleManager) {
-			FBPParticleManager pm = (FBPParticleManager) mc.effectRenderer;
-
-			pm.renderShadedParticles(e.getPartialTicks());
-		}
 	}
 
 	@SideOnly(Side.CLIENT)

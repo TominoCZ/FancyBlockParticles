@@ -15,7 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.IRenderHandler;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -81,14 +80,5 @@ public class FBPEventHandler {
 	@SubscribeEvent
 	public void onWorldLoadEvent(WorldEvent.Load e) {
 		FBPConfigHandler.init();
-	}
-
-	@SubscribeEvent
-	public void onRenderWorldLastEvent(RenderWorldLastEvent e) {
-		if (mc.effectRenderer instanceof FBPParticleManager) {
-			FBPParticleManager pm = (FBPParticleManager) mc.effectRenderer;
-
-			pm.renderShadedParticles(e.partialTicks);
-		}
 	}
 }

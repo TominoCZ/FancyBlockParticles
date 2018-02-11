@@ -27,14 +27,13 @@ import net.minecraft.client.particle.ParticleSmokeNormal;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.GlStateManager.DestFactor;
-import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
@@ -196,7 +195,14 @@ public class FBPParticleManager extends ParticleManager {
 		super.addEffect(toAdd);
 	}
 
-	public void renderShadedParticles(float partialTicks) {
+	@Override
+	public void renderParticles(Entity e, float f) {
+		super.renderParticles(e, f);
+
+		renderShadedParticles(f);
+	}
+	
+	private void renderShadedParticles(float partialTicks) {
 		if (fxLayers.length < 2 || fxLayers[1].length < 2 || fxLayers[1][1].size() == 0)
 			return;
 
@@ -402,14 +408,15 @@ public class FBPParticleManager extends ParticleManager {
 						Particle toSpawn;
 
 						if (!FBP.INSTANCE.isInExceptions(iblockstate.getBlock(), true)) {
-							toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1, 1, 1,
-									iblockstate, side, -2, null);
-							
+							toSpawn = new FBPParticleDigging(world, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1, 1, 1, iblockstate,
+									side, -2, null);
+
 							if (FBP.smartBreaking) {
-								toSpawn = ((FBPParticleDigging)toSpawn).MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F);
+								toSpawn = ((FBPParticleDigging) toSpawn)
+										.MultiplyVelocity(side == EnumFacing.UP ? 0.7F : 0.15F);
 								toSpawn = toSpawn.multipleParticleScaleBy(0.325F + (damage / 10f) * 0.5F);
 							} else {
-								toSpawn = ((FBPParticleDigging)toSpawn).MultiplyVelocity(0.2F);
+								toSpawn = ((FBPParticleDigging) toSpawn).MultiplyVelocity(0.2F);
 								toSpawn = toSpawn.multipleParticleScaleBy(0.6F);
 							}
 
