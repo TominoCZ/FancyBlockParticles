@@ -232,7 +232,6 @@ public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedPartic
     @Override
     public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
                                float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-
     }
 
     @Override

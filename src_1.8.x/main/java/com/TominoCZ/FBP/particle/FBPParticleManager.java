@@ -23,7 +23,6 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -93,15 +92,14 @@ public class FBPParticleManager extends EffectRenderer {
     }
 
     @Override
-    public void addEffect(EntityFX effect) {
-        EntityFX toAdd = effect;
+    public void addEffect(EntityFX efx) {
+        Entity effect = efx;
+        Entity toAdd = effect;
 
         if (FBP.enabled && toAdd != null && !(toAdd instanceof FBPParticleSnow)
                 && !(toAdd instanceof FBPParticleRain)) {
             if (FBP.fancyFlame && toAdd instanceof EntityFlameFX && !(toAdd instanceof FBPParticleFlame)
                     && Minecraft.getMinecraft().gameSettings.particleSetting < 2) {
-                EntityFlameFX p = (EntityFlameFX) effect;
-
                 try {
                     toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact(effect), (double) Y.invokeExact(effect),
                             (double) Z.invokeExact(effect), 0, FBP.random.nextDouble() * 0.25, 0, true);
@@ -118,14 +116,14 @@ public class FBPParticleManager extends EffectRenderer {
                     toAdd = new FBPParticleSmokeNormal(worldObj, (double) X.invokeExact(effect),
                             (double) Y.invokeExact(effect), (double) Z.invokeExact(effect),
                             (double) mX.invokeExact(effect), (double) mY.invokeExact(effect),
-                            (double) mZ.invokeExact(effect), (float) getParticleScale.invokeExact(effect), true, white,
+                            (double) mZ.invokeExact(effect), (float) getParticleScale.invokeExact((EntityFX) effect), true, white,
                             p);
 
-                    toAdd.setRBGColorF(MathHelper.clamp_float(effect.getRedColorF() + 0.1f, 0.1f, 1),
-                            MathHelper.clamp_float(effect.getGreenColorF() + 0.1f, 0.1f, 1),
-                            MathHelper.clamp_float(effect.getBlueColorF() + 0.1f, 0.1f, 1));
+                    ((EntityFX) toAdd).setRBGColorF(MathHelper.clamp_float(((EntityFX) effect).getRedColorF() + 0.1f, 0.1f, 1),
+                            MathHelper.clamp_float(((EntityFX) effect).getGreenColorF() + 0.1f, 0.1f, 1),
+                            MathHelper.clamp_float(((EntityFX) effect).getBlueColorF() + 0.1f, 0.1f, 1));
 
-                    ((FBPParticleSmokeNormal) toAdd).setMaxAge((int) getParticleMaxAge.invokeExact(effect));
+                    ((FBPParticleSmokeNormal) toAdd).setMaxAge((int) getParticleMaxAge.invokeExact((EntityFX) effect));
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }
@@ -144,10 +142,10 @@ public class FBPParticleManager extends EffectRenderer {
                                 && !FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
                             toAdd = new FBPParticleDigging(worldObj, (double) X.invokeExact(effect),
                                     (double) Y.invokeExact(effect) - 0.10000000149011612D,
-                                    (double) Z.invokeExact(effect), 0, 0, 0, toAdd.getRedColorF(),
-                                    toAdd.getGreenColorF(), toAdd.getBlueColorF(), blockState, null,
-                                    (float) getParticleScale.invokeExact(effect),
-                                    (TextureAtlasSprite) getParticleTexture.invokeExact(effect));
+                                    (double) Z.invokeExact(effect), 0, 0, 0, ((EntityFX) toAdd).getRedColorF(),
+                                    ((EntityFX) toAdd).getGreenColorF(), ((EntityFX) toAdd).getBlueColorF(), blockState, null,
+                                    (float) getParticleScale.invokeExact((EntityFX) effect),
+                                    (TextureAtlasSprite) getParticleTexture.invokeExact((EntityFX) effect));
                         } else
                             return;
                     }
@@ -173,7 +171,7 @@ public class FBPParticleManager extends EffectRenderer {
             }
         }
 
-        super.addEffect(toAdd);
+        super.addEffect((EntityFX) toAdd);
     }
 
     @Override
@@ -184,9 +182,6 @@ public class FBPParticleManager extends EffectRenderer {
     }
 
     private void renderShadedParticles(float partialTicks) {
-        if (fxLayers.length < 2 || fxLayers[1].length < 2 || fxLayers[1][1].size() == 0)
-            return;
-
         Tessellator tes = Tessellator.getInstance();
         WorldRenderer buff = tes.getWorldRenderer();
 
@@ -199,16 +194,19 @@ public class FBPParticleManager extends EffectRenderer {
         GlStateManager.enableBlend();
         RenderHelper.enableStandardItemLighting();
 
-        Object[] particles = (Object[]) fxLayers[1][1].toArray();
+        for (int list= 0; list < 2; list++)
+            renderParticleArray(partialTicks, buff, fxLayers[1][list]);
 
-        for (int i = 0; i < particles.length; i++) {
-            EntityFX p = (EntityFX) particles[i];
+        tes.draw();
+    }
+
+    private void renderParticleArray(float partialTicks, WorldRenderer buff, List<EntityFX> particles) {
+        for (int i = 0; i < particles.size(); i++) {
+            EntityFX p = particles.get(i);
 
             if (p instanceof IFBPShadedParticle)
                 ((IFBPShadedParticle) p).renderShadedParticle(buff, partialTicks);
         }
-
-        tes.draw();
     }
 
     @Nullable
@@ -304,7 +302,8 @@ public class FBPParticleManager extends EffectRenderer {
             int j = pos.getY();
             int k = pos.getZ();
             float f = 0.1F;
-            AxisAlignedBB axisalignedbb = iblockstate.getBlock().getCollisionBoundingBox(worldObj, pos, iblockstate);
+
+            AxisAlignedBB axisalignedbb = iblockstate.getBlock().getSelectedBoundingBox(worldObj, pos);
 
             double d0 = 0, d1 = 0, d2 = 0;
 

@@ -59,7 +59,6 @@ public class FBPWeatherRenderer extends IRenderHandler {
 
         float f = this.mc.theWorld.getRainStrength(partialTicks);
 
-
         if (f > 0.0F) {
             mc.entityRenderer.enableLightmap();
             Entity entity = this.mc.getRenderViewEntity();
@@ -215,7 +214,9 @@ public class FBPWeatherRenderer extends IRenderHandler {
                         double X = mc.thePlayer.posX + mX + radius * Math.cos(angle);
                         double Z = mc.thePlayer.posZ + mZ + radius * Math.sin(angle);
 
-                        if (mc.thePlayer.getDistance(X, mc.thePlayer.posY, Z) > mc.gameSettings.renderDistanceChunks * 16)
+                        double d = mc.thePlayer.getDistance(X, mc.thePlayer.posY, Z);
+
+                        if (d > mc.gameSettings.renderDistanceChunks * 16)
                             continue;
 
                         // check if position is within a snow biome
