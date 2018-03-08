@@ -332,7 +332,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
                     }
                 }
                 if (isInWater()) {
-                    if (this.sourceState.getBlock().getMaterial() == Material.wood) {
+                    if (this.sourceState.getBlock().getMaterial() == Material.wood || this.sourceState.getBlock().stepSound.soundName.contains("wood")) {
                         motionY = 0.11f;
                     } else {
                         motionX *= 0.932515086137662D;

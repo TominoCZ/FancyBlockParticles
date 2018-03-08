@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
@@ -43,7 +44,7 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 
 	public FBPParticleSnow(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
 			double ySpeedIn, double zSpeedIn, IBlockState state) {
-		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, state);
+		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Blocks.snow.getDefaultState());
 
 		try {
 			FBP.setSourcePos.invokeExact((EntityDiggingFX) this, new BlockPos(xCoordIn, yCoordIn, zCoordIn));
@@ -77,6 +78,8 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 
 		if (FBP.randomFadingSpeed)
 			endMult *= FBP.random.nextDouble(0.7, 1);
+		
+		this.particleIcon = mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture(state);
 	}
 
 	private void createRotationMatrix() {

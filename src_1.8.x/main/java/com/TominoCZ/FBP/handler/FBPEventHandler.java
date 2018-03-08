@@ -45,7 +45,7 @@ public class FBPEventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
         if (e.entity == mc.thePlayer) {
-            FBP.fancyEffectRenderer = new FBPParticleManager(e.world, mc.renderEngine, new FBPParticleDigging.Factory());
+        	FBP.fancyEffectRenderer = new FBPParticleManager(e.world, mc.renderEngine, new FBPParticleDigging.Factory());
             FBP.fancyWeatherRenderer = new FBPWeatherRenderer();
 
             IRenderHandler currentWeatherRenderer = mc.theWorld.provider.getCloudRenderer();

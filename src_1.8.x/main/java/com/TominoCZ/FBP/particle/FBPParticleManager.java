@@ -139,7 +139,7 @@ public class FBPParticleManager extends EffectRenderer {
                         effect.setDead();
 
                         if (!(blockState.getBlock() instanceof BlockLiquid)
-                                && !FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
+                                && !FBP.INSTANCE.isInExceptions(blockState.getBlock())) {
                             toAdd = new FBPParticleDigging(worldObj, (double) X.invokeExact(effect),
                                     (double) Y.invokeExact(effect) - 0.10000000149011612D,
                                     (double) Z.invokeExact(effect), 0, 0, 0, ((EntityFX) toAdd).getRedColorF(),
@@ -160,7 +160,7 @@ public class FBPParticleManager extends EffectRenderer {
                             && (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.redstone_block)) {
 
                         if (blockState.getBlock() instanceof BlockLiquid
-                                || FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
+                                || FBP.INSTANCE.isInExceptions(blockState.getBlock())) {
                             effect.setDead();
                             return;
                         }
@@ -233,7 +233,7 @@ public class FBPParticleManager extends EffectRenderer {
                     if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
                             && (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.redstone_block)) {
                         if (!(blockState.getBlock() instanceof BlockLiquid)
-                                && !FBP.INSTANCE.isInExceptions(blockState.getBlock(), true)) {
+                                && !FBP.INSTANCE.isInExceptions(blockState.getBlock())) {
                             toSpawn = new FBPParticleDigging(mc.theWorld
                                     , xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed,
                                     1, 1, 1, blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
@@ -273,7 +273,7 @@ public class FBPParticleManager extends EffectRenderer {
                                 if (state != null
                                         && (!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
                                         && (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)
-                                        && !FBP.INSTANCE.isInExceptions(b, true)) {
+                                        && !FBP.INSTANCE.isInExceptions(b)) {
                                     FBPParticleDigging toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2,
                                             d0 - pos.getX() - 0.5D, -0.001, d2 - pos.getZ() - 0.5D, 1, 1, 1, state,
                                             null, -1, texture);
@@ -385,7 +385,7 @@ public class FBPParticleManager extends EffectRenderer {
 
                         EntityFX toSpawn;
 
-                        if (!FBP.INSTANCE.isInExceptions(iblockstate.getBlock(), true)) {
+                        if (!FBP.INSTANCE.isInExceptions(iblockstate.getBlock())) {
                             toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1, 1, 1, iblockstate,
                                     side, -2, null);
 

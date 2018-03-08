@@ -39,11 +39,9 @@ public class FBPConfigHandler {
             }
 
             read();
-            readAnimExceptions();
             readParticleExceptions();
 
             write();
-            writeAnimExceptions();
             writeParticleExceptions();
 
             closeStreams();
@@ -99,30 +97,6 @@ public class FBPConfigHandler {
             }
 
             write();
-        }
-    }
-
-    public static void writeAnimExceptions() {
-        try {
-            PrintWriter writer = new PrintWriter(FBP.animExceptionsFile.getPath(), "UTF-8");
-
-            for (String ex : FBP.INSTANCE.blockAnimExceptions)
-                writer.println(ex);
-
-            writer.close();
-        } catch (Exception e) {
-            closeStreams();
-
-            if (!FBP.animExceptionsFile.exists()) {
-                if (!Path.apply(FBP.animExceptionsFile.getParent()).exists())
-                    Path.apply(FBP.animExceptionsFile.getParent()).createDirectory(true, false);
-
-                try {
-                    FBP.animExceptionsFile.createNewFile();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
         }
     }
 
@@ -223,25 +197,6 @@ public class FBPConfigHandler {
         }
     }
 
-    static void readAnimExceptions() {
-        try {
-            fis = new FileInputStream(FBP.animExceptionsFile);
-            isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
-            br = new BufferedReader(isr);
-
-            String line;
-
-            FBP.INSTANCE.resetExceptions(false);
-
-            while ((line = br.readLine()) != null && !(line = line.replaceAll(" ", "").toLowerCase()).equals(""))
-                FBP.INSTANCE.addException(line, false);
-        } catch (Exception e) {
-
-        }
-
-        closeStreams();
-    }
-
     static void readParticleExceptions() {
         try {
             fis = new FileInputStream(FBP.particleExceptionsFile);
@@ -250,10 +205,10 @@ public class FBPConfigHandler {
 
             String line;
 
-            FBP.INSTANCE.resetExceptions(true);
+            FBP.INSTANCE.resetExceptions();
 
             while ((line = br.readLine()) != null && !(line = line.replaceAll(" ", "").toLowerCase()).equals(""))
-                FBP.INSTANCE.addException(line, true);
+                FBP.INSTANCE.addException(line);
         } catch (Exception e) {
 
         }

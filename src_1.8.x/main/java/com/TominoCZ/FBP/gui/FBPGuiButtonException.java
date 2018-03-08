@@ -49,9 +49,8 @@ public class FBPGuiButtonException extends FBPGuiButton {
             if (!enabled)
                 GlStateManager.color(0.25f, 0.25f, 0.25f);
             // render icon
-            this.drawTexturedModalRect(xPosition + width / 2.0f - 22.5f + (particle ? 0 : 2), yPosition + height / 2.0f - 22.5f,
-                    256 - 45, particle ? 45 : 0, 45, 45);
-
+            this.drawTexturedModalRect(xPosition + width / 2.0f - 22.5f + (particle ? 0 : 2), yPosition + height / 2.0f - 22.5f, 256 - 45, particle ? 45 : 0, 45, 45);
+           
             this.mouseDragged(mc, mouseX, mouseY);
         }
     }

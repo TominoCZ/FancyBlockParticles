@@ -69,9 +69,9 @@ public class FBPGuiFastAdd extends GuiScreen {
         this.buttonList.clear();
 
         animation = new FBPGuiButtonException(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
-                FBP.INSTANCE.isInExceptions(selectedBlock.getBlock(), false));
+               false);
         particle = new FBPGuiButtonException(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
-                FBP.INSTANCE.isInExceptions(selectedBlock.getBlock(), true));
+                FBP.INSTANCE.isInExceptions(selectedBlock.getBlock()));
 
         Item ib = Item.getItemFromBlock(selectedBlock.getBlock());
         Block b = ib instanceof ItemBlock ? ((ItemBlock) ib).getBlock() : null;
@@ -82,8 +82,9 @@ public class FBPGuiFastAdd extends GuiScreen {
                 (animation.enabled ? "\u00A7a<" : "\u00A7c<") + "             "
                         + (particle.enabled ? "\u00A7a>" : "\u00A7c>"),
                 false, false);
-        guide.enabled = false;
-
+        
+        guide.enabled = animation.enabled = false;
+        
         this.buttonList.addAll(Arrays.asList(new GuiButton[]{guide, animation, particle}));
     }
 
@@ -122,18 +123,14 @@ public class FBPGuiFastAdd extends GuiScreen {
             GuiButton selected = animation.isMouseOver() ? animation : (particle.isMouseOver() ? particle : null);
 
             if (selected != null) {
-                boolean isParticle = particle.isMouseOver();
-
                 if (selected.enabled) {
-                    if (!FBP.INSTANCE.isInExceptions(b, isParticle))
-                        FBP.INSTANCE.addException(b, isParticle);
+                    if (!FBP.INSTANCE.isInExceptions(b))
+                        FBP.INSTANCE.addException(b);
                     else
-                        FBP.INSTANCE.removeException(b, isParticle);
+                        FBP.INSTANCE.removeException(b);
 
-                    if (isParticle)
+                    if (particle.isMouseOver())
                         FBPConfigHandler.writeParticleExceptions();
-                    else
-                        FBPConfigHandler.writeAnimExceptions();
 
                     mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press")));
                 }
@@ -188,10 +185,7 @@ public class FBPGuiFastAdd extends GuiScreen {
         FBPGuiHelper._drawCenteredString(fontRendererObj, itemName, width / 2, height / 2 - 19, 0);
 
         // EXCEPTIONS INFO
-        String animationText1 = animation.enabled
-                ? (animation.isMouseOver() ? (animation.isInExceptions ? "\u00A7c\u00A7lREMOVE" : "\u00A7a\u00A7lADD")
-                : "")
-                : "\u00A7c\u00A7lCAN'T BE ANIMATED";
+        String animationText1 = "\u00A7c\u00A7lNOT AVAILABLE";
         String particleText1 = particle.enabled
                 ? (particle.isMouseOver() ? (particle.isInExceptions ? "\u00A7c\u00A7lREMOVE" : "\u00A7a\u00A7lADD")
                 : "")

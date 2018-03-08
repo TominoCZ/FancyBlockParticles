@@ -44,7 +44,7 @@ public class FBPGuiMenuPage3 extends GuiScreen {
         b5 = new FBPGuiButton(5, x, b4.yPosition + b1.height + 6, b5Text, false, true);
         b6 = new FBPGuiButton(6, x, b5.yPosition + b1.height + 1, b6Text, false, true);
 
-        b7 = new FBPGuiButton(7, x + b5.width + 5, b5.yPosition, "\u00A7a\u00A7LS",
+        b7 = new FBPGuiButton(7, x + b5.width + 5, b5.yPosition, "\u00A72\u00A7LS",
                 false, false);
 
         Back = new FBPGuiButton(-3, b6.xPosition - 44, 6 * b1.height + b1.yPosition - 5 + 10 - GUIOffsetY, "<<", false, false);

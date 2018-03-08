@@ -93,7 +93,7 @@ public class FBPGuiButton extends GuiButton {
             if (packedFGColour != 0) {
                 j = packedFGColour;
             } else if (!this.enabled) {
-                j = 10526880;
+				j = 10526880;
             } else if (this.hovered) {
                 j = 16777120;
             }
@@ -108,7 +108,7 @@ public class FBPGuiButton extends GuiButton {
             } else {
                 this.drawString(fontrenderer, this.displayString, this.xPosition + 8, this.yPosition + (this.height - 8) / 2, j);
 
-                this.drawString(fontrenderer, toggle ? FBPGuiHelper.on : FBPGuiHelper.off, this.xPosition + this.width - 25,
+                this.drawString(fontrenderer, FBPGuiHelper.getToggleString(toggle, enabled), this.xPosition + this.width - 25,
                         this.yPosition + (this.height - 8) / 2, j);
             }
         }
