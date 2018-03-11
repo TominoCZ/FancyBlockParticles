@@ -148,6 +148,9 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 			} else
 				setExpired();
 
+			if (world.getBlockState(new BlockPos(posX, posY, posZ)).getMaterial().isLiquid())
+				setExpired();
+
 			motionY -= 0.04D * this.particleGravity;
 
 			moveEntity(motionX, motionY, motionZ);
@@ -199,31 +202,35 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 		double X = x;
 		double Y = y;
 		double Z = z;
-		double d0 = y;
 
-		if (this.canCollide) {
-			List<AxisAlignedBB> list = this.world.getCollisionBoxes(null, this.getBoundingBox().offset(x, y, z));
+		List<AxisAlignedBB> list = this.world.getCollisionBoxes((Entity) null, this.getBoundingBox().addCoord(x, y, z));
 
-			for (AxisAlignedBB aabb : list) {
-				x = aabb.calculateXOffset(this.getBoundingBox(), x);
-				y = aabb.calculateYOffset(this.getBoundingBox(), y);
-				z = aabb.calculateZOffset(this.getBoundingBox(), z);
-			}
+		for (AxisAlignedBB axisalignedbb : list) {
+			y = axisalignedbb.calculateYOffset(this.getBoundingBox(), y);
+		}
 
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
-		} else
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
+		this.setBoundingBox(this.getBoundingBox().offset(0.0D, y, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list) {
+			x = axisalignedbb.calculateXOffset(this.getBoundingBox(), x);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(x, 0.0D, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list) {
+			z = axisalignedbb.calculateZOffset(this.getBoundingBox(), z);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(0.0D, 0.0D, z));
 
 		this.resetPositionToBB();
 
-		this.onGround = y != Y && d0 < 0.0D;
+		this.onGround = y != Y && Y < 0.0D;
 
-		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
-			if (x != X)
-				motionX *= 0.699999988079071D;
-			if (z != Z)
-				motionZ *= 0.699999988079071D;
-		}
+		if (x != X)
+			motionX *= 0.699999988079071D;
+		if (z != Z)
+			motionZ *= 0.699999988079071D;
 	}
 
 	@Override

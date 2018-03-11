@@ -11,6 +11,9 @@ import com.TominoCZ.FBP.util.FBPRenderUtil;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.IParticleFactory;
@@ -22,12 +25,14 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -40,6 +45,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 	int vecIndex;
 
 	double scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
+	float prevGravity;
 
 	boolean modeDebounce = false, wasFrozen = false, destroyed = false;
 
@@ -55,6 +61,27 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 	double endMult = 0.75;
 
 	long tick = 0;
+
+	static Entity dummyEntity = new Entity(null) {
+
+		@Override
+		protected void writeEntityToNBT(NBTTagCompound compound) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		protected void readEntityFromNBT(NBTTagCompound compound) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		protected void entityInit() {
+			// TODO Auto-generated method stub
+
+		}
+	};
 
 	protected FBPParticleDigging(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
 			double ySpeedIn, double zSpeedIn, float R, float G, float B, IBlockState state, @Nullable EnumFacing facing,
@@ -112,7 +139,6 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 
 		particleScale *= FBP.scaleMult * 2.0F;
 		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
-		// = 0.7F + (0.25F * mc.gameSettings.gammaSetting);
 
 		scaleAlpha = particleScale * 0.82;
 
@@ -136,7 +162,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 				}
 			}
 
-			if (particleTexture == null || particleTexture.getIconName() == "missingno")
+			if (particleTexture == null || particleTexture.getIconName().equals("missingno"))
 				this.setParticleTexture(blockModelShapes.getTexture(state));
 		} else
 			this.particleTexture = texture;
@@ -146,6 +172,8 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 
 		if (FBP.randomFadingSpeed)
 			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.4151, 0.9875), 0.63875, 0.9875);
+
+		prevGravity = particleGravity;
 	}
 
 	public Particle MultiplyVelocity(float multiplier) {
@@ -174,9 +202,10 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 			tick++;
 
 		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused()) {
-			if (!wasFrozen && spawned && (MathHelper.abs((float) motionX) > 0.00001D)) {
-				boolean xCollided = (prevPosX == posX);
-				boolean zCollided = (prevPosZ == posZ);
+			if (!wasFrozen && spawned
+					&& (MathHelper.abs((float) motionX) > 0.00001D || MathHelper.abs((float) motionZ) > 0.00001D)) {
+				boolean xCollided = Math.abs(prevPosX - posX) < 0.00001D;
+				boolean zCollided = Math.abs(prevPosZ - posZ) < 0.00001D;
 
 				if (xCollided)
 					motionX = -prevMotionX;
@@ -201,7 +230,8 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 		prevParticleScale = particleScale;
 
 		if (!mc.isGamePaused() && (!FBP.frozen || killToggle)) {
-			boolean allowedToMove = MathHelper.abs((float) motionX) > 0.00001D;
+			boolean allowedToMove = MathHelper.abs((float) motionX) > 0.00001D
+					|| MathHelper.abs((float) motionZ) > 0.00001D;
 
 			if (!killToggle) {
 				if (!FBP.randomRotation) {
@@ -258,20 +288,15 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 			}
 
 			if (!killToggle) {
-				if (isCollided)
-					motionY = -0.08322508594922069D;
-				else
+				if (!isCollided)
 					motionY -= 0.04D * particleGravity;
 
-				if (allowedToMove)
-					moveEntity(motionX, motionY, motionZ, false);
-				else
-					moveEntity(0, motionY, 0, true);
+				moveEntity(motionX, motionY, motionZ, !allowedToMove);
 
-				if (MathHelper.abs((float) motionX) > 0.00001D) {
+				if (MathHelper.abs((float) motionX) > 0.00001D)
 					prevMotionX = motionX;
+				if (MathHelper.abs((float) motionZ) > 0.00001D)
 					prevMotionZ = motionZ;
-				}
 
 				if (allowedToMove) {
 					motionX *= 0.9800000190734863D;
@@ -312,6 +337,32 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 					}
 				}
 
+				if (FBP.waterPhysics) {
+					if (isInWater()) {
+						handleWaterMovement();
+
+						if (this.sourceState.getMaterial() == Material.WOOD
+								|| this.sourceState.getBlock().getSoundType(sourceState, worldObj,
+										new BlockPos(posX, posY, posZ), null) == SoundType.WOOD) {
+							motionY = 0.11f + (particleScale / 1.25f) * 0.02f;
+						} else {
+							motionX *= 0.932515086137662D;
+							motionZ *= 0.932515086137662D;
+							particleGravity = 0.35f;
+
+							motionY *= 0.85f;
+						}
+
+						if (!FBP.randomRotation)
+							calculateYAngle();
+
+						if (isCollided)
+							isCollided = false;
+					} else {
+						particleGravity = prevGravity;
+					}
+				}
+
 				if (isCollided) {
 					if (FBP.lowTraction) {
 						motionX *= 0.932515086137662D;
@@ -328,32 +379,85 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 			spawned = true;
 	}
 
+	public boolean isInWater() {
+		double scale = particleScale / 40;
+
+		int minX = MathHelper.floor_double(posX - scale);
+		int maxX = MathHelper.ceiling_double_int(posX + scale);
+
+		int minY = MathHelper.floor_double(posY - scale);
+		int maxY = MathHelper.ceiling_double_int(posY + scale);
+
+		int minZ = MathHelper.floor_double(posZ - scale);
+		int maxZ = MathHelper.ceiling_double_int(posZ + scale);
+
+		if (worldObj.isAreaLoaded(new StructureBoundingBox(minX, minY, minZ, maxX, maxY, maxZ), true)) {
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = minY; y <= maxY; ++y) {
+					for (int z = minZ; z <= maxZ; ++z) {
+						IBlockState block = worldObj.getBlockState(new BlockPos(x, y, z));
+
+						if (block.getMaterial() == Material.WATER) {
+							double d0 = (double) ((float) (y + 1)
+									- BlockLiquid.getLiquidHeightPercent(block.getValue(BlockLiquid.LEVEL)));
+
+							if (posY <= d0)
+								return true;
+						}
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private void handleWaterMovement() {
+		dummyEntity.motionX = motionX;
+		dummyEntity.motionY = motionY;
+		dummyEntity.motionZ = motionZ;
+
+		if (this.worldObj.handleMaterialAcceleration(
+				this.getEntityBoundingBox().expand(0.0D, -0.4000000059604645D, 0.0D).contract(0.001D), Material.WATER,
+				dummyEntity)) {
+
+			motionX = dummyEntity.motionX;
+			motionY = dummyEntity.motionY;
+			motionZ = dummyEntity.motionZ;
+		}
+	}
+
 	public void moveEntity(double x, double y, double z, boolean YOnly) {
 		double X = x;
 		double Y = y;
 		double Z = z;
-		double d0 = y;
 
-		if (this.canCollide) {
-			List<AxisAlignedBB> list = this.worldObj.getCollisionBoxes(null,
-					this.getEntityBoundingBox().offset(x, y, z));
+		List<AxisAlignedBB> list = this.worldObj.getCollisionBoxes((Entity) null,
+				this.getEntityBoundingBox().addCoord(x, y, z));
 
-			for (AxisAlignedBB aabb : list) {
-				y = aabb.calculateYOffset(this.getEntityBoundingBox(), y);
+		for (AxisAlignedBB axisalignedbb : list) {
+			y = axisalignedbb.calculateYOffset(this.getEntityBoundingBox(), y);
+		}
 
-				if (!YOnly) {
-					x = aabb.calculateXOffset(this.getEntityBoundingBox(), x);
-					z = aabb.calculateZOffset(this.getEntityBoundingBox(), z);
-				}
+		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, y, 0.0D));
+
+		if (!YOnly) {
+			for (AxisAlignedBB axisalignedbb : list) {
+				x = axisalignedbb.calculateXOffset(this.getEntityBoundingBox(), x);
 			}
 
-			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(YOnly ? 0.0D : x, y, YOnly ? 0.0D : z));
-		} else
-			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, 0.0D, 0.0D));
+
+			for (AxisAlignedBB axisalignedbb : list) {
+				z = axisalignedbb.calculateZOffset(this.getEntityBoundingBox(), z);
+			}
+
+			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, z));
+		}
 
 		this.resetPositionToBB();
 
-		this.isCollided = y != Y && d0 < 0.0D;
+		this.isCollided = y != Y && Y < 0.0D;
 
 		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
 			if (x != X)
@@ -377,18 +481,6 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 		rotStep = new FBPVector3d(rx0 > 0.5 ? 1 : -1, ry0 > 0.5 ? 1 : -1, rz0 > 0.5 ? 1 : -1);
 
 		rot.copyFrom(rotStep);
-	}
-
-	@Override
-	public int getBrightnessForRender(float p_189214_1_) {
-		int i = super.getBrightnessForRender(p_189214_1_);
-		int j = 0;
-
-		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
-		}
-
-		return i == 0 ? j : i;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -468,7 +560,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
-		int i = this.getBrightnessForRender(partialTicks);
+		int i = getBrightnessForRender(partialTicks);
 
 		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 

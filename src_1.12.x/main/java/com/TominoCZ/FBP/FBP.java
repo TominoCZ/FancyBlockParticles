@@ -62,15 +62,13 @@ public class FBP {
 
 	public static double scaleMult, gravityMult, rotationMult, weatherParticleDensity;
 
-	public static boolean isServer = false;
-
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
 	public static boolean infiniteDuration = false;
 
 	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
 			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyPlaceAnim,
-			animSmoothLighting, spawnPlaceParticles, fancyRain, fancySnow, fancyFlame, fancySmoke, frozen;
+			animSmoothLighting, spawnPlaceParticles, fancyRain, fancySnow, fancyFlame, fancySmoke, waterPhysics, frozen;
 
 	public List<String> blockParticleExceptions;
 	public List<String> blockAnimExceptions;
@@ -131,9 +129,6 @@ public class FBP {
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
-		if (evt.getSide().isServer())
-			isServer = true;
-
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
 		animExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
 		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");

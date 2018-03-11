@@ -148,6 +148,9 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 			} else
 				setExpired();
 
+			if (worldObj.getBlockState(new BlockPos(posX, posY, posZ)).getMaterial().isLiquid())
+				setExpired();
+
 			motionY -= 0.04D * this.particleGravity;
 
 			moveEntity(motionX, motionY, motionZ);
@@ -199,32 +202,36 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 		double X = x;
 		double Y = y;
 		double Z = z;
-		double d0 = y;
 
-		if (this.canCollide) {
-			List<AxisAlignedBB> list = this.worldObj.getCollisionBoxes(null,
-					this.getEntityBoundingBox().offset(x, y, z));
+		List<AxisAlignedBB> list = this.worldObj.getCollisionBoxes((Entity) null,
+				this.getEntityBoundingBox().addCoord(x, y, z));
 
-			for (AxisAlignedBB aabb : list) {
-				x = aabb.calculateXOffset(this.getEntityBoundingBox(), x);
-				y = aabb.calculateYOffset(this.getEntityBoundingBox(), y);
-				z = aabb.calculateZOffset(this.getEntityBoundingBox(), z);
-			}
+		for (AxisAlignedBB axisalignedbb : list) {
+			y = axisalignedbb.calculateYOffset(this.getEntityBoundingBox(), y);
+		}
 
-			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
-		} else
-			this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
+		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, y, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list) {
+			x = axisalignedbb.calculateXOffset(this.getEntityBoundingBox(), x);
+		}
+
+		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, 0.0D, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list) {
+			z = axisalignedbb.calculateZOffset(this.getEntityBoundingBox(), z);
+		}
+
+		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, z));
 
 		this.resetPositionToBB();
 
-		this.isCollided = y != Y && d0 < 0.0D;
+		this.isCollided = y != Y && Y < 0.0D;
 
-		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
-			if (x != X)
-				motionX *= 0.699999988079071D;
-			if (z != Z)
-				motionZ *= 0.699999988079071D;
-		}
+		if (x != X)
+			motionX *= 0.699999988079071D;
+		if (z != Z)
+			motionZ *= 0.699999988079071D;
 	}
 
 	@Override

@@ -11,6 +11,8 @@ import com.TominoCZ.FBP.vector.FBPVector3d;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityDiggingFX;
 import net.minecraft.client.renderer.Tessellator;
@@ -18,6 +20,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 @SideOnly(Side.CLIENT)
@@ -30,6 +33,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 	int vecIndex;
 
 	double scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
+	float prevGravity;
 
 	boolean modeDebounce = false, wasFrozen = false, destroyed = false;
 
@@ -104,6 +108,8 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 		if (particleIcon == null || particleIcon.getIconName().equals("missingno"))
 			this.isDead = true;
+
+		prevGravity = particleGravity;
 	}
 
 	protected FBPParticleDigging(World w, double x, double y, double z, double mx, double my, double mz, float scale,
@@ -122,9 +128,10 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 			tick++;
 
 		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused()) {
-			if (!wasFrozen && spawned && (MathHelper.abs((float) motionX) > 0.00001D)) {
-				boolean xCollided = (prevPosX == posX);
-				boolean zCollided = (prevPosZ == posZ);
+			if (!wasFrozen && spawned
+					&& (MathHelper.abs((float) motionX) > 0.00001D || MathHelper.abs((float) motionZ) > 0.00001D)) {
+				boolean xCollided = Math.abs(prevPosX - posX) < 0.00001D;
+				boolean zCollided = Math.abs(prevPosZ - posZ) < 0.00001D;
 
 				if (xCollided)
 					motionX = -prevMotionX;
@@ -149,7 +156,8 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		prevParticleScale = particleScale;
 
 		if (!mc.isGamePaused() && (!FBP.frozen || killToggle)) {
-			boolean allowedToMove = MathHelper.abs((float) motionX) > 0.00001D;
+			boolean allowedToMove = MathHelper.abs((float) motionX) > 0.00001D
+					|| MathHelper.abs((float) motionZ) > 0.00001D;
 
 			if (!killToggle) {
 				if (!FBP.randomRotation) {
@@ -206,20 +214,15 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 			}
 
 			if (!killToggle) {
-				if (isCollided)
-					motionY = -0.08322508594922069D;
-				else
+				if (!isCollided)
 					motionY -= 0.04D * particleGravity;
 
-				if (allowedToMove)
-					moveEntity(motionX, motionY, motionZ, false);
-				else
-					moveEntity(0, motionY, 0, true);
+				moveEntity(motionX, motionY, motionZ, !allowedToMove);
 
-				if (MathHelper.abs((float) motionX) > 0.00001D) {
+				if (MathHelper.abs((float) motionX) > 0.00001D)
 					prevMotionX = motionX;
+				if (MathHelper.abs((float) motionZ) > 0.00001D)
 					prevMotionZ = motionZ;
-				}
 
 				if (allowedToMove) {
 					motionX *= 0.9800000190734863D;
@@ -232,7 +235,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 				if (FBP.entityCollision) {
 					AxisAlignedBB box = null;
 
-					if ((box = this.getBoundingBox()) != null) {
+					if ((box = this.boundingBox) != null) {
 						List<Entity> list = worldObj.getEntitiesWithinAABB(Entity.class, box);
 
 						for (Entity entityIn : list) {
@@ -264,6 +267,31 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 					}
 				}
 
+				if (FBP.waterPhysics) {
+					if (isInWater()) {
+						handleWaterMovement();
+
+						if (this.sourceBlock.getMaterial() == Material.wood
+								|| this.sourceBlock.stepSound.soundName.toLowerCase().contains("wood")) {
+							motionY = 0.11f + (particleScale / 1.25f) * 0.02f;
+						} else {
+							motionX *= 0.932515086137662D;
+							motionZ *= 0.932515086137662D;
+							particleGravity = 0.35f;
+
+							motionY *= 0.85f;
+						}
+
+						if (!FBP.randomRotation)
+							calculateYAngle();
+
+						if (isCollided)
+							isCollided = false;
+					} else {
+						particleGravity = prevGravity;
+					}
+				}
+
 				if (isCollided) {
 					if (FBP.lowTraction) {
 						motionX *= 0.932515086137662D;
@@ -280,39 +308,128 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 			spawned = true;
 	}
 
-	public void moveEntity(double x, double y, double z, boolean YOnly) {
-		double d6 = x;
-		double d7 = y;
-		double d8 = z;
-		double d0 = y;
+	@Override
+	public boolean isInWater() {
+		double scale = particleScale / 40;
 
-		List<AxisAlignedBB> list = this.worldObj.getCollidingBoundingBoxes(this, this.boundingBox.addCoord(x, y, z));
+		int minX = MathHelper.floor_double(posX - scale);
+		int maxX = MathHelper.ceiling_double_int(posX + scale);
 
-		for (AxisAlignedBB aabb : list) {
-			y = aabb.calculateYOffset(this.boundingBox, y);
+		int minY = MathHelper.floor_double(posY - scale);
+		int maxY = MathHelper.ceiling_double_int(posY + scale);
 
-			if (!YOnly) {
-				x = aabb.calculateXOffset(this.boundingBox, x);
-				z = aabb.calculateZOffset(this.boundingBox, z);
+		int minZ = MathHelper.floor_double(posZ - scale);
+		int maxZ = MathHelper.ceiling_double_int(posZ + scale);
+
+		if (worldObj.checkChunksExist(minX, minY, minZ, maxX, maxY, maxZ)) {
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = minY; y <= maxY; ++y) {
+					for (int z = minZ; z <= maxZ; ++z) {
+						Block block = worldObj.getBlock(x, y, z);
+
+						if (block.getMaterial() == Material.water) {
+							double d0 = (double) ((float) (y + 1)
+									- BlockLiquid.getLiquidHeightPercent(worldObj.getBlockMetadata(x, y, z)));
+
+							if (posY <= d0)
+								return true;
+						}
+					}
+				}
 			}
 		}
 
-		this.boundingBox.setBB(boundingBox.offset(YOnly ? 0.0D : x, y, YOnly ? 0.0D : z));
+		return false;
+	}
 
+	@Override
+	public boolean handleWaterMovement() {
+		double scale = particleScale / 40;
+
+		int minX = MathHelper.floor_double(posX - scale);
+		int maxX = MathHelper.ceiling_double_int(posX + scale);
+
+		int minY = MathHelper.floor_double(posY - scale);
+		int maxY = MathHelper.ceiling_double_int(posY + scale);
+
+		int minZ = MathHelper.floor_double(posZ - scale);
+		int maxZ = MathHelper.ceiling_double_int(posZ + scale);
+
+		if (worldObj.checkChunksExist(minX, minY, minZ, maxX, maxY, maxZ)) {
+			boolean flag = false;
+			Vec3 vec3 = Vec3.createVectorHelper(0.0D, 0.0D, 0.0D);
+
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = minY; y <= maxY; ++y) {
+					for (int z = minZ; z <= maxZ; ++z) {
+						Block block = worldObj.getBlock(x, y, z);
+
+						if (block.getMaterial() == Material.water) {
+							double d0 = (double) ((float) (y + 1)
+									- BlockLiquid.getLiquidHeightPercent(worldObj.getBlockMetadata(x, y, z)));
+
+							if (posY <= d0) {
+								flag = true;
+								block.velocityToAddToEntity(worldObj, x, y, z, this, vec3);
+							}
+						}
+					}
+				}
+			}
+
+			if (vec3.lengthVector() > 0.0D && this.isPushedByWater()) {
+				vec3 = vec3.normalize();
+				double d1 = 0.014D;
+				this.motionX += vec3.xCoord * d1;
+				this.motionY += vec3.yCoord * d1;
+				this.motionZ += vec3.zCoord * d1;
+			}
+
+			return flag;
+		}
+
+		return false;
+	}
+
+	public void moveEntity(double x, double y, double z, boolean YOnly) {
+		double X = x;
+		double Y = y;
+		double Z = z;
+
+		List list = this.worldObj.getCollidingBoundingBoxes(this, this.boundingBox.addCoord(x, y, z));
+
+		for (int i = 0; i < list.size(); ++i) {
+			y = ((AxisAlignedBB) list.get(i)).calculateYOffset(this.boundingBox, y);
+		}
+
+		this.boundingBox.offset(0.0D, y, 0.0D);
+
+		if (!YOnly) {
+			for (int j = 0; j < list.size(); ++j) {
+				x = ((AxisAlignedBB) list.get(j)).calculateXOffset(this.boundingBox, x);
+			}
+
+			this.boundingBox.offset(x, 0.0D, 0.0D);
+
+			for (int j = 0; j < list.size(); ++j) {
+				z = ((AxisAlignedBB) list.get(j)).calculateZOffset(this.boundingBox, z);
+			}
+
+			this.boundingBox.offset(0.0D, 0.0D, z);
+		}
+		
 		// RESET
 		AxisAlignedBB axisalignedbb = this.boundingBox;
 		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
 		this.posY = axisalignedbb.minY;
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
-		this.isCollided = y != d7 && d0 < 0.0D;
+		this.isCollided = y != Y && Y < 0.0D;
 
 		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
-			if (x != d6)
+			if (x != X)
 				motionX *= 0.699999988079071D;
-			if (y != d7)
-				motionY = 0;
-			if (z != d8)
+			if (z != Z)
 				motionZ *= 0.699999988079071D;
 		}
 	}

@@ -106,8 +106,11 @@ public class FBPParticleManager extends EffectRenderer {
 				EntityFlameFX p = (EntityFlameFX) effect;
 
 				try {
-					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact((Entity) effect),
-							(double) Y.invokeExact((Entity) effect), (double) Z.invokeExact((Entity) effect), 0,
+					double x = FBP.random.nextDouble(-0.025, 0.025);
+					double z = FBP.random.nextDouble(-0.025, 0.025);
+
+					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact((Entity) effect) + x,
+							(double) Y.invokeExact((Entity) effect), (double) Z.invokeExact((Entity) effect) + z, 0,
 							FBP.random.nextDouble() * 0.25, 0, true);
 
 					effect.setDead();
@@ -200,7 +203,7 @@ public class FBPParticleManager extends EffectRenderer {
 	@Override
 	public void renderParticles(Entity e, float f) {
 		super.renderParticles(e, f);
-		
+
 		renderShadedParticles(f);
 	}
 

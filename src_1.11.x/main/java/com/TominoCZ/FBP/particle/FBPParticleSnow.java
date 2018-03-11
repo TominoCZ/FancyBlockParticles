@@ -68,7 +68,7 @@ public class FBPParticleSnow extends ParticleDigging implements IFBPShadedPartic
 
 		particleScale *= FBP.random.nextDouble(FBP.scaleMult - 0.25f, FBP.scaleMult + 0.25f);
 		particleMaxAge = (int) FBP.random.nextDouble(120, 200);
-		this.particleRed = this.particleGreen = this.particleBlue = 0.7F + (0.25F * mc.gameSettings.gammaSetting);
+		this.particleRed = this.particleGreen = this.particleBlue = 1;
 
 		scaleAlpha = particleScale * 0.75;
 
@@ -172,7 +172,11 @@ public class FBPParticleSnow extends ParticleDigging implements IFBPShadedPartic
 				}
 			}
 
+			if (world.getBlockState(new BlockPos(posX, posY, posZ)).getMaterial().isLiquid())
+				setExpired();
+
 			motionY -= 0.04D * this.particleGravity;
+
 			moveEntity(motionX, motionY, motionZ);
 
 			motionX *= 0.9800000190734863D;
@@ -197,31 +201,35 @@ public class FBPParticleSnow extends ParticleDigging implements IFBPShadedPartic
 		double X = x;
 		double Y = y;
 		double Z = z;
-		double d0 = y;
 
-		if (this.canCollide) {
-			List<AxisAlignedBB> list = this.world.getCollisionBoxes(null, this.getBoundingBox().offset(x, y, z));
+		List<AxisAlignedBB> list = this.world.getCollisionBoxes((Entity) null, this.getBoundingBox().addCoord(x, y, z));
 
-			for (AxisAlignedBB aabb : list) {
-				x = aabb.calculateXOffset(this.getBoundingBox(), x);
-				y = aabb.calculateYOffset(this.getBoundingBox(), y);
-				z = aabb.calculateZOffset(this.getBoundingBox(), z);
-			}
+		for (AxisAlignedBB axisalignedbb : list) {
+			y = axisalignedbb.calculateYOffset(this.getBoundingBox(), y);
+		}
 
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
-		} else
-			this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
+		this.setBoundingBox(this.getBoundingBox().offset(0.0D, y, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list) {
+			x = axisalignedbb.calculateXOffset(this.getBoundingBox(), x);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(x, 0.0D, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list) {
+			z = axisalignedbb.calculateZOffset(this.getBoundingBox(), z);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(0.0D, 0.0D, z));
 
 		this.resetPositionToBB();
 
-		this.onGround = y != Y && d0 < 0.0D;
+		this.onGround = y != Y && Y < 0.0D;
 
-		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
-			if (x != X)
-				motionX *= 0.699999988079071D;
-			if (z != Z)
-				motionZ *= 0.699999988079071D;
-		}
+		if (x != X)
+			motionX *= 0.699999988079071D;
+		if (z != Z)
+			motionZ *= 0.699999988079071D;
 	}
 
 	@Override
@@ -235,8 +243,10 @@ public class FBPParticleSnow extends ParticleDigging implements IFBPShadedPartic
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
 
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		BlockPos pos = new BlockPos(posX, posY, posZ);
+
+		if (this.world.isBlockLoaded(pos)) {
+			j = this.world.getCombinedLight(pos, 0);
 		}
 
 		return i == 0 ? j : i;

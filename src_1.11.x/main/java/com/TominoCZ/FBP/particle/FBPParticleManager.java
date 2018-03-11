@@ -201,7 +201,7 @@ public class FBPParticleManager extends ParticleManager {
 
 		renderShadedParticles(f);
 	}
-	
+
 	private void renderShadedParticles(float partialTicks) {
 		if (fxLayers.length < 2 || fxLayers[1].length < 2 || fxLayers[1][1].size() == 0)
 			return;

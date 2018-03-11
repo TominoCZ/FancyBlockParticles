@@ -57,7 +57,7 @@ public class FBP {
 	public static boolean infiniteDuration = false;
 	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
 			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyRain, fancySnow,
-			fancyFlame, fancySmoke, frozen;
+			fancyFlame, fancySmoke, waterPhysics, frozen;
 
 	public List<String> blockParticleExceptions;
 

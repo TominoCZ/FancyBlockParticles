@@ -67,6 +67,7 @@ public class FBPConfigHandler {
 			writer.println("enabled=" + FBP.enabled);
 			writer.println("weatherParticleDensity=" + FBP.weatherParticleDensity);
 			writer.println("particlesPerAxis=" + FBP.particlesPerAxis);
+			writer.println("waterPhysics=" + FBP.waterPhysics);
 			writer.println("fancyFlame=" + FBP.fancyFlame);
 			writer.println("fancySmoke=" + FBP.fancySmoke);
 			writer.println("fancyRain=" + FBP.fancyRain);
@@ -175,6 +176,8 @@ public class FBPConfigHandler {
 					FBP.weatherParticleDensity = Double.valueOf(line.replace("weatherParticleDensity=", ""));
 				else if (line.contains("particlesPerAxis="))
 					FBP.particlesPerAxis = Integer.valueOf(line.replace("particlesPerAxis=", ""));
+				else if (line.contains("waterPhysics="))
+					FBP.waterPhysics = Boolean.valueOf(line.replace("waterPhysics=", ""));
 				else if (line.contains("fancyFlame="))
 					FBP.fancyFlame = Boolean.valueOf(line.replace("fancyFlame=", ""));
 				else if (line.contains("fancySmoke="))
@@ -311,6 +314,7 @@ public class FBPConfigHandler {
 		FBP.fancySnow = true;
 		FBP.fancySmoke = true;
 		FBP.fancyFlame = true;
+		FBP.waterPhysics = true;
 
 		if (write)
 			write();
