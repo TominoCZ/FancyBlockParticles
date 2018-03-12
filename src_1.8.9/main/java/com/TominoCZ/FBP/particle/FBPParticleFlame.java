@@ -1,9 +1,10 @@
 package com.TominoCZ.FBP.particle;
 
+import javax.vecmath.Vector2f;
+
 import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
-import com.sun.javafx.geom.Vec2f;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -35,7 +36,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 	Vec3[] cube;
 
-	Vec2f par;
+	Vector2f par;
 
 	Vec3 startPos;
 
@@ -163,7 +164,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 		GlStateManager.enableCull();
 
-		par = new Vec2f(f, f1);
+		par = new Vector2f(f, f1);
 
 		Tessellator.getInstance().draw();
 		mc.getRenderManager().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
