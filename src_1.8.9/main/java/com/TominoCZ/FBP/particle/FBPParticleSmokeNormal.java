@@ -1,7 +1,8 @@
 package com.TominoCZ.FBP.particle;
 
+import javax.vecmath.Vector2f;
+
 import com.TominoCZ.FBP.FBP;
-import com.sun.javafx.geom.Vec2f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntitySmokeFX;
@@ -29,7 +30,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 	Vec3[] cube;
 
-	Vec2f par;
+	Vector2f par;
 
 	EntitySmokeFX original;
 
@@ -178,7 +179,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
 
 		// RENDER
-		par = new Vec2f(f, f1);
+		par = new Vector2f(f, f1);
 
 		worldRendererIn.setTranslation(f5, f6, f7);
 		putCube(worldRendererIn, f4 * 0.05F, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue,
