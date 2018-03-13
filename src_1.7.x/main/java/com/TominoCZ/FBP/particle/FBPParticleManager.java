@@ -106,8 +106,8 @@ public class FBPParticleManager extends EffectRenderer {
 				EntityFlameFX p = (EntityFlameFX) effect;
 
 				try {
-					double x = FBP.random.nextDouble(-0.025, 0.025);
-					double z = FBP.random.nextDouble(-0.025, 0.025);
+					double x = FBP.random.nextDouble(-0.04, 0.04);
+					double z = FBP.random.nextDouble(-0.04, 0.04);
 
 					toAdd = new FBPParticleFlame(worldObj, (double) X.invokeExact((Entity) effect) + x,
 							(double) Y.invokeExact((Entity) effect), (double) Z.invokeExact((Entity) effect) + z, 0,
@@ -153,27 +153,13 @@ public class FBPParticleManager extends EffectRenderer {
 						effect.setDead();
 
 						if (!(b instanceof BlockLiquid) && !FBP.INSTANCE.isInExceptions(b)) {
-							float R = toAdd.getRedColorF();
-							float G = toAdd.getGreenColorF();
-							float B = toAdd.getBlueColorF();
-
-							toAdd = new FBPParticleDigging(worldObj, x, y + 0.05000000149011612D, z, 0, 0, 0, R, G, B,
+							toAdd = new FBPParticleDigging(worldObj, x, y + 0.05000000149011612D, z, 0, 0, 0, 1, 1, 1,
 									(float) getParticleScale.invokeExact((EntityFX) effect), b, 0,
 									(int) getParticleBlockSide.invokeExact((EntityDiggingFX) effect));
 
-							if (b == Blocks.grass) {
-								toAdd.setRBGColorF(1, 1, 1);
-								((EntityDiggingFX) toAdd).applyColourMultiplier((int) x, (int) y, (int) z);
-							}
+							((EntityDiggingFX) toAdd).applyColourMultiplier((int) x, (int) y, (int) z);
+
 							toAdd.setParticleIcon(icon);
-
-							icon = (IIcon) getParticleIcon.invokeExact((EntityFX) toAdd);
-
-							if (icon == null || icon.getIconName().equals("missingno")) {
-								effect.setDead();
-								toAdd.setDead();
-								return;
-							}
 						} else
 							return;
 					}

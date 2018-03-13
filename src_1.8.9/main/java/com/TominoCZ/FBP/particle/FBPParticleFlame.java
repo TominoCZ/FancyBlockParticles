@@ -196,7 +196,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 			G = g * brightnessForRender;
 			B = b * brightnessForRender;
 
-			brightnessForRender *= 0.95;// TODO
+			brightnessForRender *= 0.95;
 
 			addVt(worldRendererIn, scale, v1, par.x, par.y, j, k, R, G, B, a);
 			addVt(worldRendererIn, scale, v2, par.x, par.y, j, k, R, G, B, a);

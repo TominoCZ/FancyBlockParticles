@@ -73,8 +73,10 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 				double particleSpeed = Math.sqrt(motionX * motionX + motionZ * motionZ);
 
-				double x = FBPMathUtil.add(mc.thePlayer.getLookVec().xCoord, 0.01D);
-				double z = FBPMathUtil.add(mc.thePlayer.getLookVec().zCoord, 0.01D);
+				Vec3 vec = mc.thePlayer.getLookVec();
+
+				double x = FBPMathUtil.add(vec.xCoord, 0.01D);
+				double z = FBPMathUtil.add(vec.zCoord, 0.01D);
 
 				motionX = x * particleSpeed;
 				motionZ = z * particleSpeed;
@@ -104,10 +106,10 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		this.particleIcon = b.getIcon(side, meta);
 
 		if (FBP.randomFadingSpeed)
-			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.4151, 0.9875), 0.63875, 0.9875);
+			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.5, 0.9), 0.55, 0.8);
 
-		if (particleIcon == null || particleIcon.getIconName().equals("missingno"))
-			this.isDead = true;
+		//if (particleIcon == null || particleIcon.getIconName().equals("missingno"))
+			//this.isDead = true;
 
 		prevGravity = particleGravity;
 	}
@@ -127,16 +129,17 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		if (!spawned)
 			tick++;
 
+		boolean allowedToMove = MathHelper.abs((float) motionX) > 0.0001D || MathHelper.abs((float) motionZ) > 0.0001D;
+		
 		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused()) {
-			if (!wasFrozen && spawned
-					&& (MathHelper.abs((float) motionX) > 0.00001D || MathHelper.abs((float) motionZ) > 0.00001D)) {
-				boolean xCollided = Math.abs(prevPosX - posX) < 0.00001D;
-				boolean zCollided = Math.abs(prevPosZ - posZ) < 0.00001D;
+			if (!wasFrozen && spawned && allowedToMove) {
+				boolean xCollided = prevPosX == posX;
+				boolean zCollided = prevPosZ == posZ;
 
 				if (xCollided)
-					motionX = -prevMotionX;
+					motionX = -prevMotionX * 0.625f;
 				if (zCollided)
-					motionZ = -prevMotionZ;
+					motionZ = -prevMotionZ * 0.625f;
 
 				if (!FBP.randomRotation && (xCollided || zCollided))
 					calculateYAngle();
@@ -156,9 +159,6 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		prevParticleScale = particleScale;
 
 		if (!mc.isGamePaused() && (!FBP.frozen || killToggle)) {
-			boolean allowedToMove = MathHelper.abs((float) motionX) > 0.00001D
-					|| MathHelper.abs((float) motionZ) > 0.00001D;
-
 			if (!killToggle) {
 				if (!FBP.randomRotation) {
 					if (!modeDebounce) {
@@ -170,7 +170,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 					}
 
 					if (allowedToMove) {
-						double x = MathHelper.abs((float) (rotStep.x * getMult() * FBP.rotationMult));
+						double x = MathHelper.abs((float) (rotStep.x * getMult()));
 
 						if (motionX > 0) {
 							if (motionZ > 0)
@@ -189,11 +189,11 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 					if (modeDebounce) {
 						modeDebounce = false;
 
-						createRotationMatrix();
+						rot.z = FBP.random.nextDouble(30, 400);
 					}
 
 					if (allowedToMove)
-						rot.add(rotStep.multiply(getMult() * FBP.rotationMult));
+						rot.add(rotStep.multiply(getMult()));
 				}
 			}
 
@@ -217,7 +217,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 				if (!isCollided)
 					motionY -= 0.04D * particleGravity;
 
-				moveEntity(motionX, motionY, motionZ, !allowedToMove);
+				moveEntity(motionX, motionY, motionZ);
 
 				if (MathHelper.abs((float) motionX) > 0.00001D)
 					prevMotionX = motionX;
@@ -322,9 +322,9 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		int maxZ = MathHelper.ceiling_double_int(posZ + scale);
 
 		if (worldObj.checkChunksExist(minX, minY, minZ, maxX, maxY, maxZ)) {
-			for (int x = minX; x <= maxX; ++x) {
-				for (int y = minY; y <= maxY; ++y) {
-					for (int z = minZ; z <= maxZ; ++z) {
+			for (int x = minX; x < maxX; ++x) {
+				for (int y = minY; y < maxY; ++y) {
+					for (int z = minZ; z < maxZ; ++z) {
 						Block block = worldObj.getBlock(x, y, z);
 
 						if (block.getMaterial() == Material.water) {
@@ -359,9 +359,9 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 			boolean flag = false;
 			Vec3 vec3 = Vec3.createVectorHelper(0.0D, 0.0D, 0.0D);
 
-			for (int x = minX; x <= maxX; ++x) {
-				for (int y = minY; y <= maxY; ++y) {
-					for (int z = minZ; z <= maxZ; ++z) {
+			for (int x = minX; x < maxX; ++x) {
+				for (int y = minY; y < maxY; ++y) {
+					for (int z = minZ; z < maxZ; ++z) {
 						Block block = worldObj.getBlock(x, y, z);
 
 						if (block.getMaterial() == Material.water) {
@@ -391,7 +391,8 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		return false;
 	}
 
-	public void moveEntity(double x, double y, double z, boolean YOnly) {
+	@Override
+	public void moveEntity(double x, double y, double z) {
 		double X = x;
 		double Y = y;
 		double Z = z;
@@ -404,20 +405,18 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 		this.boundingBox.offset(0.0D, y, 0.0D);
 
-		if (!YOnly) {
-			for (int j = 0; j < list.size(); ++j) {
-				x = ((AxisAlignedBB) list.get(j)).calculateXOffset(this.boundingBox, x);
-			}
-
-			this.boundingBox.offset(x, 0.0D, 0.0D);
-
-			for (int j = 0; j < list.size(); ++j) {
-				z = ((AxisAlignedBB) list.get(j)).calculateZOffset(this.boundingBox, z);
-			}
-
-			this.boundingBox.offset(0.0D, 0.0D, z);
+		for (int j = 0; j < list.size(); ++j) {
+			x = ((AxisAlignedBB) list.get(j)).calculateXOffset(this.boundingBox, x);
 		}
-		
+
+		this.boundingBox.offset(x, 0.0D, 0.0D);
+
+		for (int j = 0; j < list.size(); ++j) {
+			z = ((AxisAlignedBB) list.get(j)).calculateZOffset(this.boundingBox, z);
+		}
+
+		this.boundingBox.offset(0.0D, 0.0D, z);
+
 		// RESET
 		AxisAlignedBB axisalignedbb = this.boundingBox;
 		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
@@ -509,24 +508,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 	}
 
 	double getMult() {
-		if (FBP.randomRotation) {
-			if (destroyed)
-				return Math.sqrt(motionX * motionX + motionZ * motionZ) * 200;
-			else
-				return Math.sqrt(motionX * motionX + motionZ * motionZ) * 300;
-		} else {
-			if (FBP.lowTraction) {
-				if (destroyed)
-					return Math.sqrt(motionX * motionX + motionZ * motionZ) * 300;
-				else
-					return Math.sqrt(motionX * motionX + motionZ * motionZ) * 1150;
-			} else {
-				if (destroyed)
-					return Math.sqrt(motionX * motionX + motionZ * motionZ) * 300;
-				else
-					return Math.sqrt(motionX * motionX + motionZ * motionZ) * 1000;
-			}
-		}
+		return Math.sqrt(motionX * motionX + motionZ * motionZ) * (FBP.randomRotation ? 200 : 500) * FBP.rotationMult;
 	}
 
 	@Override

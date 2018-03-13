@@ -232,7 +232,7 @@ public class FBPConfigHandler {
 
 	public static void defaults(boolean write) {
 		FBP.minAge = 10;
-		FBP.maxAge = 45;
+		FBP.maxAge = 55;
 		FBP.scaleMult = 1.0;
 		FBP.gravityMult = 1.0;
 		FBP.rotationMult = 1.0;
