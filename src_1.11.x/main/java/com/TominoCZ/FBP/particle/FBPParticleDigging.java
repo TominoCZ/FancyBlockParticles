@@ -341,9 +341,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 					if (isInWater()) {
 						handleWaterMovement();
 
-						if (this.sourceState.getMaterial() == Material.WOOD
-								|| this.sourceState.getBlock().getSoundType(sourceState, world,
-										new BlockPos(posX, posY, posZ), null) == SoundType.WOOD) {
+						if (FBP.INSTANCE.doesMaterialFloat(this.sourceState.getMaterial())) {
 							motionY = 0.11f + (particleScale / 1.25f) * 0.02f;
 						} else {
 							motionX *= 0.932515086137662D;

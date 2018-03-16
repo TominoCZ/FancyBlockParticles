@@ -22,6 +22,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.launchwrapper.Launch;
@@ -44,6 +45,7 @@ public class FBP {
 	public static final ResourceLocation FBP_WIDGETS = new ResourceLocation(FBP.MODID + ":textures/gui/widgets.png");
 
 	public static File particleExceptionsFile = null;
+	public static File floatingMaterialsFile = null;
 	public static File config = null;
 
 	public static int minAge, maxAge, particlesPerAxis;
@@ -60,6 +62,7 @@ public class FBP {
 			fancyFlame, fancySmoke, waterPhysics, frozen;
 
 	public List<String> blockParticleExceptions;
+	public List<Material> floatingMaterials;
 
 	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
@@ -101,6 +104,7 @@ public class FBP {
 		INSTANCE = this;
 
 		blockParticleExceptions = Collections.synchronizedList(new ArrayList<String>());
+		floatingMaterials = Collections.synchronizedList(new ArrayList<Material>());
 	}
 
 	@EventHandler
@@ -110,6 +114,7 @@ public class FBP {
 
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
 		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
+		floatingMaterialsFile = new File(evt.getModConfigurationDirectory() + "/FBP/FloatingMaterials.txt");
 
 		FBPKeyBindings.init();
 
@@ -159,6 +164,10 @@ public class FBP {
 			return true;
 
 		return blockParticleExceptions.contains(b.blockRegistry.getNameForObject(b));
+	}
+
+	public boolean doesMaterialFloat(Material mat) {
+		return floatingMaterials.contains(mat);
 	}
 
 	public void addException(Block b) {

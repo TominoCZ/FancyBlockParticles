@@ -12,7 +12,6 @@ import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -340,9 +339,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 					if (isInWater()) {
 						handleWaterMovement();
 
-						if (this.sourceState.getMaterial() == Material.WOOD
-								|| this.sourceState.getBlock().getSoundType(sourceState, world,
-										new BlockPos(posX, posY, posZ), null) == SoundType.WOOD) {
+						if (FBP.INSTANCE.doesMaterialFloat(this.sourceState.getMaterial())) {
 							motionY = 0.11f + (particleScale / 1.25f) * 0.02f;
 						} else {
 							motionX *= 0.932515086137662D;

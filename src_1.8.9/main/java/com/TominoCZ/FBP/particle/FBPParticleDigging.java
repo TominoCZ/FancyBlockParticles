@@ -72,10 +72,10 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		this.particleBlue = B;
 
 		mc = Minecraft.getMinecraft();
-		
+
 		rot = new FBPVector3d();
 		prevRot = new FBPVector3d();
-		
+
 		createRotationMatrix();
 
 		try {
@@ -83,7 +83,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		} catch (Throwable e1) {
 			e1.printStackTrace();
 		}
-		
+
 		if (scale > -1)
 			particleScale = scale;
 
@@ -96,7 +96,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 					motionZ *= 1.5D;
 
 					double particleSpeed = Math.sqrt(motionX * motionX + motionZ * motionZ);
-					
+
 					Vec3 vec = mc.thePlayer.getLookVec();
 
 					double x = FBPMathUtil.add(vec.xCoord, 0.01D);
@@ -201,9 +201,9 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 	public void onUpdate() {
 		if (!spawned)
 			tick++;
-		
+
 		boolean allowedToMove = MathHelper.abs((float) motionX) > 0.0001D || MathHelper.abs((float) motionZ) > 0.0001D;
-		
+
 		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused()) {
 			if (!wasFrozen && spawned && allowedToMove) {
 				boolean xCollided = prevPosX == posX;
@@ -340,8 +340,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 					if (isInWater()) {
 						handleWaterMovement();
 
-						if (this.sourceState.getBlock().getMaterial() == Material.wood
-								|| this.sourceState.getBlock().stepSound.soundName.toLowerCase().contains("wood")) {
+						if (FBP.INSTANCE.doesMaterialFloat(this.sourceState.getBlock().getMaterial())) {
 							motionY = 0.11f + (particleScale / 1.25f) * 0.02f;
 						} else {
 							motionX *= 0.932515086137662D;

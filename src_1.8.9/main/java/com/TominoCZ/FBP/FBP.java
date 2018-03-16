@@ -17,6 +17,7 @@ import com.TominoCZ.FBP.keys.FBPKeyBindings;
 import com.google.common.base.Throwables;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityDiggingFX;
@@ -70,7 +71,8 @@ public class FBP {
 			new Vec3(-1, 0, 0), new Vec3(1, 0, 0) };
 	@Instance(FBP.MODID)
 	public static FBP INSTANCE;
-	public static File animExceptionsFile = null, particleExceptionsFile = null;
+	public static File particleExceptionsFile = null;
+	public static File floatingMaterialsFile = null;
 	public static File config = null;
 	public static int minAge, maxAge, particlesPerAxis;
 	public static double scaleMult, gravityMult, rotationMult, weatherParticleDensity;
@@ -88,6 +90,7 @@ public class FBP {
 	public static EffectRenderer fancyEffectRenderer, originalEffectRenderer;
 
 	public List<String> blockParticleExceptions;
+	public List<Material> floatingMaterials;
 
 	public FBPEventHandler eventHandler = new FBPEventHandler();
 	public FBPGuiHandler guiHandler = new FBPGuiHandler();
@@ -104,6 +107,7 @@ public class FBP {
 		POSITION_TEX_COLOR_LMAP_NORMAL.addElement(DefaultVertexFormats.NORMAL_3B);
 
 		blockParticleExceptions = Collections.synchronizedList(new ArrayList<String>());
+		floatingMaterials = Collections.synchronizedList(new ArrayList<Material>());
 	}
 
 	public static boolean isEnabled() {
@@ -137,8 +141,8 @@ public class FBP {
 			isServer = true;
 
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-		animExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
 		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
+		floatingMaterialsFile = new File(evt.getModConfigurationDirectory() + "/FBP/FloatingMaterials.txt");
 
 		FBPKeyBindings.init();
 
@@ -170,6 +174,10 @@ public class FBP {
 			return true;
 
 		return blockParticleExceptions.contains(b.getRegistryName().toString());
+	}
+
+	public boolean doesMaterialFloat(Material mat) {
+		return floatingMaterials.contains(mat);
 	}
 
 	public void addException(Block b) {

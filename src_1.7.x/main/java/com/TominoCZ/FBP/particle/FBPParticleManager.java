@@ -11,6 +11,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.block.FBPBlockPos;
+import com.TominoCZ.FBP.util.FBPMathUtil;
 import com.google.common.base.Throwables;
 
 import cpw.mods.fml.relauncher.ReflectionHelper;
@@ -38,6 +39,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import scala.tools.nsc.transform.patmat.MatchCodeGen;
 
 @SideOnly(Side.CLIENT)
 public class FBPParticleManager extends EffectRenderer {
@@ -153,12 +155,19 @@ public class FBPParticleManager extends EffectRenderer {
 						effect.setDead();
 
 						if (!(b instanceof BlockLiquid) && !FBP.INSTANCE.isInExceptions(b)) {
-							toAdd = new FBPParticleDigging(worldObj, x, y + 0.05000000149011612D, z, 0, 0, 0, 1, 1, 1,
+							float R = 1;
+							float G = 1;
+							float B = 1;
+
+							int bX = (int) MathHelper.floor_double(x);
+							int bY = (int) MathHelper.floor_double(y);
+							int bZ = (int) MathHelper.floor_double(z);
+
+							toAdd = new FBPParticleDigging(worldObj, x, y + 0.05000000149011612D, z, (double) mX.invokeExact((Entity) effect), (double) mY.invokeExact((Entity) effect),
+									(double) mZ.invokeExact((Entity) effect), R, G, B,
 									(float) getParticleScale.invokeExact((EntityFX) effect), b, 0,
-									(int) getParticleBlockSide.invokeExact((EntityDiggingFX) effect));
-
-							((EntityDiggingFX) toAdd).applyColourMultiplier((int) x, (int) y, (int) z);
-
+									(int) getParticleBlockSide.invokeExact((EntityDiggingFX) effect)).applyColourMultiplier(bX, bY, bZ);
+							
 							toAdd.setParticleIcon(icon);
 						} else
 							return;

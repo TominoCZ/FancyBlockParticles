@@ -108,8 +108,8 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		if (FBP.randomFadingSpeed)
 			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.5, 0.9), 0.55, 0.8);
 
-		//if (particleIcon == null || particleIcon.getIconName().equals("missingno"))
-			//this.isDead = true;
+		// if (particleIcon == null || particleIcon.getIconName().equals("missingno"))
+		// this.isDead = true;
 
 		prevGravity = particleGravity;
 	}
@@ -130,7 +130,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 			tick++;
 
 		boolean allowedToMove = MathHelper.abs((float) motionX) > 0.0001D || MathHelper.abs((float) motionZ) > 0.0001D;
-		
+
 		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused()) {
 			if (!wasFrozen && spawned && allowedToMove) {
 				boolean xCollided = prevPosX == posX;
@@ -271,8 +271,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 					if (isInWater()) {
 						handleWaterMovement();
 
-						if (this.sourceBlock.getMaterial() == Material.wood
-								|| this.sourceBlock.stepSound.soundName.toLowerCase().contains("wood")) {
+						if (FBP.INSTANCE.doesMaterialFloat(this.sourceBlock.getMaterial())) {
 							motionY = 0.11f + (particleScale / 1.25f) * 0.02f;
 						} else {
 							motionX *= 0.932515086137662D;
@@ -459,6 +458,10 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 			return this;
 		} else {
 			int l = this.sourceBlock.colorMultiplier(this.worldObj, p_70596_1_, p_70596_2_, p_70596_3_);
+			
+			if (this.sourceBlock == Blocks.tallgrass)
+				l = -7226023;
+			
 			this.particleRed *= (float) (l >> 16 & 255) / 255.0F;
 			this.particleGreen *= (float) (l >> 8 & 255) / 255.0F;
 			this.particleBlue *= (float) (l & 255) / 255.0F;

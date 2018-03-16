@@ -156,7 +156,7 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 				case 3:
 					description = "Makes \u00A76rain particles\u00A7a fancy.";
 					break;
-                                case 4:
+				case 4:
 					description = "Makes \u00A76snow particles\u00A7a fancy.";
 					break;
 				case 5:

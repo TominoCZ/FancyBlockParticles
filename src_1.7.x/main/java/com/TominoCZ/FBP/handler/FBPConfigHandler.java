@@ -5,12 +5,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.util.FBPObfUtil;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.util.MathHelper;
 import scala.reflect.io.Path;
 
@@ -23,21 +26,34 @@ public class FBPConfigHandler {
 		try {
 			defaults(false);
 
-			if (!FBP.config.exists()) {
-				if (!Path.apply(FBP.config.getParent()).exists())
-					Path.apply(FBP.config.getParent()).createDirectory(true, false);
+			if (!Path.apply(FBP.config.getParent()).exists())
+				Path.apply(FBP.config.getParent()).createDirectory(true, false);
 
+			if (!FBP.config.exists()) {
 				FBP.config.createNewFile();
 
 				write();
 			}
 
-			if (!FBP.particleExceptionsFile.exists()) {
-				if (!Path.apply(FBP.particleExceptionsFile.getParent()).exists())
-					Path.apply(FBP.particleExceptionsFile.getParent()).createDirectory(true, false);
-
+			if (!FBP.particleExceptionsFile.exists())
 				FBP.particleExceptionsFile.createNewFile();
+
+			if (!FBP.floatingMaterialsFile.exists()) {
+				try {
+					PrintWriter writer = new PrintWriter(FBP.floatingMaterialsFile.getPath(), "UTF-8");
+					writer.println("wood");
+					writer.println("vine");
+					writer.println("leaves");
+					writer.println("plants");
+					writer.println("ice");
+					writer.print("packedIce");
+
+					writer.close();
+				} catch (Exception e) {
+				}
 			}
+
+			readFloatingMaterials();
 
 			read();
 			readParticleExceptions();
@@ -218,6 +234,61 @@ public class FBPConfigHandler {
 		}
 
 		closeStreams();
+	}
+
+	static void readFloatingMaterials() {
+		try {
+			fis = new FileInputStream(FBP.floatingMaterialsFile);
+			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
+			br = new BufferedReader(isr);
+
+			String line;
+
+			FBP.INSTANCE.floatingMaterials.clear();
+
+			Field[] materials = Material.class.getDeclaredFields();
+
+			while ((line = br.readLine()) != null) {
+				line = line.trim().toLowerCase();
+
+				boolean found = false;
+
+				for (Field f : materials) {
+					String fieldName = f.getName();
+
+					if (f.getType() == Material.class) {
+						String translated = FBPObfUtil.translateObfMaterialName(fieldName).toLowerCase();
+
+						if (translated.equals(line)) {
+							try {
+								Material mat = (Material) f.get(null);
+
+								if (!FBP.INSTANCE.floatingMaterials.contains(mat))
+									FBP.INSTANCE.floatingMaterials.add(mat);
+
+								found = true;
+								break;
+							} catch (Exception ex) {
+
+							}
+						}
+					}
+				}
+
+				if (!found)
+					System.out.println("[FBP]: Material not recognized: " + line);
+			}
+
+			closeStreams();
+
+			check();
+		} catch (Exception e) {
+			closeStreams();
+
+			check();
+
+			write();
+		}
 	}
 
 	static void closeStreams() {
