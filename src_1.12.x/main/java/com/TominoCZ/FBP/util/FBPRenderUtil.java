@@ -115,8 +115,8 @@ public class FBPRenderUtil {
 		FBPVector3d cos = new FBPVector3d(MathHelper.cos(AngleX), MathHelper.cos(AngleY), MathHelper.cos(AngleZ));
 
 		vec = new Vec3d(vec.x, vec.y * cos.x - vec.z * sin.x, vec.y * sin.x + vec.z * cos.x);
-		vec = new Vec3d(vec.x * cos.y + vec.z * sin.y, vec.y, vec.x * sin.y - vec.z * cos.y);
 		vec = new Vec3d(vec.x * cos.z - vec.y * sin.z, vec.x * sin.z + vec.y * cos.z, vec.z);
+		vec = new Vec3d(vec.x * cos.y + vec.z * sin.y, vec.y, vec.x * sin.y - vec.z * cos.y);
 
 		return vec;
 	}
@@ -138,8 +138,8 @@ public class FBPRenderUtil {
 		}
 
 		pos2 = new FBPVector3d(pos1.x, pos1.y * cos.x - pos1.z * sin.x, pos1.y * sin.x + pos1.z * cos.x);
-		pos2 = new FBPVector3d(pos2.x * cos.y + pos2.z * sin.y, pos2.y, pos2.x * sin.y - pos2.z * cos.y);
 		pos2 = new FBPVector3d(pos2.x * cos.z - pos2.y * sin.z, pos2.x * sin.z + pos2.y * cos.z, pos2.z);
+		pos2 = new FBPVector3d(pos2.x * cos.y + pos2.z * sin.y, pos2.y, pos2.x * sin.y - pos2.z * cos.y);
 
 		if (facing == EnumFacing.EAST) {
 			pos2.x += 1.0f;

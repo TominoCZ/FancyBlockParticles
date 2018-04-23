@@ -78,7 +78,6 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 		@Override
 		protected void entityInit() {
 			// TODO Auto-generated method stub
-
 		}
 	};
 

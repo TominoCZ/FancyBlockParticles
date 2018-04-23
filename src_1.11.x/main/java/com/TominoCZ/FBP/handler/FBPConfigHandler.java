@@ -40,21 +40,20 @@ public class FBPConfigHandler {
 				FBP.particleExceptionsFile.createNewFile();
 
 			if (!FBP.floatingMaterialsFile.exists()) {
-				try {
-					PrintWriter writer = new PrintWriter(FBP.floatingMaterialsFile.getPath(), "UTF-8");
-					writer.println("wood");
-					writer.println("vine");
-					writer.println("leaves");
-					writer.println("plants");
-					writer.println("ice");
-					writer.print("packedIce");
+				FBP.floatingMaterialsFile.createNewFile();
+				
+				FBP.INSTANCE.floatingMaterials.clear();
 
-					writer.close();
-				} catch (Exception e) {
-				}
+				FBP.INSTANCE.floatingMaterials.put(Material.LEAVES, true);
+				FBP.INSTANCE.floatingMaterials.put(Material.PLANTS, true);
+				FBP.INSTANCE.floatingMaterials.put(Material.ICE, true);
+				FBP.INSTANCE.floatingMaterials.put(Material.PACKED_ICE, true);
+				FBP.INSTANCE.floatingMaterials.put(Material.CARPET, true);
+				FBP.INSTANCE.floatingMaterials.put(Material.WOOD, true);
+				FBP.INSTANCE.floatingMaterials.put(Material.WEB, true);
 			}
-
-			readFloatingMaterials();
+			else
+				readFloatingMaterials();
 
 			read();
 			readAnimExceptions();
@@ -63,6 +62,7 @@ public class FBPConfigHandler {
 			write();
 			writeAnimExceptions();
 			writeParticleExceptions();
+			writeFloatingMaterials();
 
 			closeStreams();
 		} catch (IOException e) {
@@ -169,6 +169,37 @@ public class FBPConfigHandler {
 					e1.printStackTrace();
 				}
 			}
+		}
+	}
+
+	static void writeFloatingMaterials() {
+		try {
+			PrintWriter writer = new PrintWriter(FBP.floatingMaterialsFile.getPath(), "UTF-8");
+
+			Field[] materials = Material.class.getDeclaredFields();
+
+			for (Field f : materials) {
+				String fieldName = f.getName();
+
+				if (f.getType() == Material.class) {
+					String translated = FBPObfUtil.translateObfMaterialName(fieldName).toLowerCase();
+					try {
+						Material mat = (Material) f.get(null);
+						if (mat == Material.AIR)
+							continue;
+
+						boolean flag = FBP.INSTANCE.doesMaterialFloat(mat);
+
+						writer.println(translated + "=" + flag);
+					} catch (Exception ex) {
+
+					}
+				}
+			}
+
+			writer.close();
+		} catch (Exception e) {
+			closeStreams();
 		}
 	}
 
@@ -314,12 +345,14 @@ public class FBPConfigHandler {
 					if (f.getType() == Material.class) {
 						String translated = FBPObfUtil.translateObfMaterialName(fieldName).toLowerCase();
 
-						if (line.equals(translated) || line.equals(translated.replace("_", ""))) {
+						if (line.contains(translated) || line.contains(translated.replace("_", ""))) {
 							try {
+								boolean flag = line.split("=")[1].equals("true");
+
 								Material mat = (Material) f.get(null);
 
-								if (!FBP.INSTANCE.floatingMaterials.contains(mat))
-									FBP.INSTANCE.floatingMaterials.add(mat);
+								if (mat != Material.AIR && !FBP.INSTANCE.floatingMaterials.containsKey(mat))
+									FBP.INSTANCE.floatingMaterials.put(mat, flag);
 
 								found = true;
 								break;

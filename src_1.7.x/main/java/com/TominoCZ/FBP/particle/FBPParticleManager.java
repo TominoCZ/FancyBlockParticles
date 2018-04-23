@@ -197,7 +197,8 @@ public class FBPParticleManager extends EffectRenderer {
 
 	@Override
 	public void renderParticles(Entity e, float f) {
-		super.renderParticles(e, f);
+		if (e != null)
+			super.renderParticles(e, f);
 
 		renderShadedParticles(f);
 	}

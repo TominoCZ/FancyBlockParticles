@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -77,7 +78,7 @@ public class FBP {
 
 	public List<String> blockParticleExceptions;
 	public List<String> blockAnimExceptions;
-	public List<Material> floatingMaterials;
+	public HashMap<Material, Boolean> floatingMaterials;
 
 	public static ThreadLocalRandom random = ThreadLocalRandom.current();
 
@@ -130,7 +131,7 @@ public class FBP {
 
 		blockParticleExceptions = Collections.synchronizedList(new ArrayList<String>());
 		blockAnimExceptions = Collections.synchronizedList(new ArrayList<String>());
-		floatingMaterials = Collections.synchronizedList(new ArrayList<Material>());
+		floatingMaterials = new HashMap<Material, Boolean>();
 	}
 
 	@EventHandler
@@ -142,7 +143,7 @@ public class FBP {
 		animExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
 		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
 		floatingMaterialsFile = new File(evt.getModConfigurationDirectory() + "/FBP/FloatingMaterials.txt");
-		
+
 		FBPKeyBindings.init();
 
 		FMLCommonHandler.instance().bus().register(new FBPKeyInputHandler());
@@ -206,9 +207,9 @@ public class FBP {
 
 		return (particle ? blockParticleExceptions : blockAnimExceptions).contains(b.getRegistryName().toString());
 	}
-	
+
 	public boolean doesMaterialFloat(Material mat) {
-		return floatingMaterials.contains(mat);
+		return floatingMaterials.getOrDefault(mat, false);
 	}
 
 	public void addException(Block b, boolean particle) {

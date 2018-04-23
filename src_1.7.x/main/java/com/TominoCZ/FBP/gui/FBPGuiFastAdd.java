@@ -50,6 +50,9 @@ public class FBPGuiFastAdd extends GuiScreen {
 		ItemStack is = b.getPickBlock(mc.objectMouseOver, mc.theWorld, selected.getX(), selected.getY(),
 				selected.getZ(), mc.thePlayer);
 
+		if (is == null)
+			is = new ItemStack(b);
+		
 		displayItemStack = is.copy();
 	}
 

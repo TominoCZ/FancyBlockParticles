@@ -16,6 +16,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -67,6 +68,111 @@ public class FBPAnimationDummyBlock extends Block {
 		}
 
 		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+	}
+
+	@Override
+	public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode n = blockNodes.get(pos);
+
+				return n.state.isNormalCube();
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+		return super.isNormalCube(state, world, pos);
+	}
+
+	@Override
+	public boolean isAir(IBlockState state, IBlockAccess world, BlockPos pos) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode n = blockNodes.get(pos);
+
+				return n.state.getBlock().isAir(state, world, pos);
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+		return super.isAir(state, world, pos);
+	}
+
+	@Override
+	public boolean isBed(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity player) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode n = blockNodes.get(pos);
+
+				return n.state.getBlock().isBed(state, world, pos, player);
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+		return super.isBed(state, world, pos, player);
+	}
+
+	@Override
+	public boolean isBedFoot(IBlockAccess world, BlockPos pos) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode n = blockNodes.get(pos);
+
+				return n.state.getBlock().isBedFoot(world, pos);
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+		return super.isBedFoot(world, pos);
+	}
+
+	@Override
+	public boolean isBurning(IBlockAccess world, BlockPos pos) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode n = blockNodes.get(pos);
+
+				return n.state.getBlock().isBurning(world, pos);
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+		return super.isBurning(world, pos);
+	}
+
+	@Override
+	public boolean isFlammable(IBlockAccess world, BlockPos pos, EnumFacing face) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode n = blockNodes.get(pos);
+
+				return n.state.getBlock().isFlammable(world, pos, face);
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+		return super.isFlammable(world, pos, face);
+	}
+
+	@Override
+	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
+		try {
+			if (blockNodes.containsKey(pos)) {
+				BlockNode n = blockNodes.get(pos);
+
+				return n.state.getBlock().isLadder(state, world, pos, entity);
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+		return super.isLadder(state, world, pos, entity);
 	}
 
 	@Override

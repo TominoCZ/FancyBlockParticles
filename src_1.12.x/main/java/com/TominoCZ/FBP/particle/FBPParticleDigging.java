@@ -291,6 +291,11 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 
 				move(motionX, motionY, motionZ);
 
+				if (onGround && FBP.restOnFloor) {
+					rot.x = (float) Math.round(rot.x / 90) * 90;
+					rot.z = (float) Math.round(rot.z / 90) * 90;
+				}
+				
 				if (MathHelper.abs((float) motionX) > 0.00001D)
 					prevMotionX = motionX;
 				if (MathHelper.abs((float) motionZ) > 0.00001D)
@@ -370,7 +375,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 				}
 			}
 		}
-
+		
 		if (destroyed || !spawned && tick >= 2)
 			spawned = true;
 	}
@@ -547,7 +552,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 		}
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + (FBP.restOnFloor ? particleScale / 20 : 0);
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
 		int i = getBrightnessForRender(partialTicks);

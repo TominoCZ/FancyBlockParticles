@@ -23,7 +23,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
@@ -151,122 +150,121 @@ public class FBPEventHandler {
 
 	@SubscribeEvent
 	public void onInteractionEvent(RightClickBlock e) {
-		if (e.getWorld().isRemote) {
-			if (e.getItemStack() == null || !(e.getItemStack().getItem() instanceof ItemBlock))
-				return;
+		if (e.getHitVec() == null || e.getItemStack() == null || !e.getWorld().isRemote
+				|| !(e.getItemStack().getItem() instanceof ItemBlock))
+			return;
 
-			BlockPos pos = e.getPos();
-			BlockPos pos_o = e.getPos().offset(e.getFace());
+		BlockPos pos = e.getPos();
+		BlockPos pos_o = e.getPos().offset(e.getFace());
 
-			Block inHand = null;
+		Block inHand = null;
 
-			IBlockState atPos = e.getWorld().getBlockState(pos);
-			IBlockState offset = e.getWorld().getBlockState(pos_o);
+		IBlockState atPos = e.getWorld().getBlockState(pos);
+		IBlockState offset = e.getWorld().getBlockState(pos_o);
 
-			boolean bool = false;
+		boolean bool = false;
 
-			float f = (float) (e.getHitVec().x - pos.getX());
-			float f1 = (float) (e.getHitVec().y - pos.getY());
-			float f2 = (float) (e.getHitVec().z - pos.getZ());
+		float f = (float) (e.getHitVec().x - pos.getX());
+		float f1 = (float) (e.getHitVec().y - pos.getY());
+		float f2 = (float) (e.getHitVec().z - pos.getZ());
 
-			if (atPos.getBlock() == FBP.FBPBlock) {
-				BlockNode n = FBP.FBPBlock.blockNodes.get(pos);
+		if (atPos.getBlock() == FBP.FBPBlock) {
+			BlockNode n = FBP.FBPBlock.blockNodes.get(pos);
 
-				if (n != null && n.state.getBlock() != null) {
-					boolean activated = n.originalBlock.onBlockActivated(e.getWorld(), pos, n.state, mc.player,
-							EnumHand.MAIN_HAND, e.getFace(), f, f1, f2);
+			if (n != null && n.state.getBlock() != null) {
+				boolean activated = n.originalBlock.onBlockActivated(e.getWorld(), pos, n.state, mc.player, e.getHand(),
+						e.getFace(), f, f1, f2);
 
-					if (activated)
-						return;
+				if (activated)
+					return;
 
-					atPos = n.state;
-				}
+				atPos = n.state;
+			}
 
-				// if placed quicky atop each other
-				if (atPos.getBlock() instanceof BlockSlab) {
-					BlockSlab.EnumBlockHalf half = atPos.getValue(BlockSlab.HALF);
+			// if placed quicky atop each other
+			if (atPos.getBlock() instanceof BlockSlab) {
+				BlockSlab.EnumBlockHalf half = atPos.getValue(BlockSlab.HALF);
 
-					if (e.getFace() == EnumFacing.UP) {
-						if (half == EnumBlockHalf.BOTTOM) {
-							bool = true;
-						}
-					} else if (e.getFace() == EnumFacing.DOWN) {
-						if (half == EnumBlockHalf.TOP) {
-							bool = true;
-						}
+				if (e.getFace() == EnumFacing.UP) {
+					if (half == EnumBlockHalf.BOTTOM) {
+						bool = true;
+					}
+				} else if (e.getFace() == EnumFacing.DOWN) {
+					if (half == EnumBlockHalf.TOP) {
+						bool = true;
 					}
 				}
 			}
-			if (offset.getBlock() == FBP.FBPBlock) {
-				BlockNode n = FBP.FBPBlock.blockNodes.get(pos_o);
+		}
+		if (offset.getBlock() == FBP.FBPBlock) {
+			BlockNode n = FBP.FBPBlock.blockNodes.get(pos_o);
 
-				if (n != null && n.state.getBlock() != null)
-					offset = n.state;
-			}
+			if (n != null && n.state.getBlock() != null)
+				offset = n.state;
+		}
 
-			if (e.getItemStack() != null && e.getItemStack().getItem() != null)
-				inHand = Block.getBlockFromItem(e.getItemStack().getItem());
+		if (e.getItemStack() != null && e.getItemStack().getItem() != null)
+			inHand = Block.getBlockFromItem(e.getItemStack().getItem());
 
-			boolean addedOffset = false;
+		boolean addedOffset = false;
 
-			BlockPosNode node = new BlockPosNode();
+		BlockPosNode node = new BlockPosNode();
 
-			try {
-				if (!bool && (inHand != null && offset.getMaterial().isReplaceable()
-						&& !atPos.getBlock().isReplaceable(e.getWorld(), pos)
-						&& inHand.canPlaceBlockAt(e.getWorld(), pos_o))) {
-					node.add(pos_o);
-					addedOffset = true;
-				} else
-					node.add(pos);
+		try {
+			if (!bool && (inHand != null && offset.getMaterial().isReplaceable()
+					&& !atPos.getBlock().isReplaceable(e.getWorld(), pos)
+					&& inHand.canPlaceBlockAt(e.getWorld(), pos_o))) {
+				node.add(pos_o);
+				addedOffset = true;
+			} else
+				node.add(pos);
 
-				boolean okToAdd = inHand != null && inHand != Blocks.AIR
-						&& inHand.canPlaceBlockAt(e.getWorld(), addedOffset ? pos_o : pos);
+			boolean okToAdd = inHand != null && inHand != Blocks.AIR
+					&& inHand.canPlaceBlockAt(e.getWorld(), addedOffset ? pos_o : pos);
 
-				// do torch check
-				if (inHand != null && inHand instanceof BlockTorch) {
-					BlockTorch bt = (BlockTorch) inHand;
+			// do torch check
+			if (inHand != null && inHand instanceof BlockTorch) {
+				BlockTorch bt = (BlockTorch) inHand;
 
-					if (!bt.canPlaceBlockAt(e.getWorld(), pos_o))
-						okToAdd = false;
+				if (!bt.canPlaceBlockAt(e.getWorld(), pos_o))
+					okToAdd = false;
 
-					if (atPos.getBlock() == Blocks.TORCH) {
-						for (EnumFacing fc : EnumFacing.VALUES) {
-							BlockPos p = pos_o.offset(fc);
-							Block bl = e.getWorld().getBlockState(p).getBlock();
+				if (atPos.getBlock() == Blocks.TORCH) {
+					for (EnumFacing fc : EnumFacing.VALUES) {
+						BlockPos p = pos_o.offset(fc);
+						Block bl = e.getWorld().getBlockState(p).getBlock();
 
-							if (bl != Blocks.TORCH && bl != FBP.FBPBlock
-									&& bl.isSideSolid(bl.getDefaultState(), e.getWorld(), p, fc)) {
-								okToAdd = true;
-								break;
-							} else
-								okToAdd = false;
-						}
+						if (bl != Blocks.TORCH && bl != FBP.FBPBlock
+								&& bl.isSideSolid(bl.getDefaultState(), e.getWorld(), p, fc)) {
+							okToAdd = true;
+							break;
+						} else
+							okToAdd = false;
 					}
 				}
-
-				BlockPosNode last = getNodeWithPos(pos);
-				BlockPosNode last_o = getNodeWithPos(pos_o);
-
-				// add if all ok
-				if (okToAdd) {
-					boolean replaceable = (addedOffset ? offset : atPos).getBlock().isReplaceable(e.getWorld(),
-							(addedOffset ? pos_o : pos));
-
-					if (last != null && !addedOffset && last.checked) // replace
-						return;
-					if (last_o != null && addedOffset && (last_o.checked || replaceable)) // place on side
-						return;
-
-					Chunk c = mc.world.getChunkFromBlockCoords((addedOffset ? pos_o : pos));
-					c.resetRelightChecks();
-					c.setLightPopulated(true);
-
-					list.add(node);
-				}
-			} catch (Throwable t) {
-				list.clear();
 			}
+
+			BlockPosNode last = getNodeWithPos(pos);
+			BlockPosNode last_o = getNodeWithPos(pos_o);
+
+			// add if all ok
+			if (okToAdd) {
+				boolean replaceable = (addedOffset ? offset : atPos).getBlock().isReplaceable(e.getWorld(),
+						(addedOffset ? pos_o : pos));
+
+				if (last != null && !addedOffset && last.checked) // replace
+					return;
+				if (last_o != null && addedOffset && (last_o.checked || replaceable)) // place on side
+					return;
+
+				Chunk c = mc.world.getChunkFromBlockCoords((addedOffset ? pos_o : pos));
+				c.resetRelightChecks();
+				c.setLightPopulated(true);
+
+				list.add(node);
+			}
+		} catch (Throwable t) {
+			list.clear();
 		}
 	}
 
