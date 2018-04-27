@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.block.FBPBlockPos;
+import com.TominoCZ.FBP.util.FBPRenderUtil;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import cpw.mods.fml.relauncher.Side;
@@ -71,7 +72,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 		for (int i = 0; i < FBP.CUBE.length; i++) {
 			FBPVector3d vec = FBP.CUBE[i];
-			cube[i] = rotatef(vec, 0, AngleY, 0);
+			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, AngleY, 0);
 		}
 
 		particleAlpha = 1f;
@@ -156,7 +157,6 @@ public class FBPParticleFlame extends EntityFlameFX {
 		tes.startDrawingQuads();
 
 		GL11.glDepthMask(true);
-
 		tes.setTranslation(f5, f6, f7);
 		putCube(tes, f4 / 80, 240, particleRed, particleGreen, particleBlue, alpha, f, f1);
 		tes.setTranslation(0, 0, 0);
@@ -164,8 +164,6 @@ public class FBPParticleFlame extends EntityFlameFX {
 		tes.draw();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(FBP.LOCATION_PARTICLE_TEXTURE);
 		tes.startDrawingQuads();
-
-		GL11.glDepthMask(false);
 	}
 
 	@Override
@@ -214,21 +212,5 @@ public class FBPParticleFlame extends EntityFlameFX {
 		tes.setColorRGBA_F(r, g, b, a);
 		tes.setBrightness(i);
 		tes.addVertexWithUV(pos.x * scale, pos.y * scale, pos.z * scale, u, v);
-	}
-
-	FBPVector3d rotatef(FBPVector3d vec, float AngleX, float AngleY, float AngleZ) {
-		double sinAngleX = MathHelper.sin(AngleX);
-		double sinAngleY = MathHelper.sin(AngleY);
-		double sinAngleZ = MathHelper.sin(AngleZ);
-
-		double cosAngleX = MathHelper.cos(AngleX);
-		double cosAngleY = MathHelper.cos(AngleY);
-		double cosAngleZ = MathHelper.cos(AngleZ);
-
-		vec = new FBPVector3d(vec.x, vec.y * cosAngleX - vec.z * sinAngleX, vec.y * sinAngleX + vec.z * cosAngleX);
-		vec = new FBPVector3d(vec.x * cosAngleY + vec.z * sinAngleY, vec.y, vec.x * sinAngleY - vec.z * cosAngleY);
-		vec = new FBPVector3d(vec.x * cosAngleZ - vec.y * sinAngleZ, vec.x * sinAngleZ + vec.y * cosAngleZ, vec.z);
-
-		return vec;
 	}
 }

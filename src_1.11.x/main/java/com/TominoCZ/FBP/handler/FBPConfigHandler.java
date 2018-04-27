@@ -41,7 +41,7 @@ public class FBPConfigHandler {
 
 			if (!FBP.floatingMaterialsFile.exists()) {
 				FBP.floatingMaterialsFile.createNewFile();
-				
+
 				FBP.INSTANCE.floatingMaterials.clear();
 
 				FBP.INSTANCE.floatingMaterials.put(Material.LEAVES, true);
@@ -51,8 +51,7 @@ public class FBPConfigHandler {
 				FBP.INSTANCE.floatingMaterials.put(Material.CARPET, true);
 				FBP.INSTANCE.floatingMaterials.put(Material.WOOD, true);
 				FBP.INSTANCE.floatingMaterials.put(Material.WEB, true);
-			}
-			else
+			} else
 				readFloatingMaterials();
 
 			read();
@@ -79,7 +78,8 @@ public class FBPConfigHandler {
 			PrintWriter writer = new PrintWriter(FBP.config.getPath(), "UTF-8");
 			writer.println("enabled=" + FBP.enabled);
 			writer.println("weatherParticleDensity=" + FBP.weatherParticleDensity);
-			writer.println("particlesPerAxis=" + FBP.particlesPerAxis);
+			writer.println("particlesPerAxis=" + FBP.restOnFloor);
+			writer.println("restOnFloor=" + FBP.waterPhysics);
 			writer.println("waterPhysics=" + FBP.waterPhysics);
 			writer.println("fancyFlame=" + FBP.fancyFlame);
 			writer.println("fancySmoke=" + FBP.fancySmoke);
@@ -220,6 +220,8 @@ public class FBPConfigHandler {
 					FBP.weatherParticleDensity = Double.valueOf(line.replace("weatherParticleDensity=", ""));
 				else if (line.contains("particlesPerAxis="))
 					FBP.particlesPerAxis = Integer.valueOf(line.replace("particlesPerAxis=", ""));
+				else if (line.contains("restOnFloor="))
+					FBP.restOnFloor = Boolean.valueOf(line.replace("restOnFloor=", ""));
 				else if (line.contains("waterPhysics="))
 					FBP.waterPhysics = Boolean.valueOf(line.replace("waterPhysics=", ""));
 				else if (line.contains("fancyFlame="))
@@ -392,7 +394,7 @@ public class FBPConfigHandler {
 	public static void defaults(boolean write) {
 		FBP.minAge = 10;
 		FBP.maxAge = 55;
-		FBP.scaleMult = 1.0;
+		FBP.scaleMult = 0.75;
 		FBP.gravityMult = 1.0;
 		FBP.rotationMult = 1.0;
 		FBP.particlesPerAxis = 4;
@@ -416,6 +418,7 @@ public class FBPConfigHandler {
 		FBP.fancySmoke = true;
 		FBP.fancyFlame = true;
 		FBP.waterPhysics = true;
+		FBP.restOnFloor = true;
 
 		if (write)
 			write();

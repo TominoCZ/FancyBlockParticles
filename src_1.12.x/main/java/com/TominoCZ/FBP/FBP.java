@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.SplittableRandom;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -71,13 +71,14 @@ public class FBP {
 	public static boolean infiniteDuration = false;
 	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
 			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyPlaceAnim,
-			animSmoothLighting, spawnPlaceParticles, fancyRain, fancySnow, fancyFlame, fancySmoke, waterPhysics, restOnFloor, frozen;
+			animSmoothLighting, spawnPlaceParticles, fancyRain, fancySnow, fancyFlame, fancySmoke, waterPhysics,
+			restOnFloor, frozen;
 
 	public List<String> blockParticleExceptions;
 	public List<String> blockAnimExceptions;
 	public HashMap<Material, Boolean> floatingMaterials;
 
-	public static ThreadLocalRandom random = ThreadLocalRandom.current();
+	public static SplittableRandom random = new SplittableRandom();
 
 	public static final Vec3d[] CUBE = {
 			// TOP

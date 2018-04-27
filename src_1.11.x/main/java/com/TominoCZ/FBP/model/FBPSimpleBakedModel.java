@@ -8,8 +8,6 @@ import javax.vecmath.Matrix4f;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.TominoCZ.FBP.util.FBPVertexUtil;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -41,19 +39,6 @@ public class FBPSimpleBakedModel implements IPerspectiveAwareModel {
 
 	public void addQuad(EnumFacing side, BakedQuad quad) {
 		quads[side == null ? 6 : side.ordinal()].add(quad);
-	}
-
-	public void addModel(IBakedModel model) {
-		for (int i = 0; i < 7; i++) {
-			quads[i].addAll(model.getQuads(null, i == 6 ? null : EnumFacing.getFront(i), 0));
-		}
-	}
-
-	public void addModel(IBakedModel model, int tint) {
-		for (int i = 0; i < 7; i++) {
-			EnumFacing side = i == 6 ? null : EnumFacing.getFront(i);
-			FBPVertexUtil.addRecoloredQuads(model.getQuads(null, side, 0), tint, quads[i], side);
-		}
 	}
 
 	@Override

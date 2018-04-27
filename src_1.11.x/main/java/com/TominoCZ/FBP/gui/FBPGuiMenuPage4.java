@@ -16,13 +16,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class FBPGuiMenuPage4 extends GuiScreen {
 
-	GuiButton Reload, Done, Defaults, Back, ReportBug, Enable, b1, b2, b3, b4, b5;
+	GuiButton Reload, Done, Defaults, Back, ReportBug, Enable, b1, b2, b3, b4, b5, b6;
 
 	String b1Text = "Fancy Flame";
 	String b2Text = "Fancy Smoke";
 	String b3Text = "Fancy Rain";
 	String b4Text = "Fancy Snow";
 	String b5Text = "Water Physics";
+	String b6Text = "Rest On Floor";
 
 	String description = "";
 
@@ -41,6 +42,7 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 		b3 = new FBPGuiButton(3, x, b2.yPosition + b1.height + 6, b3Text, FBP.fancyRain, true);
 		b4 = new FBPGuiButton(4, x, b3.yPosition + b1.height + 1, b4Text, FBP.fancySnow, true);
 		b5 = new FBPGuiButton(5, x, b4.yPosition + b1.height + 6, b5Text, FBP.waterPhysics, true);
+		b6 = new FBPGuiButton(6, x, b5.yPosition + b1.height + 1, b6Text, FBP.restOnFloor, true);
 
 		Back = new FBPGuiButton(-3, this.width / 2 - 125 - 19, (6 * b1.height + b1.yPosition - 5 + 10 - GUIOffsetY),
 				"<<", false, false);
@@ -60,7 +62,7 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 		Back.width = 20;
 
 		this.buttonList.addAll(java.util.Arrays
-				.asList(new GuiButton[] { b1, b2, b3, b4, b5, Defaults, Done, Reload, Back, Enable, ReportBug }));
+				.asList(new GuiButton[] { b1, b2, b3, b4, b5, b6, Defaults, Done, Reload, Back, Enable, ReportBug }));
 	}
 
 	@Override
@@ -103,6 +105,9 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 		case 5:
 			FBP.waterPhysics = !FBP.waterPhysics;
 			break;
+		case 6:
+			FBP.restOnFloor = !FBP.restOnFloor;
+			break;
 		}
 
 		if (FBP.fancyRain || FBP.fancySnow)
@@ -130,7 +135,7 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 		getDescription();
 
 		if ((mouseX >= b1.xPosition && mouseX < b1.xPosition + b1.width)
-				&& (mouseY >= b1.yPosition && mouseY < b5.yPosition + b1.height)) {
+				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height)) {
 
 			moveText();
 
@@ -162,10 +167,12 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 				case 5:
 					description = "Makes \u00A76wood\u00A7a particles \u00A76float\u00A7a and others to \u00A76sink slower\u00A7a.";
 					break;
+				case 6:
+					description = "Makes particles rest \u00A76aligned\u00A7a on the ground.";
+					break;
 				}
 			}
 		}
-
 	}
 
 	private void moveText() {

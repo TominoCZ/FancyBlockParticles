@@ -229,6 +229,9 @@ public class FBPParticleManager extends ParticleManager {
 		}
 
 		tes.draw();
+
+		GlStateManager.disableBlend();
+		RenderHelper.disableStandardItemLighting();
 	}
 
 	@Nullable
@@ -259,7 +262,7 @@ public class FBPParticleManager extends ParticleManager {
 							toSpawn = new FBPParticleDigging(this.world, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed,
 									1, 1, 1, blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
 						} else
-							toSpawn = null;
+							toSpawn = particle;
 					}
 				}
 			}
@@ -295,9 +298,11 @@ public class FBPParticleManager extends ParticleManager {
 										&& (!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 										&& (FBP.spawnRedstoneBlockParticles || b != Blocks.REDSTONE_BLOCK)
 										&& !FBP.INSTANCE.isInExceptions(b, true)) {
+									float scale = (float) FBP.random.nextDouble(0.75, 1);
+
 									FBPParticleDigging toSpawn = new FBPParticleDigging(world, d0, d1, d2,
 											d0 - pos.getX() - 0.5D, -0.001, d2 - pos.getZ() - 0.5D, 1, 1, 1, state,
-											null, -1, texture);
+											null, scale, texture);
 
 									addEffect(toSpawn);
 								}

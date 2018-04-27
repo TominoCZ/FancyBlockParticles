@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.SplittableRandom;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -52,19 +52,17 @@ public class FBP {
 
 	public static double scaleMult, gravityMult, rotationMult, weatherParticleDensity;
 
-	public static boolean isServer = false;
-
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
 	public static boolean infiniteDuration = false;
 	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
 			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyRain, fancySnow,
-			fancyFlame, fancySmoke, waterPhysics, frozen;
+			fancyFlame, fancySmoke, waterPhysics, restOnFloor, frozen;
 
 	public List<String> blockParticleExceptions;
 	public List<Material> floatingMaterials;
 
-	public static ThreadLocalRandom random = ThreadLocalRandom.current();
+	public static SplittableRandom random = new SplittableRandom();
 
 	public static final FBPVector3d[] CUBE = {
 			// TOP
@@ -109,9 +107,6 @@ public class FBP {
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
-		if (evt.getSide().isServer())
-			isServer = true;
-
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
 		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
 		floatingMaterialsFile = new File(evt.getModConfigurationDirectory() + "/FBP/FloatingMaterials.txt");

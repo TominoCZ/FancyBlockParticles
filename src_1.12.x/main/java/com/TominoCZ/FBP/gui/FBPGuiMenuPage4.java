@@ -24,7 +24,7 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 	String b4Text = "Fancy Snow";
 	String b5Text = "Water Physics";
 	String b6Text = "Rest On Floor";
-	
+
 	String description = "";
 
 	double offsetX = 0;

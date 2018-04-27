@@ -219,6 +219,9 @@ public class FBPParticleManager extends EffectRenderer {
 			renderParticleArray(partialTicks, buff, fxLayers[1][list]);
 
 		tes.draw();
+
+		GlStateManager.disableBlend();
+		RenderHelper.disableStandardItemLighting();
 	}
 
 	private void renderParticleArray(float partialTicks, WorldRenderer buff, List<EntityFX> particles) {
@@ -258,7 +261,7 @@ public class FBPParticleManager extends EffectRenderer {
 							toSpawn = new FBPParticleDigging(mc.theWorld, xCoord, yCoord, zCoord, xSpeed, ySpeed,
 									zSpeed, 1, 1, 1, blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
 						} else
-							toSpawn = null;
+							toSpawn = particle;
 					}
 				}
 			}
@@ -294,9 +297,11 @@ public class FBPParticleManager extends EffectRenderer {
 										&& (!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 										&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)
 										&& !FBP.INSTANCE.isInExceptions(b)) {
+									float scale = (float) FBP.random.nextDouble(0.75, 1);
+
 									FBPParticleDigging toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2,
 											d0 - pos.getX() - 0.5D, -0.001, d2 - pos.getZ() - 0.5D, 1, 1, 1, state,
-											null, -1, texture);
+											null, scale, texture);
 
 									addEffect(toSpawn);
 								}

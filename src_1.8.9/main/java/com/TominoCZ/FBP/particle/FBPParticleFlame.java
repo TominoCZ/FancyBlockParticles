@@ -5,6 +5,7 @@ import javax.vecmath.Vector2f;
 import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
+import com.TominoCZ.FBP.util.FBPRenderUtil;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -17,7 +18,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
@@ -80,7 +80,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 		for (int i = 0; i < FBP.CUBE.length; i++) {
 			Vec3 vec = FBP.CUBE[i];
-			cube[i] = rotatef(vec, 0, AngleY, 0);
+			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, AngleY, 0);
 		}
 
 		particleAlpha = 1f;
@@ -209,25 +209,6 @@ public class FBPParticleFlame extends EntityFlameFX {
 			float g, float b, float a) { // add vertex to buffer
 		worldRendererIn.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a)
 				.lightmap(j, k).endVertex();
-	}
-
-	Vec3 rotatef(Vec3 vec, float AngleX, float AngleY, float AngleZ) {
-		double sinAngleX = MathHelper.sin(AngleX);
-		double sinAngleY = MathHelper.sin(AngleY);
-		double sinAngleZ = MathHelper.sin(AngleZ);
-
-		double cosAngleX = MathHelper.cos(AngleX);
-		double cosAngleY = MathHelper.cos(AngleY);
-		double cosAngleZ = MathHelper.cos(AngleZ);
-
-		vec = new Vec3(vec.xCoord, vec.yCoord * cosAngleX - vec.zCoord * sinAngleX,
-				vec.yCoord * sinAngleX + vec.zCoord * cosAngleX);
-		vec = new Vec3(vec.xCoord * cosAngleY + vec.zCoord * sinAngleY, vec.yCoord,
-				vec.xCoord * sinAngleY - vec.zCoord * cosAngleY);
-		vec = new Vec3(vec.xCoord * cosAngleZ - vec.yCoord * sinAngleZ, vec.xCoord * sinAngleZ + vec.yCoord * cosAngleZ,
-				vec.zCoord);
-
-		return vec;
 	}
 
 	@Override

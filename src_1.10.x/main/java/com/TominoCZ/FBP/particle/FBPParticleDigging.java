@@ -136,7 +136,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 
 		particleGravity = (float) (b.blockParticleGravity * FBP.gravityMult);
 
-		particleScale *= FBP.scaleMult * 2.0F;
+		particleScale *= FBP.scaleMult;
 		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
 
 		scaleAlpha = particleScale * 0.82;
@@ -290,6 +290,11 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 
 				moveEntity(motionX, motionY, motionZ);
 
+				if (isCollided && FBP.restOnFloor) {
+					rot.x = (float) Math.round(rot.x / 90) * 90;
+					rot.z = (float) Math.round(rot.z / 90) * 90;
+				}
+
 				if (MathHelper.abs((float) motionX) > 0.00001D)
 					prevMotionX = motionX;
 				if (MathHelper.abs((float) motionZ) > 0.00001D)
@@ -375,7 +380,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 	}
 
 	public boolean isInWater() {
-		double scale = particleScale / 40;
+		double scale = particleScale / 20;
 
 		int minX = MathHelper.floor_double(posX - scale);
 		int maxX = MathHelper.ceiling_double_int(posX + scale);
@@ -449,7 +454,11 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 
 		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, z));
 
-		this.resetPositionToBB();
+		// RESET
+		AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
+		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
+		this.posY = axisalignedbb.minY + (FBP.restOnFloor ? particleScale / 10 : 0);
+		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
 		this.isCollided = y != Y && Y < 0.0D;
 
@@ -475,6 +484,20 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 		rotStep = new FBPVector3d(rx0 > 0.5 ? 1 : -1, ry0 > 0.5 ? 1 : -1, rz0 > 0.5 ? 1 : -1);
 
 		rot.copyFrom(rotStep);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getBrightnessForRender(float partialTicks) {
+		AxisAlignedBB box = getEntityBoundingBox();
+
+		if (this.worldObj.isBlockLoaded(new BlockPos(posX, 0, posZ))) {
+			double d0 = (box.maxY - box.minY) * 0.66D;
+			double k = this.posY + d0 - 0.01;
+			return this.worldObj.getCombinedLight(new BlockPos(posX, k, posZ), 0);
+		} else {
+			return 0;
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -574,7 +597,7 @@ public class FBPParticleDigging extends ParticleDigging implements IFBPShadedPar
 
 		// RENDER
 		if (spawned)
-			FBPRenderUtil.renderCubeShaded_S(buf, par, f5, f6, f7, f4 / 20, smoothRot, i >> 16 & 65535, i & 65535,
+			FBPRenderUtil.renderCubeShaded_S(buf, par, f5, f6, f7, f4 / 10, smoothRot, i >> 16 & 65535, i & 65535,
 					particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
 	}
 }

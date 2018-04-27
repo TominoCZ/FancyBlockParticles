@@ -68,7 +68,7 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 		mc = Minecraft.getMinecraft();
 
 		particleScale *= FBP.random.nextDouble(FBP.scaleMult - 0.25f, FBP.scaleMult + 0.25f);
-		particleMaxAge = (int) FBP.random.nextDouble(120, 200);
+		particleMaxAge = (int) FBP.random.nextDouble(250, 300);
 		this.particleRed = this.particleGreen = this.particleBlue = 1;
 
 		scaleAlpha = particleScale * 0.75;
@@ -170,6 +170,11 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 			motionY -= 0.04D * this.particleGravity;
 			moveEntity(motionX, motionY, motionZ);
 
+			if (onGround && FBP.restOnFloor) {
+				rot.x = (float) Math.round(rot.x / 90) * 90;
+				rot.z = (float) Math.round(rot.z / 90) * 90;
+			}
+
 			if (worldObj.getBlockState(getPosition()).getBlock().getMaterial().isLiquid())
 				setDead();
 
@@ -186,7 +191,7 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 
 				rotStep = rotStep.multiply(0.85);
 
-				this.particleAge += 4;
+				this.particleAge += 2;
 			}
 		}
 	}
@@ -217,7 +222,11 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 
 		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, z));
 
-		this.resetPositionToBB();
+		// RESET
+		AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
+		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
+		this.posY = axisalignedbb.minY + (FBP.restOnFloor ? particleScale / 10 : 0);
+		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
 		this.onGround = y != Y && Y < 0.0D;
 
@@ -273,7 +282,7 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 		}
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
 		int i = getBrightnessForRender(partialTicks);
@@ -310,7 +319,7 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 
 		par = new Vector2f[] { new Vector2f(f1, f3), new Vector2f(f1, f2), new Vector2f(f, f2), new Vector2f(f, f3) };
 
-		FBPRenderUtil.renderCubeShaded_S(buf, par, f5, f6, f7, f4 / 20, smoothRot, i >> 16 & 65535, i & 65535,
+		FBPRenderUtil.renderCubeShaded_S(buf, par, f5, f6, f7, f4 / 10, smoothRot, i >> 16 & 65535, i & 65535,
 				particleRed, particleGreen, particleBlue, alpha);
 	}
 }

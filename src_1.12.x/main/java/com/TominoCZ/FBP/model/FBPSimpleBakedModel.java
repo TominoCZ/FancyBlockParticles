@@ -40,12 +40,6 @@ public class FBPSimpleBakedModel implements IBakedModel {
 		quads[side == null ? 6 : side.ordinal()].add(quad);
 	}
 
-	public void addModel(IBakedModel model) {
-		for (int i = 0; i < 7; i++) {
-			quads[i].addAll(model.getQuads(null, i == 6 ? null : EnumFacing.getFront(i), 0));
-		}
-	}
-
 	@Override
 	public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
 		return quads[side == null ? 6 : side.ordinal()];

@@ -41,7 +41,7 @@ public class FBPConfigHandler {
 
 			if (!FBP.floatingMaterialsFile.exists()) {
 				FBP.floatingMaterialsFile.createNewFile();
-				
+
 				FBP.INSTANCE.floatingMaterials.clear();
 
 				FBP.INSTANCE.floatingMaterials.put(Material.LEAVES, true);
@@ -51,8 +51,7 @@ public class FBPConfigHandler {
 				FBP.INSTANCE.floatingMaterials.put(Material.CARPET, true);
 				FBP.INSTANCE.floatingMaterials.put(Material.WOOD, true);
 				FBP.INSTANCE.floatingMaterials.put(Material.WEB, true);
-			}
-			else
+			} else
 				readFloatingMaterials();
 
 			read();
@@ -420,7 +419,7 @@ public class FBPConfigHandler {
 		FBP.fancyFlame = true;
 		FBP.waterPhysics = true;
 		FBP.restOnFloor = true;
-		
+
 		if (write)
 			write();
 	}

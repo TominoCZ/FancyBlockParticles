@@ -2,75 +2,34 @@ package com.TominoCZ.FBP.util;
 
 import javax.vecmath.Vector3d;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 
 public class FBPRenderUtil {
 	public static void renderCubeShaded_S(Tessellator tes, FBPVector3d[] par, double f5, double f6, double f7,
 			double scale, FBPVector3d rotVec, int brightness, float r, float g, float b, float a, boolean cartoon) {
-		// switch to vertex format that supports normals
-		tes.draw();
-		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-		tes.startDrawingQuads();
-		// some GL commands
-
-		GL11.glDepthMask(true);
-		RenderHelper.enableStandardItemLighting();
-
-		// render particle
 		tes.setTranslation(f5, f6, f7);
 
 		putCube_S(tes, par, scale, rotVec, brightness, r, g, b, a, FBP.cartoonMode);
 
 		tes.setTranslation(0, 0, 0);
-
-		// continue with the regular vertex format
-		tes.draw();
-		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-		tes.startDrawingQuads();
-
-		GL11.glDisable(GL11.GL_LIGHTING);
 	}
 
 	public static void renderCubeShaded_WH(Tessellator tes, FBPVector3d[] par, double f5, double f6, double f7,
 			double width, double height, FBPVector3d rotVec, int brightness, float r, float g, float b, float a,
 			boolean cartoon) {
-		// switch to vertex format that supports normals
-		tes.draw();
-		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-		tes.startDrawingQuads();
-
-		// switch to vertex format that supports normals
-
-		// some GL commands
-		GL11.glDepthMask(true);
-		RenderHelper.enableStandardItemLighting();
-
 		// render particle
 		tes.setTranslation(f5, f6, f7);
 
 		putCube_WH(tes, par, width, height, rotVec, brightness, r, g, b, a, FBP.cartoonMode);
 
 		tes.setTranslation(0, 0, 0);
-
-		// continue with the regular vertex format
-		tes.draw();
-		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-		// tes.begin(GL11.GL_QUADS,
-		// DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
-		tes.startDrawingQuads();
-
-		GL11.glEnable(GL11.GL_LIGHTING);
 	}
 
 	static void putCube_S(Tessellator tes, FBPVector3d[] par, double scale, FBPVector3d rotVec, int brightness, float r,
@@ -160,8 +119,8 @@ public class FBPRenderUtil {
 		FBPVector3d cos = new FBPVector3d(MathHelper.cos(AngleX), MathHelper.cos(AngleY), MathHelper.cos(AngleZ));
 
 		vec = new FBPVector3d(vec.x, vec.y * cos.x - vec.z * sin.x, vec.y * sin.x + vec.z * cos.x);
-		vec = new FBPVector3d(vec.x * cos.y + vec.z * sin.y, vec.y, vec.x * sin.y - vec.z * cos.y);
 		vec = new FBPVector3d(vec.x * cos.z - vec.y * sin.z, vec.x * sin.z + vec.y * cos.z, vec.z);
+		vec = new FBPVector3d(vec.x * cos.y + vec.z * sin.y, vec.y, vec.x * sin.y - vec.z * cos.y);
 
 		return vec;
 	}
@@ -183,8 +142,8 @@ public class FBPRenderUtil {
 		}
 
 		pos2 = new FBPVector3d(pos1.x, pos1.y * cos.x - pos1.z * sin.x, pos1.y * sin.x + pos1.z * cos.x);
-		pos2 = new FBPVector3d(pos2.x * cos.y + pos2.z * sin.y, pos2.y, pos2.x * sin.y - pos2.z * cos.y);
 		pos2 = new FBPVector3d(pos2.x * cos.z - pos2.y * sin.z, pos2.x * sin.z + pos2.y * cos.z, pos2.z);
+		pos2 = new FBPVector3d(pos2.x * cos.y + pos2.z * sin.y, pos2.y, pos2.x * sin.y - pos2.z * cos.y);
 
 		if (facing == EnumFacing.EAST) {
 			pos2.x += 1.0f;

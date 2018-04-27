@@ -52,7 +52,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 		if (is == null)
 			is = new ItemStack(b);
-		
+
 		displayItemStack = is.copy();
 	}
 

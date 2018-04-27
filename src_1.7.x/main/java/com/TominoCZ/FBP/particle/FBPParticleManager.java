@@ -11,7 +11,6 @@ import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.block.FBPBlockPos;
-import com.TominoCZ.FBP.util.FBPMathUtil;
 import com.google.common.base.Throwables;
 
 import cpw.mods.fml.relauncher.ReflectionHelper;
@@ -39,7 +38,6 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import scala.tools.nsc.transform.patmat.MatchCodeGen;
 
 @SideOnly(Side.CLIENT)
 public class FBPParticleManager extends EffectRenderer {
@@ -163,11 +161,13 @@ public class FBPParticleManager extends EffectRenderer {
 							int bY = (int) MathHelper.floor_double(y);
 							int bZ = (int) MathHelper.floor_double(z);
 
-							toAdd = new FBPParticleDigging(worldObj, x, y + 0.05000000149011612D, z, (double) mX.invokeExact((Entity) effect), (double) mY.invokeExact((Entity) effect),
+							toAdd = new FBPParticleDigging(worldObj, x, y + 0.05000000149011612D, z,
+									(double) mX.invokeExact((Entity) effect), (double) mY.invokeExact((Entity) effect),
 									(double) mZ.invokeExact((Entity) effect), R, G, B,
 									(float) getParticleScale.invokeExact((EntityFX) effect), b, 0,
-									(int) getParticleBlockSide.invokeExact((EntityDiggingFX) effect)).applyColourMultiplier(bX, bY, bZ);
-							
+									(int) getParticleBlockSide.invokeExact((EntityDiggingFX) effect))
+											.applyColourMultiplier(bX, bY, bZ);
+
 							toAdd.setParticleIcon(icon);
 						} else
 							return;
@@ -217,7 +217,9 @@ public class FBPParticleManager extends EffectRenderer {
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_BLEND);
 
-		for (int i = 0; i < fxLayers[1].size(); i++) {
+		int size = fxLayers[1].size();
+
+		for (int i = 0; i < size; i++) {
 			EntityFX p = (EntityFX) fxLayers[1].get(i);
 
 			if (p instanceof IFBPShadedParticle)
@@ -225,6 +227,10 @@ public class FBPParticleManager extends EffectRenderer {
 		}
 
 		tes.draw();
+
+		GL11.glDisable(GL11.GL_BLEND);
+		RenderHelper.disableStandardItemLighting();
+		mc.entityRenderer.disableLightmap(partialTicks);
 	}
 
 	@Override
@@ -243,9 +249,11 @@ public class FBPParticleManager extends EffectRenderer {
 							if ((!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 									&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)
 									&& !FBP.INSTANCE.isInExceptions(b)) {
+								float scale = (float) FBP.random.nextDouble(0.75, 1);
+
 								EntityDiggingFX toSpawn = new FBPParticleDigging(this.worldObj, d0, d1, d2,
-										d0 - (double) x - 0.5D, d1 - (double) y - 0.5D, d2 - (double) z - 0.5D, 1, 1, 1,
-										-1, b, meta);
+										d0 - (double) x - 0.5D, d1 - (double) y - 0.5D, d2 - (double) z - 0.5D, scale,
+										1, 1, -1, b, meta);
 
 								toSpawn.setRBGColorF(1, 1, 1);
 								toSpawn.applyColourMultiplier(x, y, z);
