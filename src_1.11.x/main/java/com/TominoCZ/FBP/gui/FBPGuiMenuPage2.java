@@ -14,14 +14,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPGuiMenuPage2 extends GuiScreen {
+public class FBPGuiMenuPage2 extends GuiScreen
+{
 
 	GuiButton Reload, Done, Defaults, Back, Next, ReportBug, Enable, b1, b2, b3, b4, b5, b6;
 
 	String b1Text = "Random Rotation";
 	String b2Text = "Cartoon Mode";
 
-	String b3Text = "Smooth Transitions";
+	String b3Text = "Randomized Scale";
 	String b4Text = "Random Fade Speed";
 
 	String b5Text = "Spawn Redstone Block Particles";
@@ -38,7 +39,8 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 	int GUIOffsetY = 4;
 
 	@Override
-	public void initGui() {
+	public void initGui()
+	{
 		this.buttonList.clear();
 
 		int x = this.width / 2 - (96 * 2 + 8) / 2;
@@ -46,7 +48,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		b1 = new FBPGuiButton(1, x, this.height / 5 - 10 + GUIOffsetY, b1Text, FBP.randomRotation, true);
 		b2 = new FBPGuiButton(2, x, b1.yPosition + b1.height + 1, b2Text, FBP.cartoonMode, true);
 
-		b3 = new FBPGuiButton(3, x, b2.yPosition + b2.height + 6, b3Text, FBP.smoothTransitions, true);
+		b3 = new FBPGuiButton(3, x, b2.yPosition + b2.height + 6, b3Text, FBP.randomizedScale, true);
 		b4 = new FBPGuiButton(4, x, b3.yPosition + b3.height + 1, b4Text, FBP.randomFadingSpeed, true);
 
 		b5 = new FBPGuiButton(5, x, b4.yPosition + b4.height + 6, b5Text, FBP.spawnRedstoneBlockParticles, true);
@@ -74,8 +76,10 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) throws IOException {
-		switch (button.id) {
+	protected void actionPerformed(GuiButton button) throws IOException
+	{
+		switch (button.id)
+		{
 		case -6:
 			FBP.setEnabled(!FBP.enabled);
 			break;
@@ -83,9 +87,11 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 			this.mc.displayGuiScreen(new FBPGuiMenuPage3());
 			break;
 		case -4:
-			try {
+			try
+			{
 				Desktop.getDesktop().browse(new URI("https://github.com/TominoCZ/FancyBlockParticles/issues"));
-			} catch (Exception e) {
+			} catch (Exception e)
+			{
 
 			}
 			break;
@@ -108,7 +114,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 			FBP.cartoonMode = !FBP.cartoonMode;
 			break;
 		case 3:
-			FBP.smoothTransitions = !FBP.smoothTransitions;
+			FBP.randomizedScale = !FBP.randomizedScale;
 			break;
 		case 4:
 			FBP.randomFadingSpeed = !FBP.randomFadingSpeed;
@@ -128,12 +134,14 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 	}
 
 	@Override
-	public boolean doesGuiPauseGame() {
+	public boolean doesGuiPauseGame()
+	{
 		return true;
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
 		FBPGuiHelper.background(b1.yPosition - 6 - GUIOffsetY, Done.yPosition - 4, width, height);
 
 		int posY = Done.yPosition - 18;
@@ -141,7 +149,8 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		getDescription();
 
 		if ((mouseX >= b1.xPosition && mouseX < b1.xPosition + b1.width)
-				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height)) {
+				&& (mouseY >= b1.yPosition && mouseY < b6.yPosition + b1.height))
+		{
 
 			moveText();
 
@@ -154,11 +163,13 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	private void moveText() {
+	private void moveText()
+	{
 		int textWidth = this.fontRendererObj.getStringWidth(description);
 		int outsideSizeX = textWidth - this.width;
 
-		if (textWidth > width) {
+		if (textWidth > width)
+		{
 			double speedOfSliding = 2400;
 			long time = System.currentTimeMillis();
 
@@ -173,12 +184,16 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 	}
 
 	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		if (mouseButton == 0) {
-			for (int i = 0; i < this.buttonList.size(); ++i) {
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+	{
+		if (mouseButton == 0)
+		{
+			for (int i = 0; i < this.buttonList.size(); ++i)
+			{
 				GuiButton guibutton = this.buttonList.get(i);
 
-				if (guibutton.mousePressed(this.mc, mouseX, mouseY)) {
+				if (guibutton.mousePressed(this.mc, mouseX, mouseY))
+				{
 					if (!guibutton.isMouseOver())
 						return;
 
@@ -188,10 +203,14 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		}
 	}
 
-	private void getDescription() {
-		for (GuiButton b : this.buttonList) {
-			if (b.isMouseOver()) {
-				switch (b.id) {
+	private void getDescription()
+	{
+		for (GuiButton b : this.buttonList)
+		{
+			if (b.isMouseOver())
+			{
+				switch (b.id)
+				{
 				case 1:
 					description = "Enables \u00A76random \u00A7aand \u00A76simple rotation \u00A7amath.";
 					break;
@@ -199,7 +218,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 					description = "Makes the particles look \u00A76cartoon\u00A7a-ish.";
 					break;
 				case 3:
-					description = "Makes the particles \u00A76rotate\u00A7a, \u00A76scale \u00A7aand \u00A76fade away\u00A7a smoothly.";
+					description = "Makes the particle \u00A76scale\u00A7a slightly \u00A76randomized\u00A7a.";
 					break;
 				case 4:
 					description = "Enables \u00A76random \u00A7aparticle \u00A76fade away\u00A7a-transition speed.";

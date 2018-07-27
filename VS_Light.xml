@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<colorTheme id="210" name="as Visual Studio 2010" modified="2011-02-10 11:14:29" author="Volodymyr">
+    <searchResultIndication color="#EFEFEF" />
+    <filteredSearchResultIndication color="#EFEFEF" />
+    <occurrenceIndication color="#EFEFEF" />
+    <writeOccurrenceIndication color="#EFEFEF" />
+    <findScope color="#BCADAD" />
+    <deletionIndication color="#9B5656" underline="false" strikethrough="false" />
+    <sourceHoverBackground color="#EEEEEE" />
+    <singleLineComment color="#008000" bold="false" />
+    <multiLineComment color="#008000" />
+    <commentTaskTag color="#008000" bold="false" italic="false" underline="false" strikethrough="false" />
+    <javadoc color="#808080" bold="false" underline="false" strikethrough="false" />
+    <javadocLink color="#0000FF" bold="false" underline="false" strikethrough="false" />
+    <javadocTag color="#008000" bold="false" underline="false" strikethrough="false" />
+    <javadocKeyword color="#0000FF" bold="false" underline="false" strikethrough="false" />
+    <class color="#2B91AF" underline="false" strikethrough="false" />
+    <interface color="#2B91AF" underline="false" strikethrough="false" />
+    <method color="#2B91AF" bold="false" italic="false" underline="false" strikethrough="false" />
+    <methodDeclaration color="#000000" bold="false" underline="false" strikethrough="false" />
+    <bracket color="#000000" bold="false" underline="false" strikethrough="false" />
+    <number color="#000000" underline="false" strikethrough="false" />
+    <string color="#A31515" underline="false" strikethrough="false" />
+    <operator color="#000000" bold="false" underline="false" strikethrough="false" />
+    <keyword color="#0000FF" underline="false" strikethrough="false" />
+    <annotation color="#2B91AF" underline="false" strikethrough="false" />
+    <staticMethod color="#000000" underline="false" strikethrough="false" />
+    <localVariable color="#000000" underline="false" strikethrough="false" />
+    <localVariableDeclaration color="#000000" underline="false" strikethrough="false" />
+    <field color="#000000" underline="false" strikethrough="false" />
+    <staticField color="#000000" />
+    <staticFinalField color="#000000" bold="false" />
+    <deprecatedMember color="#AB2525" underline="false" strikethrough="false" />
+    <enum color="#2B91AF" />
+    <inheritedMethod color="#000000" bold="false" />
+    <abstractMethod color="#000000" underline="false" strikethrough="false" />
+    <parameterVariable color="#2B91AF" underline="false" strikethrough="false" />
+    <typeArgument color="#885D3B" underline="false" strikethrough="false" />
+    <typeParameter color="#885D3B" underline="false" strikethrough="false" />
+    <constant color="" bold="false" underline="false" strikethrough="false" />
+    <background color="#FFFFFF" />
+    <currentLine color="#EEEEEE" />
+    <foreground color="#000000" />
+    <lineNumber color="#999999" />
+    <selectionBackground color="#EEEEEE" />
+    <selectionForeground color="#000000" />
+</colorTheme>

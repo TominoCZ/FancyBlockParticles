@@ -5,13 +5,15 @@ import com.TominoCZ.FBP.FBP;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class FBPGuiButtonException extends FBPGuiButton {
+public class FBPGuiButtonBlacklist extends FBPGuiButton
+{
 
 	public boolean particle;
 	public boolean isInExceptions;
 
-	public FBPGuiButtonException(int buttonId, int x, int y, String buttonText, boolean particle,
-			boolean isInExceptions) {
+	public FBPGuiButtonBlacklist(int buttonId, int x, int y, String buttonText, boolean particle,
+			boolean isInExceptions)
+	{
 		super(buttonId, x, y, buttonText, false, false);
 
 		this.particle = particle;
@@ -22,8 +24,10 @@ public class FBPGuiButtonException extends FBPGuiButton {
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (this.visible) {
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
+	{
+		if (this.visible)
+		{
 			int centerX1 = x + this.height / 2;
 			int centerY1 = y + this.height / 2 - 1;
 

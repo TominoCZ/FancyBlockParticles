@@ -30,7 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 
-public class FBPGuiFastAdd extends GuiScreen {
+public class FBPGuiBlacklist extends GuiScreen {
 
 	FBPGuiButtonException animation, particle;
 
@@ -41,18 +41,18 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 	boolean closing = false;
 
-	public FBPGuiFastAdd(BlockPos selected) {
+	public FBPGuiBlacklist(BlockPos selected) {
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = selected;
-		IBlockState state = mc.world.getBlockState(selectedPos);
+		IBlockState state = mc.theWorld.getBlockState(selectedPos);
 
 		selectedBlock = state.getBlock() == FBP.FBPBlock ? FBP.FBPBlock.blockNodes.get(selectedPos).state : state;
 
-		ItemStack is = selectedBlock.getActualState(mc.world, selectedPos).getBlock().getPickBlock(selectedBlock,
-				mc.objectMouseOver, mc.world, selectedPos, mc.player);
+		ItemStack is = selectedBlock.getActualState(mc.theWorld, selectedPos).getBlock().getPickBlock(selectedBlock,
+				mc.objectMouseOver, mc.theWorld, selectedPos, mc.thePlayer);
 
-		TileEntity te = mc.world.getTileEntity(selectedPos);
+		TileEntity te = mc.theWorld.getTileEntity(selectedPos);
 
 		try {
 			if (te != null)
@@ -63,7 +63,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 		displayItemStack = is.copy();
 	}
 
-	public FBPGuiFastAdd(ItemStack is) {
+	public FBPGuiBlacklist(ItemStack is) {
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = null;
@@ -83,9 +83,9 @@ public class FBPGuiFastAdd extends GuiScreen {
 		this.buttonList.clear();
 
 		animation = new FBPGuiButtonException(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
-				FBP.INSTANCE.isInExceptions(selectedBlock.getBlock(), false));
+				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock(), false));
 		particle = new FBPGuiButtonException(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
-				FBP.INSTANCE.isInExceptions(selectedBlock.getBlock(), true));
+				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock(), true));
 
 		Item ib = Item.getItemFromBlock(selectedBlock.getBlock());
 		Block b = ib instanceof ItemBlock ? ((ItemBlock) ib).getBlock() : null;
@@ -111,8 +111,8 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 		if (selectedPos != null && (mc.objectMouseOver == null
 				|| !mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK)
-				|| mc.world.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != selectedBlock.getBlock()
-						&& mc.world.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != FBP.FBPBlock)) {
+				|| mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != selectedBlock.getBlock()
+						&& mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != FBP.FBPBlock)) {
 			keyUp = true;
 			FBPKeyInputHandler.INSTANCE.onInput();
 		}
@@ -142,10 +142,10 @@ public class FBPGuiFastAdd extends GuiScreen {
 				boolean isParticle = particle.isMouseOver();
 
 				if (selected.enabled) {
-					if (!FBP.INSTANCE.isInExceptions(b, isParticle))
-						FBP.INSTANCE.addException(b, isParticle);
+					if (!FBP.INSTANCE.isBlacklisted(b, isParticle))
+						FBP.INSTANCE.addToBlacklist(b, isParticle);
 					else
-						FBP.INSTANCE.removeException(b, isParticle);
+						FBP.INSTANCE.removeFromBlacklist(b, isParticle);
 
 					if (isParticle)
 						FBPConfigHandler.writeParticleExceptions();
@@ -178,7 +178,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 		// LIMIT MOUSE POS
 		int optionRadius = 30;
-		mouseX = MathHelper.clamp(mouseX, animation.xPosition + optionRadius, particle.xPosition + optionRadius);
+		mouseX = MathHelper.clamp_int(mouseX, animation.xPosition + optionRadius, particle.xPosition + optionRadius);
 		mouseY = height / 2 + 35;
 
 		// RENDER BLOCK
@@ -190,7 +190,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 		GlStateManager.translate(x, y, 0);
 		GlStateManager.scale(4, 4, 4);
 		GlStateManager.enableColorMaterial();
-		this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, displayItemStack, 0, 0);
+		this.itemRender.renderItemAndEffectIntoGUI(this.mc.thePlayer, displayItemStack, 0, 0);
 
 		this.itemRender.zLevel = 0.0F;
 		this.zLevel = 0.0F;
@@ -228,7 +228,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 			FBPGuiHelper._drawCenteredString(fontRendererObj, "\u00A7a\u00A7lPARTICLES", particle.xPosition + 30,
 					particle.yPosition - 12, 0);
 
-		this.drawCenteredString(fontRendererObj, "\u00A7LAdd Block to Exceptions", width / 2, 20,
+		this.drawCenteredString(fontRendererObj, "\u00A7LBlacklist a Block", width / 2, 20,
 				fontRendererObj.getColorCode('a'));
 
 		mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/widgets.png"));

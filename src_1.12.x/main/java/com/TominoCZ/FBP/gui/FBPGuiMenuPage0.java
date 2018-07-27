@@ -18,7 +18,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPGuiMenuPage0 extends GuiScreen {
+public class FBPGuiMenuPage0 extends GuiScreen
+{
 	GuiButton Reload, Done, Defaults, Next, ReportBug, Enable, InfiniteDuration, TimeUnit;
 
 	FBPGuiSlider MinDurationSlider, MaxDurationSlider, ParticleCountBase, ScaleMultSlider, GravitiyForceSlider,
@@ -41,7 +42,8 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 	int GUIOffsetY = 8;
 
 	@Override
-	public void initGui() {
+	public void initGui()
+	{
 		this.buttonList.clear();
 
 		int x1 = this.width / 2 + 80;
@@ -58,7 +60,7 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		ScaleMultSlider = new FBPGuiSlider(X, ParticleCountBase.y + ParticleCountBase.height + 1,
 				(FBP.scaleMult - 0.75) / 0.5);
 		GravitiyForceSlider = new FBPGuiSlider(X, ScaleMultSlider.y + ScaleMultSlider.height + 6,
-				(FBP.gravityMult - 0.5) / 1.5);
+				(FBP.gravityMult - 0.05) / 2.95);
 		RotSpeedSlider = new FBPGuiSlider(X, GravitiyForceSlider.y + GravitiyForceSlider.height + 1,
 				FBP.rotationMult / 1.5);
 		InfiniteDuration = new FBPGuiButton(11, x1 + 25, MinDurationSlider.y + 10,
@@ -88,10 +90,12 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) throws IOException {
+	protected void actionPerformed(GuiButton button) throws IOException
+	{
 		boolean init = true;
 
-		switch (button.id) {
+		switch (button.id)
+		{
 		case -6:
 			FBP.setEnabled(!FBP.enabled);
 			break;
@@ -103,9 +107,11 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 			init = false;
 			break;
 		case -4:
-			try {
+			try
+			{
 				Desktop.getDesktop().browse(new URI("https://github.com/TominoCZ/FancyBlockParticles/issues"));
-			} catch (Exception e) {
+			} catch (Exception e)
+			{
 
 			}
 			break;
@@ -141,12 +147,14 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 	}
 
 	@Override
-	public boolean doesGuiPauseGame() {
+	public boolean doesGuiPauseGame()
+	{
 		return true;
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
 		FBPGuiHelper.background(MinDurationSlider.y - 6 - GUIOffsetY, Done.y - 4, width, height);
 
 		int sParticleCountBase = (int) Math.round(2 + 3 * ParticleCountBase.value);
@@ -155,16 +163,18 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		int sMaxAge = (int) (10 + 90 * MaxDurationSlider.value);
 
 		double sScaleMult = FBPMathUtil.round(0.75 + 0.5 * ScaleMultSlider.value, 2);
-		double sGravityForce = FBPMathUtil.round(0.5 + 1.5 * GravitiyForceSlider.value, 2);
+		double sGravityForce = FBPMathUtil.round(0.05 + 2.95 * GravitiyForceSlider.value, 2);
 		double sRotSpeed = FBPMathUtil.round(1.5 * RotSpeedSlider.value, 2);
 
-		if (FBP.maxAge < sMinAge) {
+		if (FBP.maxAge < sMinAge)
+		{
 			FBP.maxAge = sMinAge;
 
 			MaxDurationSlider.value = (FBP.maxAge - 10) / 90.0;
 		}
 
-		if (FBP.minAge > sMaxAge) {
+		if (FBP.minAge > sMaxAge)
+		{
 			FBP.minAge = sMaxAge;
 
 			MinDurationSlider.value = (FBP.minAge - 10) / 90.0;
@@ -192,34 +202,40 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	private void drawMouseOverSelection(int mouseX, int mouseY, float partialTicks) {
+	private void drawMouseOverSelection(int mouseX, int mouseY, float partialTicks)
+	{
 		int posY = Done.y - 18;
 
 		if ((mouseX >= MinDurationSlider.x - 2 && mouseX <= (MinDurationSlider.x + MinDurationSlider.width + 2))
-				&& mouseY >= MinDurationSlider.y && mouseY <= (MaxDurationSlider.y + MaxDurationSlider.height - 2)) {
+				&& mouseY >= MinDurationSlider.y && mouseY <= (MaxDurationSlider.y + MaxDurationSlider.height - 2))
+		{
 			handle.y = MinDurationSlider.y;
 			size = new Vector2d(MinDurationSlider.width, 39);
 			selected = 1;
 		} else if (((mouseX >= ParticleCountBase.x) && (mouseX <= ParticleCountBase.x + ParticleCountBase.width))
 				&& (mouseY >= (ParticleCountBase.y + 1))
-				&& (mouseY <= (ParticleCountBase.y + ParticleCountBase.height - 1) - 1)) {
+				&& (mouseY <= (ParticleCountBase.y + ParticleCountBase.height - 1) - 1))
+		{
 			handle.y = ParticleCountBase.y;
 			size = new Vector2d(ParticleCountBase.width, 18);
 			selected = 2;
 		} else if (((mouseX >= ScaleMultSlider.x) && (mouseX <= ScaleMultSlider.x + ScaleMultSlider.width))
 				&& (mouseY >= (ScaleMultSlider.y + 1))
-				&& (mouseY <= (ScaleMultSlider.y + ScaleMultSlider.height - 1) - 1)) {
+				&& (mouseY <= (ScaleMultSlider.y + ScaleMultSlider.height - 1) - 1))
+		{
 			handle.y = ScaleMultSlider.y;
 			size = new Vector2d(ScaleMultSlider.width, 18);
 			selected = 3;
 		} else if (((mouseX >= GravitiyForceSlider.x) && (mouseX <= GravitiyForceSlider.x + GravitiyForceSlider.width))
 				&& (mouseY >= GravitiyForceSlider.y + 1)
-				&& (mouseY <= GravitiyForceSlider.y + GravitiyForceSlider.height - 1)) {
+				&& (mouseY <= GravitiyForceSlider.y + GravitiyForceSlider.height - 1))
+		{
 			handle.y = GravitiyForceSlider.y;
 			size = new Vector2d(GravitiyForceSlider.width, 18);
 			selected = 4;
 		} else if (((mouseX >= RotSpeedSlider.x) && (mouseX <= RotSpeedSlider.x + RotSpeedSlider.width))
-				&& (mouseY >= RotSpeedSlider.y + 1) && (mouseY <= RotSpeedSlider.y + RotSpeedSlider.height - 1)) {
+				&& (mouseY >= RotSpeedSlider.y + 1) && (mouseY <= RotSpeedSlider.y + RotSpeedSlider.height - 1))
+		{
 			handle.y = RotSpeedSlider.y;
 			size = new Vector2d(RotSpeedSlider.x - (RotSpeedSlider.x + RotSpeedSlider.width), 18);
 			selected = 5;
@@ -236,15 +252,18 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 
 		lastTime = time;
 
-		if (lastHandle != new Vector2d(0, 0)) {
-			if (lastHandle.y > handle.y) {
+		if (lastHandle != new Vector2d(0, 0))
+		{
+			if (lastHandle.y > handle.y)
+			{
 				if (lastHandle.y - handle.y <= step)
 					lastHandle.y = handle.y;
 				else
 					lastHandle.y -= step;
 			}
 
-			if (lastHandle.y < handle.y) {
+			if (lastHandle.y < handle.y)
+			{
 				if (handle.y - lastHandle.y <= step)
 					lastHandle.y = handle.y;
 				else
@@ -254,7 +273,8 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 			lastHandle.x = MinDurationSlider.x;
 		}
 
-		if (lastSize != new Vector2d(0, 0)) {
+		if (lastSize != new Vector2d(0, 0))
+		{
 			if (lastSize.y > size.y)
 				if (lastSize.y - size.y <= step)
 					lastSize.y = size.y;
@@ -277,9 +297,11 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 
 		String text = "";
 
-		switch (selected) {
+		switch (selected)
+		{
 		case 1:
-			if (!FBP.infiniteDuration) {
+			if (!FBP.infiniteDuration)
+			{
 				String _text = (FBP.minAge != FBP.maxAge
 						? ("range\u00A7a to between \u00A76" + (FBP.showInMillis ? FBP.minAge * 50 : FBP.minAge)
 								+ "\u00A7a and \u00A76" + (FBP.showInMillis ? FBP.maxAge * 50 : FBP.maxAge)
@@ -288,7 +310,8 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 								+ (FBP.showInMillis ? "ms" : (FBP.maxAge > 1 ? " ticks" : " tick"))));
 
 				text = "Sets \u00A76particle life duration " + _text + "\u00A7a.";
-			} else {
+			} else
+			{
 				text = "Sets \u00A76particle life duration \u00A7ato \u00A76infinity\u00A7a.";
 			}
 			break;
@@ -320,7 +343,8 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		if (((mouseX >= MinDurationSlider.x - 2 && mouseX <= MinDurationSlider.x + MinDurationSlider.width + 2)
 				&& (mouseY < RotSpeedSlider.y + RotSpeedSlider.height && mouseY >= MinDurationSlider.y)
 				&& (lastSize.y <= 20 || (lastSize.y < 50 && lastSize.y > 20)) && lastHandle.y >= MinDurationSlider.y)
-				|| InfiniteDuration.isMouseOver() || TimeUnit.isMouseOver()) {
+				|| InfiniteDuration.isMouseOver() || TimeUnit.isMouseOver())
+		{
 			moveText(text);
 
 			if (selected <= 5)
@@ -332,7 +356,8 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		}
 	}
 
-	private void drawInfo() {
+	private void drawInfo()
+	{
 		int posY = Done.y - 18;
 
 		String s = "Destroy Particle Count [\u00A76" + (int) Math.pow(FBP.particlesPerAxis, 3) + "\u00A7f]";
@@ -362,15 +387,18 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 				+ (FBP.rotationMult != 0 ? FBP.rotationMult : FBPGuiHelper.off) + "\u00A7f]";
 	}
 
-	boolean isMouseOverSliders(int mouseX, int mouseY) {
+	boolean isMouseOverSliders(int mouseX, int mouseY)
+	{
 		return MinDurationSlider.isMouseOver(mouseX, mouseY) || MaxDurationSlider.isMouseOver(mouseX, mouseY);
 	}
 
-	private void moveText(String text) {
+	private void moveText(String text)
+	{
 		int textWidth = this.fontRenderer.getStringWidth(text);
 		int outsideSizeX = textWidth - this.width;
 
-		if (textWidth > width) {
+		if (textWidth > width)
+		{
 			double speedOfSliding = 2400;
 			long time = System.currentTimeMillis();
 
@@ -385,12 +413,16 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 	}
 
 	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		if (mouseButton == 0) {
-			for (int i = 0; i < this.buttonList.size(); ++i) {
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+	{
+		if (mouseButton == 0)
+		{
+			for (int i = 0; i < this.buttonList.size(); ++i)
+			{
 				GuiButton guibutton = this.buttonList.get(i);
 
-				if (guibutton.mousePressed(this.mc, mouseX, mouseY)) {
+				if (guibutton.mousePressed(this.mc, mouseX, mouseY))
+				{
 					if (!guibutton.isMouseOver())
 						return;
 
@@ -400,14 +432,16 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		}
 	}
 
-	void update() {
+	void update()
+	{
 		MinDurationSlider.enabled = !FBP.infiniteDuration;
 
 		MaxDurationSlider.enabled = !FBP.infiniteDuration;
 	}
 
 	@Override
-	public void onGuiClosed() {
+	public void onGuiClosed()
+	{
 		FBPConfigHandler.check();
 		FBPConfigHandler.write();
 	}

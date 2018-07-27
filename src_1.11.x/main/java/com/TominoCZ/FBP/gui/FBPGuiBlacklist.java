@@ -30,7 +30,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 
-public class FBPGuiFastAdd extends GuiScreen {
+public class FBPGuiBlacklist extends GuiScreen
+{
 
 	FBPGuiButtonException animation, particle;
 
@@ -41,29 +42,33 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 	boolean closing = false;
 
-	public FBPGuiFastAdd(BlockPos selected) {
+	public FBPGuiBlacklist(BlockPos selected)
+	{
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = selected;
-		IBlockState state = mc.theWorld.getBlockState(selectedPos);
+		IBlockState state = mc.world.getBlockState(selectedPos);
 
 		selectedBlock = state.getBlock() == FBP.FBPBlock ? FBP.FBPBlock.blockNodes.get(selectedPos).state : state;
 
-		ItemStack is = selectedBlock.getActualState(mc.theWorld, selectedPos).getBlock().getPickBlock(selectedBlock,
-				mc.objectMouseOver, mc.theWorld, selectedPos, mc.thePlayer);
+		ItemStack is = selectedBlock.getActualState(mc.world, selectedPos).getBlock().getPickBlock(selectedBlock,
+				mc.objectMouseOver, mc.world, selectedPos, mc.player);
 
-		TileEntity te = mc.theWorld.getTileEntity(selectedPos);
+		TileEntity te = mc.world.getTileEntity(selectedPos);
 
-		try {
+		try
+		{
 			if (te != null)
 				mc.storeTEInStack(is, te);
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 		}
 
 		displayItemStack = is.copy();
 	}
 
-	public FBPGuiFastAdd(ItemStack is) {
+	public FBPGuiBlacklist(ItemStack is)
+	{
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = null;
@@ -74,18 +79,20 @@ public class FBPGuiFastAdd extends GuiScreen {
 	}
 
 	@Override
-	public boolean doesGuiPauseGame() {
+	public boolean doesGuiPauseGame()
+	{
 		return false;
 	}
 
 	@Override
-	public void initGui() {
+	public void initGui()
+	{
 		this.buttonList.clear();
 
 		animation = new FBPGuiButtonException(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
-				FBP.INSTANCE.isInExceptions(selectedBlock.getBlock(), false));
+				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock(), false));
 		particle = new FBPGuiButtonException(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
-				FBP.INSTANCE.isInExceptions(selectedBlock.getBlock(), true));
+				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock(), true));
 
 		Item ib = Item.getItemFromBlock(selectedBlock.getBlock());
 		Block b = ib instanceof ItemBlock ? ((ItemBlock) ib).getBlock() : null;
@@ -104,48 +111,59 @@ public class FBPGuiFastAdd extends GuiScreen {
 	}
 
 	@Override
-	public void updateScreen() {
+	public void updateScreen()
+	{
 		Mouse.setGrabbed(true);
 
 		boolean keyUp = false;
 
 		if (selectedPos != null && (mc.objectMouseOver == null
 				|| !mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK)
-				|| mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != selectedBlock.getBlock()
-						&& mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != FBP.FBPBlock)) {
+				|| mc.world.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != selectedBlock.getBlock()
+						&& mc.world.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != FBP.FBPBlock))
+		{
 			keyUp = true;
 			FBPKeyInputHandler.INSTANCE.onInput();
 		}
-		try {
+		try
+		{
 			if (!Keyboard.isKeyDown(FBPKeyBindings.FBPFastAdd.getKeyCode())
-					|| (selectedPos == null && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
+					|| (selectedPos == null && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)))
+			{
 				keyUp = true;
 			}
-		} catch (Exception e) {
-			try {
+		} catch (Exception e)
+		{
+			try
+			{
 				if (!Mouse.isButtonDown(FBPKeyBindings.FBPFastAdd.getKeyCode() + 100)
-						|| (selectedPos == null && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
+						|| (selectedPos == null && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)))
+				{
 					keyUp = true;
 				}
-			} catch (Exception e1) {
+			} catch (Exception e1)
+			{
 				closing = true;
 				e.printStackTrace();
 			}
 		}
 
-		if (closing || keyUp) {
+		if (closing || keyUp)
+		{
 			Block b = selectedBlock.getBlock();
 
 			GuiButton selected = animation.isMouseOver() ? animation : (particle.isMouseOver() ? particle : null);
 
-			if (selected != null) {
+			if (selected != null)
+			{
 				boolean isParticle = particle.isMouseOver();
 
-				if (selected.enabled) {
-					if (!FBP.INSTANCE.isInExceptions(b, isParticle))
-						FBP.INSTANCE.addException(b, isParticle);
+				if (selected.enabled)
+				{
+					if (!FBP.INSTANCE.isBlacklisted(b, isParticle))
+						FBP.INSTANCE.addToBlacklist(b, isParticle);
 					else
-						FBP.INSTANCE.removeException(b, isParticle);
+						FBP.INSTANCE.removeFromBlacklist(b, isParticle);
 
 					if (isParticle)
 						FBPConfigHandler.writeParticleExceptions();
@@ -165,7 +183,8 @@ public class FBPGuiFastAdd extends GuiScreen {
 	}
 
 	@Override
-	public void mouseClicked(int mouseX, int mouseY, int button) {
+	public void mouseClicked(int mouseX, int mouseY, int button)
+	{
 		GuiButton clicked = animation.isMouseOver() ? animation : (particle.isMouseOver() ? particle : null);
 
 		if (clicked != null && clicked.enabled)
@@ -173,12 +192,13 @@ public class FBPGuiFastAdd extends GuiScreen {
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
 		this.drawDefaultBackground();
 
 		// LIMIT MOUSE POS
 		int optionRadius = 30;
-		mouseX = MathHelper.clamp_int(mouseX, animation.xPosition + optionRadius, particle.xPosition + optionRadius);
+		mouseX = MathHelper.clamp(mouseX, animation.xPosition + optionRadius, particle.xPosition + optionRadius);
 		mouseY = height / 2 + 35;
 
 		// RENDER BLOCK
@@ -190,7 +210,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 		GlStateManager.translate(x, y, 0);
 		GlStateManager.scale(4, 4, 4);
 		GlStateManager.enableColorMaterial();
-		this.itemRender.renderItemAndEffectIntoGUI(this.mc.thePlayer, displayItemStack, 0, 0);
+		this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, displayItemStack, 0, 0);
 
 		this.itemRender.zLevel = 0.0F;
 		this.zLevel = 0.0F;
@@ -228,7 +248,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 			FBPGuiHelper._drawCenteredString(fontRendererObj, "\u00A7a\u00A7lPARTICLES", particle.xPosition + 30,
 					particle.yPosition - 12, 0);
 
-		this.drawCenteredString(fontRendererObj, "\u00A7LAdd Block to Exceptions", width / 2, 20,
+		this.drawCenteredString(fontRendererObj, "\u00A7LBlacklist a Block", width / 2, 20,
 				fontRendererObj.getColorCode('a'));
 
 		mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/widgets.png"));

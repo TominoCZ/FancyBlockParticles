@@ -13,11 +13,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPGuiButtonEnable extends GuiButton {
+public class FBPGuiButtonEnable extends GuiButton
+{
 	FontRenderer _fr;
 	Dimension _screen;
 
-	public FBPGuiButtonEnable(int buttonID, int xPos, int yPos, Dimension screen, FontRenderer fr) {
+	public FBPGuiButtonEnable(int buttonID, int xPos, int yPos, Dimension screen, FontRenderer fr)
+	{
 		super(buttonID, xPos, yPos, 25, 25, "");
 
 		_screen = screen;
@@ -25,8 +27,10 @@ public class FBPGuiButtonEnable extends GuiButton {
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (this.visible) {
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
+	{
+		if (this.visible)
+		{
 			mc.getTextureManager().bindTexture(FBP.FBP_FBP);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -53,8 +57,10 @@ public class FBPGuiButtonEnable extends GuiButton {
 	}
 
 	@Override
-	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-		if (this.visible && hovered) {
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
+	{
+		if (this.visible && hovered)
+		{
 			playPressSound(mc.getSoundHandler());
 			return true;
 		} else

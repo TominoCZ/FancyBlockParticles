@@ -4,7 +4,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.gui.FBPGuiFastAdd;
+import com.TominoCZ.FBP.gui.FBPGuiBlacklist;
 import com.TominoCZ.FBP.gui.FBPGuiMenuPage0;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
 
@@ -70,8 +70,8 @@ public class FBPKeyInputHandler {
 			if (!wasOpened && isKeyDown
 					&& ((mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK))
 							|| useHeldBlock)) {
-				mc.displayGuiScreen(useHeldBlock ? (new FBPGuiFastAdd(stack))
-						: (new FBPGuiFastAdd(mc.objectMouseOver.getBlockPos())));
+				mc.displayGuiScreen(useHeldBlock ? (new FBPGuiBlacklist(stack))
+						: (new FBPGuiBlacklist(mc.objectMouseOver.getBlockPos())));
 
 				Mouse.setGrabbed(true);
 

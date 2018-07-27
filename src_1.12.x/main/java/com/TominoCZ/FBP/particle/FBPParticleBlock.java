@@ -32,7 +32,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public class FBPParticleBlock extends Particle {
+public class FBPParticleBlock extends Particle
+{
 
 	public BlockPos pos;
 
@@ -70,7 +71,8 @@ public class FBPParticleBlock extends Particle {
 	TileEntity tileEntity;
 
 	@SuppressWarnings("incomplete-switch")
-	public FBPParticleBlock(World worldIn, double posXIn, double posYIn, double posZIn, IBlockState state, long rand) {
+	public FBPParticleBlock(World worldIn, double posXIn, double posYIn, double posZIn, IBlockState state, long rand)
+	{
 		super(worldIn, posXIn, posYIn, posZIn);
 
 		pos = new BlockPos(posXIn, posYIn, posZIn);
@@ -87,7 +89,8 @@ public class FBPParticleBlock extends Particle {
 		prevRot = new FBPVector3d();
 		rot = new FBPVector3d();
 
-		switch (facing) {
+		switch (facing)
+		{
 		case EAST:
 			rot.z = -startingAngle;
 			rot.x = -startingAngle;
@@ -116,7 +119,8 @@ public class FBPParticleBlock extends Particle {
 
 		modelPrefab = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
 
-		if (modelPrefab == null) {
+		if (modelPrefab == null)
+		{
 			canCollide = true;
 			this.isExpired = true;
 		}
@@ -126,15 +130,19 @@ public class FBPParticleBlock extends Particle {
 
 	@SuppressWarnings("incomplete-switch")
 	@Override
-	public void onUpdate() {
+	public void onUpdate()
+	{
 		if (++particleAge >= 10)
 			killParticle();
 
-		if (!canCollide) {
+		if (!canCollide)
+		{
 			IBlockState s = mc.world.getBlockState(pos);
 
-			if (s.getBlock() != FBP.FBPBlock || s.getBlock() == block) {
-				if (blockSet && s.getBlock() == Blocks.AIR) {
+			if (s.getBlock() != FBP.FBPBlock || s.getBlock() == block)
+			{
+				if (blockSet && s.getBlock() == Blocks.AIR)
+				{
 					// the block was destroyed during the animation
 					killParticle();
 
@@ -165,7 +173,8 @@ public class FBPParticleBlock extends Particle {
 
 		prevRot.copyFrom(rot);
 
-		switch (facing) {
+		switch (facing)
+		{
 		case EAST:
 			rot.z += step;
 			rot.x += step;
@@ -192,13 +201,16 @@ public class FBPParticleBlock extends Particle {
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void renderParticle(BufferBuilder buff, Entity entityIn, float partialTicks, float rotationX,
-			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
+	{
 		if (this.isExpired)
 			return;
 
-		if (canCollide) {
+		if (canCollide)
+		{
 			Block b = mc.world.getBlockState(pos).getBlock();
-			if (block != b && b != Blocks.AIR && mc.world.getBlockState(pos).getBlock() != blockState.getBlock()) {
+			if (block != b && b != Blocks.AIR && mc.world.getBlockState(pos).getBlock() != blockState.getBlock())
+			{
 				mc.world.setBlockState(pos, blockState, 2);
 
 				if (tileEntity != null)
@@ -211,7 +223,8 @@ public class FBPParticleBlock extends Particle {
 				// cleanup just to make sure it gets removed
 				FBP.INSTANCE.eventHandler.removePosEntry(pos);
 			}
-			if (tick >= 1) {
+			if (tick >= 1)
+			{
 				killParticle();
 				return;
 			}
@@ -237,9 +250,11 @@ public class FBPParticleBlock extends Particle {
 		FBPVector3d t = new FBPVector3d(0, smoothHeight, 0);
 		FBPVector3d tRot = new FBPVector3d(0, smoothHeight, 0);
 
-		switch (facing) {
+		switch (facing)
+		{
 		case EAST:
-			if (smoothRot.z > 0) {
+			if (smoothRot.z > 0)
+			{
 				this.canCollide = true;
 				smoothRot.z = 0;
 				smoothRot.x = 0;
@@ -251,7 +266,8 @@ public class FBPParticleBlock extends Particle {
 			tRot.x = 1;
 			break;
 		case NORTH:
-			if (smoothRot.z < 0) {
+			if (smoothRot.z < 0)
+			{
 				this.canCollide = true;
 				smoothRot.x = 0;
 				smoothRot.z = 0;
@@ -261,7 +277,8 @@ public class FBPParticleBlock extends Particle {
 			t.z = smoothHeight;
 			break;
 		case SOUTH:
-			if (smoothRot.x < 0) {
+			if (smoothRot.x < 0)
+			{
 				this.canCollide = true;
 				smoothRot.x = 0;
 				smoothRot.z = 0;
@@ -274,7 +291,8 @@ public class FBPParticleBlock extends Particle {
 			tRot.z = 1;
 			break;
 		case WEST:
-			if (smoothRot.z < 0) {
+			if (smoothRot.z < 0)
+			{
 				this.canCollide = true;
 				smoothRot.z = 0;
 				smoothRot.x = 0;
@@ -287,10 +305,12 @@ public class FBPParticleBlock extends Particle {
 			break;
 		}
 
-		if (FBP.spawnPlaceParticles && canCollide && tick == 0) {
+		if (FBP.spawnPlaceParticles && canCollide && tick == 0)
+		{
 			if ((!(FBP.frozen && !FBP.spawnWhileFrozen)
 					&& (FBP.spawnRedstoneBlockParticles || block != Blocks.REDSTONE_BLOCK))
-					&& mc.gameSettings.particleSetting < 2) {
+					&& mc.gameSettings.particleSetting < 2)
+			{
 				spawnParticles();
 			}
 		}
@@ -330,7 +350,8 @@ public class FBPParticleBlock extends Particle {
 		buff.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 	}
 
-	private void spawnParticles() {
+	private void spawnParticles()
+	{
 		if (mc.world.getBlockState(pos.offset(EnumFacing.DOWN)).getBlock() instanceof BlockAir)
 			return;
 
@@ -345,7 +366,8 @@ public class FBPParticleBlock extends Particle {
 
 		Vector2d middle = new Vector2d(pos.getX() + 0.5f, pos.getZ() + 0.5f);
 
-		for (Vector2d corner : corners) {
+		for (Vector2d corner : corners)
+		{
 			double mX = middle.x - corner.x;
 			double mZ = middle.y - corner.y;
 
@@ -357,7 +379,8 @@ public class FBPParticleBlock extends Particle {
 							.multipleParticleScaleBy(0.5f).multiplyVelocity(0.5f));
 		}
 
-		for (Vector2d corner : corners) {
+		for (Vector2d corner : corners)
+		{
 			if (corner == null)
 				continue;
 
@@ -374,7 +397,8 @@ public class FBPParticleBlock extends Particle {
 		}
 	}
 
-	public void killParticle() {
+	public void killParticle()
+	{
 		this.isExpired = true;
 
 		FBP.FBPBlock.blockNodes.remove(pos);
@@ -382,7 +406,8 @@ public class FBPParticleBlock extends Particle {
 	}
 
 	@Override
-	public void setExpired() {
+	public void setExpired()
+	{
 		FBP.INSTANCE.eventHandler.removePosEntry(pos);
 	}
 }

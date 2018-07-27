@@ -9,12 +9,14 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 
-public class FBPModelHelper {
+public class FBPModelHelper
+{
 	static int vertexes = 0;
 
 	static boolean isAllCorruptedTexture = true;
 
-	public static boolean isModelValid(IBlockState state) {
+	public static boolean isModelValid(IBlockState state)
+	{
 		IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
 				.getModelForState(state);
 
@@ -25,10 +27,12 @@ public class FBPModelHelper {
 
 		vertexes = 0;
 
-		try {
+		try
+		{
 			FBPModelTransformer.transform(model, state, 0, new IVertexTransformer() {
 				@Override
-				public float[] transform(BakedQuad quad, VertexFormatElement element, float... data) {
+				public float[] transform(BakedQuad quad, VertexFormatElement element, float... data)
+				{
 					if (element.getUsage() == VertexFormatElement.EnumUsage.POSITION)
 						vertexes++;
 
@@ -40,7 +44,8 @@ public class FBPModelHelper {
 					return data;
 				}
 			});
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 
 		}
 

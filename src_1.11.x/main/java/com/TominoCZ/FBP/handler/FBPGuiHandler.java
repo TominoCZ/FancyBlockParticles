@@ -8,9 +8,11 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class FBPGuiHandler {
+public class FBPGuiHandler
+{
 	@SubscribeEvent
-	public void onRenderGui(RenderGameOverlayEvent.Post evt) {
+	public void onRenderGui(RenderGameOverlayEvent.Post evt)
+	{
 		if (evt.getType() != ElementType.EXPERIENCE)
 			return;
 
@@ -19,10 +21,12 @@ public class FBPGuiHandler {
 	}
 
 	@SubscribeEvent
-	public void onGuiMouseInput(GuiScreenEvent.MouseInputEvent e) {
+	public void onGuiMouseInput(GuiScreenEvent.MouseInputEvent e)
+	{
 	}
 
 	@SubscribeEvent
-	public void onGuiKeyboardInput(GuiScreenEvent.KeyboardInputEvent e) {
+	public void onGuiKeyboardInput(GuiScreenEvent.KeyboardInputEvent e)
+	{
 	}
 }

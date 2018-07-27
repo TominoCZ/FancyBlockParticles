@@ -58,7 +58,7 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		ScaleMultSlider = new FBPGuiSlider(X, ParticleCountBase.yPosition + ParticleCountBase.height + 1,
 				(FBP.scaleMult - 0.75) / 0.5);
 		GravitiyForceSlider = new FBPGuiSlider(X, ScaleMultSlider.yPosition + ScaleMultSlider.height + 6,
-				(FBP.gravityMult - 0.5) / 1.5);
+				(FBP.gravityMult - 0.05) / 2.95);
 		RotSpeedSlider = new FBPGuiSlider(X, GravitiyForceSlider.yPosition + GravitiyForceSlider.height + 1,
 				FBP.rotationMult / 1.5);
 		InfiniteDuration = new FBPGuiButton(11, x1 + 25, MinDurationSlider.yPosition + 10,
@@ -156,7 +156,7 @@ public class FBPGuiMenuPage0 extends GuiScreen {
 		int sMaxAge = (int) (10 + 90 * MaxDurationSlider.value);
 
 		double sScaleMult = FBPMathUtil.round(0.75 + 0.5 * ScaleMultSlider.value, 2);
-		double sGravityForce = FBPMathUtil.round(0.5 + 1.5 * GravitiyForceSlider.value, 2);
+		double sGravityForce = FBPMathUtil.round(0.05 + 2.95 * GravitiyForceSlider.value, 2);
 		double sRotSpeed = FBPMathUtil.round(1.5 * RotSpeedSlider.value, 2);
 
 		if (FBP.maxAge < sMinAge) {

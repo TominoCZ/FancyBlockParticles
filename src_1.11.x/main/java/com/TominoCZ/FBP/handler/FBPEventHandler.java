@@ -41,75 +41,92 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class FBPEventHandler {
+public class FBPEventHandler
+{
 	Minecraft mc;
 
 	IWorldEventListener listener;
 
 	ConcurrentSet<BlockPosNode> list;
 
-	public FBPEventHandler() {
+	public FBPEventHandler()
+	{
 		mc = Minecraft.getMinecraft();
 
 		list = new ConcurrentSet<BlockPosNode>();
 
 		listener = new IWorldEventListener() {
 			@Override
-			public void markBlockRangeForRenderUpdate(int x1, int y1, int z1, int x2, int y2, int z2) {
+			public void markBlockRangeForRenderUpdate(int x1, int y1, int z1, int x2, int y2, int z2)
+			{
 			}
 
 			@Override
-			public void broadcastSound(int soundID, BlockPos pos, int data) {
+			public void broadcastSound(int soundID, BlockPos pos, int data)
+			{
 			}
 
 			@Override
-			public void onEntityAdded(Entity entityIn) {
+			public void onEntityAdded(Entity entityIn)
+			{
 			}
 
 			@Override
 			public void spawnParticle(int id, boolean ignoreRange, boolean p_190570_3_, double x, double y, double z,
-					double xSpeed, double ySpeed, double zSpeed, int... parameters) {
+					double xSpeed, double ySpeed, double zSpeed, int... parameters)
+			{
 			}
 
 			@Override
 			public void spawnParticle(int particleID, boolean ignoreRange, double xCoord, double yCoord, double zCoord,
-					double xSpeed, double ySpeed, double zSpeed, int... parameters) {
+					double xSpeed, double ySpeed, double zSpeed, int... parameters)
+			{
 			}
 
 			@Override
-			public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
+			public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress)
+			{
 			}
 
 			@Override
 			public void playSoundToAllNearExcept(EntityPlayer player, SoundEvent soundIn, SoundCategory category,
-					double x, double y, double z, float volume, float pitch) {
+					double x, double y, double z, float volume, float pitch)
+			{
 			}
 
 			@Override
-			public void playRecord(SoundEvent soundIn, BlockPos pos) {
+			public void playRecord(SoundEvent soundIn, BlockPos pos)
+			{
 			}
 
 			@Override
-			public void playEvent(EntityPlayer player, int type, BlockPos blockPosIn, int data) {
+			public void playEvent(EntityPlayer player, int type, BlockPos blockPosIn, int data)
+			{
 			}
 
 			@Override
-			public void onEntityRemoved(Entity entityIn) {
+			public void onEntityRemoved(Entity entityIn)
+			{
 			}
 
 			@Override
-			public void notifyLightSet(BlockPos pos) {
+			public void notifyLightSet(BlockPos pos)
+			{
 			}
 
 			@Override
 			public void notifyBlockUpdate(World worldIn, BlockPos pos, IBlockState oldState, IBlockState newState,
-					int flags) {
-				if (FBP.enabled && FBP.fancyPlaceAnim && (flags == 11 || flags == 3) && !oldState.equals(newState)) {
+					int flags)
+			{
+				if (FBP.enabled && FBP.fancyPlaceAnim && (flags == 11 || flags == 3) && !oldState.equals(newState))
+				{
 					BlockPosNode node = getNodeWithPos(pos);
 
-					if (node != null && !node.checked) {
+					if (node != null && !node.checked)
+					{
 						if (newState.getBlock() == FBP.FBPBlock || newState.getBlock() == Blocks.AIR
-								|| oldState.getBlock() == newState.getBlock()) {
+								|| oldState.getBlock() == newState.getBlock())
+						{
 							removePosEntry(pos);
 
 							return;
@@ -117,7 +134,8 @@ public class FBPEventHandler {
 
 						IBlockState state = newState.getActualState(worldIn, pos);
 
-						if (state.getBlock() instanceof BlockDoublePlant || !FBPModelHelper.isModelValid(state)) {
+						if (state.getBlock() instanceof BlockDoublePlant || !FBPModelHelper.isModelValid(state))
+						{
 							removePosEntry(pos);
 							return;
 						}
@@ -126,13 +144,15 @@ public class FBPEventHandler {
 
 						boolean isNotFalling = true;
 
-						if (state.getBlock() instanceof BlockFalling) {
+						if (state.getBlock() instanceof BlockFalling)
+						{
 							BlockFalling bf = (BlockFalling) state.getBlock();
 							if (BlockFalling.canFallThrough(worldIn.getBlockState(pos.offset(EnumFacing.DOWN))))
 								isNotFalling = false;
 						}
 
-						if (!FBP.INSTANCE.isInExceptions(state.getBlock(), false) && isNotFalling) {
+						if (!FBP.INSTANCE.isBlacklisted(state.getBlock(), false) && isNotFalling)
+						{
 							node.checked = true;
 
 							FBPParticleBlock p = new FBPParticleBlock(worldIn, pos.getX() + 0.5f, pos.getY() + 0.5f,
@@ -149,7 +169,8 @@ public class FBPEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onInteractionEvent(RightClickBlock e) {
+	public void onInteractionEvent(RightClickBlock e)
+	{
 		if (e.getHitVec() == null || e.getItemStack() == null || !e.getWorld().isRemote
 				|| !(e.getItemStack().getItem() instanceof ItemBlock))
 			return;
@@ -168,10 +189,12 @@ public class FBPEventHandler {
 		float f1 = (float) (e.getHitVec().yCoord - pos.getY());
 		float f2 = (float) (e.getHitVec().zCoord - pos.getZ());
 
-		if (atPos.getBlock() == FBP.FBPBlock) {
+		if (atPos.getBlock() == FBP.FBPBlock)
+		{
 			BlockNode n = FBP.FBPBlock.blockNodes.get(pos);
 
-			if (n != null && n.state.getBlock() != null) {
+			if (n != null && n.state.getBlock() != null)
+			{
 				boolean activated = n.originalBlock.onBlockActivated(e.getWorld(), pos, n.state, mc.player, e.getHand(),
 						e.getFace(), f, f1, f2);
 
@@ -182,21 +205,27 @@ public class FBPEventHandler {
 			}
 
 			// if placed quicky atop each other
-			if (atPos.getBlock() instanceof BlockSlab) {
+			if (atPos.getBlock() instanceof BlockSlab)
+			{
 				BlockSlab.EnumBlockHalf half = atPos.getValue(BlockSlab.HALF);
 
-				if (e.getFace() == EnumFacing.UP) {
-					if (half == EnumBlockHalf.BOTTOM) {
+				if (e.getFace() == EnumFacing.UP)
+				{
+					if (half == EnumBlockHalf.BOTTOM)
+					{
 						bool = true;
 					}
-				} else if (e.getFace() == EnumFacing.DOWN) {
-					if (half == EnumBlockHalf.TOP) {
+				} else if (e.getFace() == EnumFacing.DOWN)
+				{
+					if (half == EnumBlockHalf.TOP)
+					{
 						bool = true;
 					}
 				}
 			}
 		}
-		if (offset.getBlock() == FBP.FBPBlock) {
+		if (offset.getBlock() == FBP.FBPBlock)
+		{
 			BlockNode n = FBP.FBPBlock.blockNodes.get(pos_o);
 
 			if (n != null && n.state.getBlock() != null)
@@ -210,10 +239,12 @@ public class FBPEventHandler {
 
 		BlockPosNode node = new BlockPosNode();
 
-		try {
+		try
+		{
 			if (!bool && (inHand != null && offset.getMaterial().isReplaceable()
 					&& !atPos.getBlock().isReplaceable(e.getWorld(), pos)
-					&& inHand.canPlaceBlockAt(e.getWorld(), pos_o))) {
+					&& inHand.canPlaceBlockAt(e.getWorld(), pos_o)))
+			{
 				node.add(pos_o);
 				addedOffset = true;
 			} else
@@ -223,19 +254,23 @@ public class FBPEventHandler {
 					&& inHand.canPlaceBlockAt(e.getWorld(), addedOffset ? pos_o : pos);
 
 			// do torch check
-			if (inHand != null && inHand instanceof BlockTorch) {
+			if (inHand != null && inHand instanceof BlockTorch)
+			{
 				BlockTorch bt = (BlockTorch) inHand;
 
 				if (!bt.canPlaceBlockAt(e.getWorld(), pos_o))
 					okToAdd = false;
 
-				if (atPos.getBlock() == Blocks.TORCH) {
-					for (EnumFacing fc : EnumFacing.VALUES) {
+				if (atPos.getBlock() == Blocks.TORCH)
+				{
+					for (EnumFacing fc : EnumFacing.VALUES)
+					{
 						BlockPos p = pos_o.offset(fc);
 						Block bl = e.getWorld().getBlockState(p).getBlock();
 
 						if (bl != Blocks.TORCH && bl != FBP.FBPBlock
-								&& bl.isSideSolid(bl.getDefaultState(), e.getWorld(), p, fc)) {
+								&& bl.isSideSolid(bl.getDefaultState(), e.getWorld(), p, fc))
+						{
 							okToAdd = true;
 							break;
 						} else
@@ -248,7 +283,8 @@ public class FBPEventHandler {
 			BlockPosNode last_o = getNodeWithPos(pos_o);
 
 			// add if all ok
-			if (okToAdd) {
+			if (okToAdd)
+			{
 				boolean replaceable = (addedOffset ? offset : atPos).getBlock().isReplaceable(e.getWorld(),
 						(addedOffset ? pos_o : pos));
 
@@ -263,13 +299,15 @@ public class FBPEventHandler {
 
 				list.add(node);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			list.clear();
 		}
 	}
 
 	@SubscribeEvent
-	public void onTick(TickEvent.ClientTickEvent e) {
+	public void onTick(TickEvent.ClientTickEvent e)
+	{
 		if (!mc.isGamePaused() && mc.world != null && mc.world.provider.getWeatherRenderer() == FBP.fancyWeatherRenderer
 				&& FBP.enabled)
 			((FBPWeatherRenderer) FBP.fancyWeatherRenderer).onUpdate();
@@ -277,7 +315,8 @@ public class FBPEventHandler {
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void onWorldLoadEvent(WorldEvent.Load e) {
+	public void onWorldLoadEvent(WorldEvent.Load e)
+	{
 		FBPConfigHandler.init();
 
 		e.getWorld().addEventListener(listener);
@@ -286,8 +325,10 @@ public class FBPEventHandler {
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
-		if (e.getEntity() == mc.player) {
+	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e)
+	{
+		if (e.getEntity() == mc.player)
+		{
 			FBP.fancyEffectRenderer = new FBPParticleManager(e.getWorld(), mc.renderEngine, new Factory());
 			FBP.fancyWeatherRenderer = new FBPWeatherRenderer();
 
@@ -300,7 +341,8 @@ public class FBPEventHandler {
 					&& FBP.originalEffectRenderer != FBP.fancyEffectRenderer))
 				FBP.originalEffectRenderer = mc.effectRenderer;
 
-			if (FBP.enabled) {
+			if (FBP.enabled)
+			{
 				mc.effectRenderer = FBP.fancyEffectRenderer;
 
 				if (FBP.fancyRain || FBP.fancySnow)
@@ -311,7 +353,8 @@ public class FBPEventHandler {
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void onPlayerPlaceBlockEvent(BlockEvent.PlaceEvent e) {
+	public void onPlayerPlaceBlockEvent(BlockEvent.PlaceEvent e)
+	{
 		IBlockState bs = e.getPlacedBlock();
 		Block placed = bs.getBlock();
 
@@ -319,16 +362,20 @@ public class FBPEventHandler {
 			e.setCanceled(true);
 	}
 
-	BlockPosNode getNodeWithPos(BlockPos pos) {
-		for (BlockPosNode n : list) {
+	BlockPosNode getNodeWithPos(BlockPos pos)
+	{
+		for (BlockPosNode n : list)
+		{
 			if (n.hasPos(pos))
 				return n;
 		}
 		return null;
 	}
 
-	public void removePosEntry(BlockPos pos) {
-		for (int i = 0; i < list.size(); i++) {
+	public void removePosEntry(BlockPos pos)
+	{
+		for (int i = 0; i < list.size(); i++)
+		{
 			BlockPosNode n = getNodeWithPos(pos);
 
 			if (n != null)

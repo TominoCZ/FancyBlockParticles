@@ -13,7 +13,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPGuiButtonBugReport extends GuiButton {
+public class FBPGuiButtonBugReport extends GuiButton
+{
 	FontRenderer _fr;
 	String _textOnHover = "Found a bug? Click to report it!";
 
@@ -23,15 +24,18 @@ public class FBPGuiButtonBugReport extends GuiButton {
 
 	int fadeAmmount = 0;
 
-	public FBPGuiButtonBugReport(int buttonID, int xPos, int yPos, Dimension screen, FontRenderer fr) {
+	public FBPGuiButtonBugReport(int buttonID, int xPos, int yPos, Dimension screen, FontRenderer fr)
+	{
 		super(buttonID, xPos, yPos, 25, 25, "");
 		_screen = screen;
 		_fr = fr;
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (this.visible) {
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
+	{
+		if (this.visible)
+		{
 			mc.getTextureManager().bindTexture(FBP.FBP_BUG);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -83,8 +87,10 @@ public class FBPGuiButtonBugReport extends GuiButton {
 	}
 
 	@Override
-	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-		if (this.enabled && this.visible && this.hovered) {
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
+	{
+		if (this.enabled && this.visible && this.hovered)
+		{
 			playPressSound(mc.getSoundHandler());
 			return true;
 		} else

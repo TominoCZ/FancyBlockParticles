@@ -34,11 +34,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class FBPAnimationDummyBlock extends Block {
+public class FBPAnimationDummyBlock extends Block
+{
 
 	public ConcurrentHashMap<BlockPos, BlockNode> blockNodes = new ConcurrentHashMap<BlockPos, BlockNode>();
 
-	public FBPAnimationDummyBlock() {
+	public FBPAnimationDummyBlock()
+	{
 		super(new FBPMaterial());
 
 		this.setRegistryName(new ResourceLocation(FBP.MODID, "FBPPlaceholderBlock"));
@@ -46,7 +48,8 @@ public class FBPAnimationDummyBlock extends Block {
 		this.translucent = true;
 	}
 
-	public void copyState(World w, BlockPos pos, IBlockState state, FBPParticleBlock p) {
+	public void copyState(World w, BlockPos pos, IBlockState state, FBPParticleBlock p)
+	{
 		if (blockNodes.containsKey(pos))
 			return;
 
@@ -55,13 +58,17 @@ public class FBPAnimationDummyBlock extends Block {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (blockNodes.containsKey(pos)) {
+			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	{
+		if (blockNodes.containsKey(pos))
+		{
 			BlockNode n = blockNodes.get(pos);
 
-			try {
+			try
+			{
 				return n.originalBlock.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
-			} catch (Throwable t) {
+			} catch (Throwable t)
+			{
 				return false;
 			}
 		}
@@ -70,14 +77,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.isNormalCube();
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -85,14 +96,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isAir(IBlockState state, IBlockAccess world, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isAir(IBlockState state, IBlockAccess world, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getBlock().isAir(state, world, pos);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -100,14 +115,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isBed(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity player) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isBed(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity player)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getBlock().isBed(state, world, pos, player);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -115,14 +134,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isBedFoot(IBlockAccess world, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isBedFoot(IBlockAccess world, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getBlock().isBedFoot(world, pos);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -130,14 +153,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isBurning(IBlockAccess world, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isBurning(IBlockAccess world, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getBlock().isBurning(world, pos);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -145,14 +172,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isFlammable(IBlockAccess world, BlockPos pos, EnumFacing face) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isFlammable(IBlockAccess world, BlockPos pos, EnumFacing face)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getBlock().isFlammable(world, pos, face);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -160,14 +191,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getBlock().isLadder(state, world, pos, entity);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -175,14 +210,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getMaterial().isReplaceable();
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -190,41 +229,53 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.originalBlock.isPassable(worldIn, pos);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 		return !this.blockMaterial.blocksMovement();
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				n.originalBlock.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getCollisionBoundingBox(worldIn, pos);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -232,14 +283,18 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public AxisAlignedBB getBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getBoundingBox(worldIn, pos);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -247,19 +302,24 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public AxisAlignedBB getSelectedBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
+	public AxisAlignedBB getSelectedBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
+	{
 		return new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 	}
 
 	@Override
-	public float getBlockHardness(IBlockState blockState, World w, BlockPos pos) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+	public float getBlockHardness(IBlockState blockState, World w, BlockPos pos)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode n = blockNodes.get(pos);
 
 				return n.state.getBlockHardness(w, pos);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 
@@ -267,8 +327,10 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
-		try {
+	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state)
+	{
+		try
+		{
 			BlockNode node = FBP.FBPBlock.blockNodes.get(pos);
 
 			if (node == null)
@@ -285,24 +347,29 @@ public class FBPAnimationDummyBlock extends Block {
 
 			// cleanup just to make sure it gets removed
 			FBP.INSTANCE.eventHandler.removePosEntry(pos);
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 		}
 	}
 
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
-			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b) {
-		try {
+			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b)
+	{
+		try
+		{
 			if (blockNodes.containsKey(pos))
 				blockNodes.get(pos).state.addCollisionBoxToList(worldIn, pos, entityBox, collidingBoxes, entityIn, b);
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 
 		}
 	}
 
 	@Override
-	public float getExplosionResistance(World w, BlockPos p, Entity e, Explosion ex) {
+	public float getExplosionResistance(World w, BlockPos p, Entity e, Explosion ex)
+	{
 		if (blockNodes.containsKey(p))
 			return blockNodes.get(p).originalBlock.getExplosionResistance(w, p, e, ex);
 
@@ -310,7 +377,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public float getExplosionResistance(Entity e) {
+	public float getExplosionResistance(Entity e)
+	{
 		if (blockNodes.containsKey(e.getPosition()))
 			return blockNodes.get(e.getPosition()).originalBlock.getExplosionResistance(e);
 
@@ -318,7 +386,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public float getEnchantPowerBonus(World w, BlockPos p) {
+	public float getEnchantPowerBonus(World w, BlockPos p)
+	{
 		if (blockNodes.containsKey(p))
 			return blockNodes.get(p).originalBlock.getEnchantPowerBonus(w, p);
 
@@ -326,7 +395,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing face) {
+	public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing face)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.getFlammability(world, pos, face);
 
@@ -334,7 +404,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing face) {
+	public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing face)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.getFireSpreadSpeed(world, pos, face);
 
@@ -342,7 +413,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean getWeakChanges(IBlockAccess world, BlockPos pos) {
+	public boolean getWeakChanges(IBlockAccess world, BlockPos pos)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.getWeakChanges(world, pos);
 
@@ -351,22 +423,27 @@ public class FBPAnimationDummyBlock extends Block {
 
 	@Override
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos,
-			EntityPlayer player) {
-		try {
-			if (blockNodes.containsKey(pos)) {
+			EntityPlayer player)
+	{
+		try
+		{
+			if (blockNodes.containsKey(pos))
+			{
 				BlockNode node = blockNodes.get(pos);
 
 				if (node.originalBlock != this && node.state.getBlock() == node.originalBlock)
 					return blockNodes.get(pos).originalBlock.getPickBlock(node.state, target, world, pos, player);
 			}
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 		}
 
 		return new ItemStack(Blocks.AIR);
 	}
 
 	@Override
-	public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+	public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).state.getWeakPower(blockAccess, pos, side);
 
@@ -374,7 +451,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean canPlaceTorchOnTop(IBlockState state, IBlockAccess world, BlockPos pos) {
+	public boolean canPlaceTorchOnTop(IBlockState state, IBlockAccess world, BlockPos pos)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.canPlaceTorchOnTop(state, world, pos);
 
@@ -382,7 +460,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean canPlaceBlockAt(World worldIn, BlockPos pos) {
+	public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.canPlaceBlockAt(worldIn, pos);
 
@@ -390,7 +469,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side) {
+	public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.canPlaceBlockOnSide(worldIn, pos, side);
 
@@ -398,7 +478,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public IBlockState getExtendedState(IBlockState s, IBlockAccess w, BlockPos p) {
+	public IBlockState getExtendedState(IBlockState s, IBlockAccess w, BlockPos p)
+	{
 		if (blockNodes.containsKey(p))
 			return blockNodes.get(p).originalBlock.getExtendedState(s, w, p);
 
@@ -406,7 +487,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public SoundType getSoundType(IBlockState state, World world, BlockPos pos, Entity entity) {
+	public SoundType getSoundType(IBlockState state, World world, BlockPos pos, Entity entity)
+	{
 		if (!blockNodes.containsKey(pos))
 			return SoundType.STONE;
 
@@ -416,20 +498,24 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
-		try {
+	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
+	{
+		try
+		{
 			if (blockNodes.containsKey(pos))
 				new ItemStack(Item.getItemFromBlock(blockNodes.get(pos).originalBlock), 1, this.damageDropped(state));
 
 			return new ItemStack(Item.getItemFromBlock(this), 1, this.damageDropped(state));
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			t.printStackTrace();
 			return null;
 		}
 	}
 
 	@Override
-	public boolean canConnectRedstone(IBlockState s, IBlockAccess w, BlockPos pos, EnumFacing side) {
+	public boolean canConnectRedstone(IBlockState s, IBlockAccess w, BlockPos pos, EnumFacing side)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.canConnectRedstone(s, w, pos, side);
 
@@ -437,19 +523,22 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public void onNeighborChange(IBlockAccess w, BlockPos pos, BlockPos p) {
+	public void onNeighborChange(IBlockAccess w, BlockPos pos, BlockPos p)
+	{
 		if (blockNodes.containsKey(pos))
 			blockNodes.get(pos).originalBlock.onNeighborChange(w, pos, p);
 	}
 
 	@Override
-	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
+	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
+	{
 		if (blockNodes.containsKey(pos))
 			blockNodes.get(pos).originalBlock.onBlockAdded(worldIn, pos, state);
 	}
 
 	@Override
-	public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+	public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.getDrops(world, pos, state, fortune);
 
@@ -457,7 +546,8 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public int getExpDrop(IBlockState state, IBlockAccess world, BlockPos pos, int fortune) {
+	public int getExpDrop(IBlockState state, IBlockAccess world, BlockPos pos, int fortune)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.getExpDrop(state, world, pos, fortune);
 
@@ -465,28 +555,33 @@ public class FBPAnimationDummyBlock extends Block {
 	}
 
 	@Override
-	public Item getItemDropped(IBlockState state, Random r, int i) {
+	public Item getItemDropped(IBlockState state, Random r, int i)
+	{
 		return null;
 	}
 
 	@Override
-	public EnumBlockRenderType getRenderType(IBlockState state) {
+	public EnumBlockRenderType getRenderType(IBlockState state)
+	{
 		return EnumBlockRenderType.INVISIBLE;
 	}
 
 	@Override
-	public boolean isOpaqueCube(IBlockState state) {
+	public boolean isOpaqueCube(IBlockState state)
+	{
 		return false;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public float getAmbientOcclusionLightValue(IBlockState state) {
+	public float getAmbientOcclusionLightValue(IBlockState state)
+	{
 		return 1.0F;
 	}
 
 	@Override
-	public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+	public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side)
+	{
 		if (blockNodes.containsKey(pos))
 			return blockNodes.get(pos).originalBlock.isSideSolid(base_state, world, pos, side);
 

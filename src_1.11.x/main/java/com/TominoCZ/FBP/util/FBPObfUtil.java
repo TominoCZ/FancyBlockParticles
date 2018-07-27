@@ -2,11 +2,13 @@ package com.TominoCZ.FBP.util;
 
 import java.util.HashMap;
 
-public class FBPObfUtil {
+public class FBPObfUtil
+{
 
 	private static HashMap<String, String> map;
 
-	static {
+	static
+	{
 		map = new HashMap<String, String>();
 
 		String obfNames = "field_151579_a," + "field_151577_b," + "field_151578_c," + "field_151575_d,"
@@ -27,12 +29,14 @@ public class FBPObfUtil {
 		String[] obf = obfNames.split(",");
 		String[] deobf = deobfNames.split(",");
 
-		for (int i = 0; i < obf.length; i++) {
+		for (int i = 0; i < obf.length; i++)
+		{
 			map.put(obf[i], deobf[i].toLowerCase());
 		}
 	}
 
-	public static String translateObfMaterialName(String fieldName) {
+	public static String translateObfMaterialName(String fieldName)
+	{
 		if (!map.containsKey(fieldName))
 			return fieldName;
 

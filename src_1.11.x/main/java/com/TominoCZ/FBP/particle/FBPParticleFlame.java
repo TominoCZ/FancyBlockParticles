@@ -20,7 +20,8 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class FBPParticleFlame extends ParticleFlame {
+public class FBPParticleFlame extends ParticleFlame
+{
 	Minecraft mc;
 
 	double startScale;
@@ -42,7 +43,8 @@ public class FBPParticleFlame extends ParticleFlame {
 	boolean spawnAnother = true;
 
 	protected FBPParticleFlame(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double mX, double mY,
-			double mZ, boolean spawnAnother) {
+			double mZ, boolean spawnAnother)
+	{
 		super(worldIn, xCoordIn, yCoordIn - 0.11f, zCoordIn, mX, mY, mZ);
 		IBlockState bs = worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 
@@ -77,7 +79,8 @@ public class FBPParticleFlame extends ParticleFlame {
 
 		cube = new Vec3d[FBP.CUBE.length];
 
-		for (int i = 0; i < FBP.CUBE.length; i++) {
+		for (int i = 0; i < FBP.CUBE.length; i++)
+		{
 			Vec3d vec = FBP.CUBE[i];
 			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, AngleY, 0);
 		}
@@ -90,12 +93,14 @@ public class FBPParticleFlame extends ParticleFlame {
 	}
 
 	@Override
-	public int getFXLayer() {
+	public int getFXLayer()
+	{
 		return 0;
 	}
 
 	@Override
-	public void onUpdate() {
+	public void onUpdate()
+	{
 		prevPosX = posX;
 		prevPosY = posY;
 		prevPosZ = posZ;
@@ -106,10 +111,12 @@ public class FBPParticleFlame extends ParticleFlame {
 		if (!FBP.fancyFlame)
 			this.isExpired = true;
 
-		if (!mc.isGamePaused()) {
+		if (!mc.isGamePaused())
+		{
 			particleAge++;
 
-			if (this.particleAge >= this.particleMaxAge) {
+			if (this.particleAge >= this.particleMaxAge)
+			{
 				this.particleGreen = (float) (particleScale / startScale);
 
 				if (FBP.randomFadingSpeed)
@@ -117,7 +124,8 @@ public class FBPParticleFlame extends ParticleFlame {
 				else
 					particleScale *= 0.95F;
 
-				if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
+				if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
+				{
 					if (FBP.randomFadingSpeed)
 						particleAlpha *= 0.9F * endMult;
 					else
@@ -127,7 +135,8 @@ public class FBPParticleFlame extends ParticleFlame {
 				if (particleAlpha <= 0.01)
 					setExpired();
 				else if (particleAlpha <= 0.325 && spawnAnother
-						&& world.getBlockState(new BlockPos(posX, posY, posZ)).getBlock() == Blocks.TORCH) {
+						&& world.getBlockState(new BlockPos(posX, posY, posZ)).getBlock() == Blocks.TORCH)
+				{
 					spawnAnother = false;
 
 					mc.effectRenderer.addEffect(new FBPParticleFlame(world, startPos.xCoord, startPos.yCoord - 0.065f,
@@ -143,7 +152,8 @@ public class FBPParticleFlame extends ParticleFlame {
 
 	@Override
 	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
-			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
+	{
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
@@ -178,14 +188,16 @@ public class FBPParticleFlame extends ParticleFlame {
 		worldRendererIn.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 	}
 
-	public void putCube(VertexBuffer worldRendererIn, double scale, int j, int k, float r, float g, float b, float a) {
+	public void putCube(VertexBuffer worldRendererIn, double scale, int j, int k, float r, float g, float b, float a)
+	{
 		float brightnessForRender = _brightnessForRender;
 
 		float R = 0;
 		float G = 0;
 		float B = 0;
 
-		for (int i = 0; i < cube.length; i += 4) {
+		for (int i = 0; i < cube.length; i += 4)
+		{
 			Vec3d v1 = cube[i];
 			Vec3d v2 = cube[i + 1];
 			Vec3d v3 = cube[i + 2];
@@ -205,17 +217,20 @@ public class FBPParticleFlame extends ParticleFlame {
 	}
 
 	private void addVt(VertexBuffer worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k, float r,
-			float g, float b, float a) { // add vertex to buffer
+			float g, float b, float a)
+	{ // add vertex to buffer
 		worldRendererIn.pos(pos.xCoord * scale, pos.yCoord * scale, pos.zCoord * scale).tex(u, v).color(r, g, b, a)
 				.lightmap(j, k).endVertex();
 	}
 
 	@Override
-	public int getBrightnessForRender(float p_189214_1_) {
+	public int getBrightnessForRender(float p_189214_1_)
+	{
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
 
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ)))
+		{
 			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
 		}
 

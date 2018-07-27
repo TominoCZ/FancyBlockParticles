@@ -14,7 +14,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPGuiMenuPage4 extends GuiScreen {
+public class FBPGuiMenuPage4 extends GuiScreen
+{
 
 	GuiButton Reload, Done, Defaults, Back, ReportBug, Enable, b1, b2, b3, b4, b5, b6;
 
@@ -32,7 +33,8 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 	int GUIOffsetY = 4;
 
 	@Override
-	public void initGui() {
+	public void initGui()
+	{
 		this.buttonList.clear();
 
 		int x = this.width / 2 - (96 * 2 + 8) / 2;
@@ -63,15 +65,19 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) throws IOException {
-		switch (button.id) {
+	protected void actionPerformed(GuiButton button) throws IOException
+	{
+		switch (button.id)
+		{
 		case -5:
 			FBP.setEnabled(!FBP.enabled);
 			break;
 		case -4:
-			try {
+			try
+			{
 				Desktop.getDesktop().browse(new URI("https://github.com/TominoCZ/FancyBlockParticles/issues"));
-			} catch (Exception e) {
+			} catch (Exception e)
+			{
 
 			}
 			break;
@@ -119,19 +125,22 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 	}
 
 	@Override
-	public boolean doesGuiPauseGame() {
+	public boolean doesGuiPauseGame()
+	{
 		return true;
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
 		FBPGuiHelper.background(b1.y - 6 - GUIOffsetY, Done.y - 4, width, height);
 
 		int posY = Done.y - 18;
 
 		getDescription();
 
-		if ((mouseX >= b1.x && mouseX < b1.x + b1.width) && (mouseY >= b1.y && mouseY < b6.y + b1.height)) {
+		if ((mouseX >= b1.x && mouseX < b1.x + b1.width) && (mouseY >= b1.y && mouseY < b6.y + b1.height))
+		{
 
 			moveText();
 
@@ -144,10 +153,14 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	private void getDescription() {
-		for (GuiButton b : this.buttonList) {
-			if (b.isMouseOver()) {
-				switch (b.id) {
+	private void getDescription()
+	{
+		for (GuiButton b : this.buttonList)
+		{
+			if (b.isMouseOver())
+			{
+				switch (b.id)
+				{
 				case 1:
 					description = "Makes \u00A76flame particles\u00A7a fancy.";
 					break;
@@ -171,11 +184,13 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 		}
 	}
 
-	private void moveText() {
+	private void moveText()
+	{
 		int textWidth = this.fontRenderer.getStringWidth(description);
 		int outsideSizeX = textWidth - this.width;
 
-		if (textWidth > width) {
+		if (textWidth > width)
+		{
 			double speedOfSliding = 2400;
 			long time = System.currentTimeMillis();
 
@@ -190,12 +205,16 @@ public class FBPGuiMenuPage4 extends GuiScreen {
 	}
 
 	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		if (mouseButton == 0) {
-			for (int i = 0; i < this.buttonList.size(); ++i) {
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+	{
+		if (mouseButton == 0)
+		{
+			for (int i = 0; i < this.buttonList.size(); ++i)
+			{
 				GuiButton guibutton = this.buttonList.get(i);
 
-				if (guibutton.mousePressed(this.mc, mouseX, mouseY)) {
+				if (guibutton.mousePressed(this.mc, mouseX, mouseY))
+				{
 					if (!guibutton.isMouseOver())
 						return;
 

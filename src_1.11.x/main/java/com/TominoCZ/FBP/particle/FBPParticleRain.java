@@ -24,14 +24,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleRain extends ParticleDigging implements IFBPShadedParticle {
+public class FBPParticleRain extends ParticleDigging
+{
 	private final IBlockState sourceState;
 
 	Minecraft mc;
 
 	double particleHeight;
 
-	double scaleAlpha, prevParticleScale, prevParticleHeight, prevParticleAlpha;
+	double prevParticleScale, prevParticleHeight, prevParticleAlpha;
 
 	boolean modeDebounce = false;
 
@@ -46,12 +47,15 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 	Vec2f[] par;
 
 	public FBPParticleRain(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
-			double ySpeedIn, double zSpeedIn, IBlockState state) {
+			double ySpeedIn, double zSpeedIn, IBlockState state)
+	{
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, state);
 
-		try {
+		try
+		{
 			FBP.setSourcePos.invokeExact((ParticleDigging) this, new BlockPos(xCoordIn, yCoordIn, zCoordIn));
-		} catch (Throwable e1) {
+		} catch (Throwable e1)
+		{
 			e1.printStackTrace();
 		}
 
@@ -69,8 +73,6 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 
 		particleMaxAge = (int) FBP.random.nextDouble(95, 115);
 
-		scaleAlpha = particleScale * 0.75;
-
 		this.particleAlpha = 0f;
 		this.particleScale = 0f;
 
@@ -81,11 +83,13 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 	}
 
 	@Override
-	public void setParticleTextureIndex(int particleTextureIndex) {
+	public void setParticleTextureIndex(int particleTextureIndex)
+	{
 
 	}
 
-	public Particle MultiplyVelocity(float multiplier) {
+	public Particle MultiplyVelocity(float multiplier)
+	{
 		this.motionX *= multiplier;
 		this.motionY = (this.motionY - 0.10000000149011612D) * (multiplier / 2) + 0.10000000149011612D;
 		this.motionZ *= multiplier;
@@ -93,7 +97,8 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 	}
 
 	@Override
-	protected void multiplyColor(@Nullable BlockPos p_187154_1_) {
+	protected void multiplyColor(@Nullable BlockPos p_187154_1_)
+	{
 		int i = mc.getBlockColors().colorMultiplier(this.sourceState, this.world, p_187154_1_, 0);
 		this.particleRed *= (i >> 16 & 255) / 255.0F;
 		this.particleGreen *= (i >> 8 & 255) / 255.0F;
@@ -101,12 +106,14 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 	}
 
 	@Override
-	public int getFXLayer() {
+	public int getFXLayer()
+	{
 		return 1;
 	}
 
 	@Override
-	public void onUpdate() {
+	public void onUpdate()
+	{
 		prevPosX = posX;
 		prevPosY = posY;
 		prevPosZ = posZ;
@@ -115,27 +122,34 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 		prevParticleScale = particleScale;
 		prevParticleHeight = particleHeight;
 
-		if (!mc.isGamePaused()) {
+		if (!mc.isGamePaused())
+		{
 			particleAge++;
 
 			if (posY < mc.player.posY - (mc.gameSettings.renderDistanceChunks * 9))
 				setExpired();
 
-			if (this.particleAge < this.particleMaxAge) {
-				if (!onGround) {
-					if (particleScale < FBP.scaleMult * 1.5f) {
-						if (FBP.randomFadingSpeed)
-							particleScale += 0.75F * endMult;
-						else
-							particleScale += 0.75F;
+			if (this.particleAge < this.particleMaxAge)
+			{
+				if (!onGround)
+				{
+					double max = FBP.scaleMult * 0.5;
 
-						if (particleScale > 1)
-							particleScale = 1;
+					if (particleScale < max)
+					{
+						if (FBP.randomFadingSpeed)
+							particleScale += 0.05F * endMult;
+						else
+							particleScale += 0.05F;
+
+						if (particleScale > max)
+							particleScale = (float) max;
 
 						particleHeight = particleScale;
 					}
 
-					if (particleAlpha < 0.625f) {
+					if (particleAlpha < 0.625f)
+					{
 						if (FBP.randomFadingSpeed)
 							particleAlpha += 0.085F * endMult;
 						else
@@ -157,7 +171,8 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 
 			motionY *= 1.00025000190734863D;
 
-			if (onGround) {
+			if (onGround)
+			{
 				motionX = 0;
 				motionY = -0.25f;
 				motionZ = 0;
@@ -165,7 +180,8 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 				if (particleHeight > 0.075f)
 					particleHeight *= 0.8f;
 
-				if (particleScale < FBP.scaleMult * 4.5f) {
+				if (particleScale < FBP.scaleMult * 4.5f)
+				{
 					particleScale *= scaleMult;
 
 					if (scaleMult > 1)
@@ -174,7 +190,8 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 						scaleMult = 1;
 				}
 
-				if (particleScale >= FBP.scaleMult * 2) {
+				if (particleScale >= FBP.scaleMult * 2)
+				{
 					if (FBP.randomFadingSpeed)
 						particleAlpha *= 0.75F * endMult;
 					else
@@ -198,26 +215,30 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 			particleBlue = 1;
 	}
 
-	public void moveEntity(double x, double y, double z) {
+	public void moveEntity(double x, double y, double z)
+	{
 		double X = x;
 		double Y = y;
 		double Z = z;
 
 		List<AxisAlignedBB> list = this.world.getCollisionBoxes((Entity) null, this.getBoundingBox().addCoord(x, y, z));
 
-		for (AxisAlignedBB axisalignedbb : list) {
+		for (AxisAlignedBB axisalignedbb : list)
+		{
 			y = axisalignedbb.calculateYOffset(this.getBoundingBox(), y);
 		}
 
 		this.setBoundingBox(this.getBoundingBox().offset(0.0D, y, 0.0D));
 
-		for (AxisAlignedBB axisalignedbb : list) {
+		for (AxisAlignedBB axisalignedbb : list)
+		{
 			x = axisalignedbb.calculateXOffset(this.getBoundingBox(), x);
 		}
 
 		this.setBoundingBox(this.getBoundingBox().offset(x, 0.0D, 0.0D));
 
-		for (AxisAlignedBB axisalignedbb : list) {
+		for (AxisAlignedBB axisalignedbb : list)
+		{
 			z = axisalignedbb.calculateZOffset(this.getBoundingBox(), z);
 		}
 
@@ -234,39 +255,26 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 	}
 
 	@Override
-	public void renderParticle(VertexBuffer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
-			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-
-	}
-
-	@Override
-	public int getBrightnessForRender(float p_189214_1_) {
-		int i = super.getBrightnessForRender(p_189214_1_);
-		int j = 0;
-
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
-		}
-
-		return i == 0 ? j : i;
-	}
-
-	@Override
-	public void renderShadedParticle(VertexBuffer buf, float partialTicks) {
+	public void renderParticle(VertexBuffer buf, Entity entityIn, float partialTicks, float rotationX, float rotationZ,
+			float rotationYZ, float rotationXY, float rotationXZ)
+	{
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
 		float f = 0, f1 = 0, f2 = 0, f3 = 0;
 
-		if (particleTexture != null) {
-			if (!FBP.cartoonMode) {
+		if (particleTexture != null)
+		{
+			if (!FBP.cartoonMode)
+			{
 				f = particleTexture.getInterpolatedU(particleTextureJitterX / 4 * 16);
 				f2 = particleTexture.getInterpolatedV(particleTextureJitterY / 4 * 16);
 			}
 
 			f1 = particleTexture.getInterpolatedU((particleTextureJitterX + 1) / 4 * 16);
 			f3 = particleTexture.getInterpolatedV((particleTextureJitterY + 1) / 4 * 16);
-		} else {
+		} else
+		{
 			f = (particleTextureIndexX + particleTextureJitterX / 4) / 16;
 			f1 = f + 0.015609375F;
 			f2 = (particleTextureIndexY + particleTextureJitterY / 4) / 16;
@@ -288,7 +296,21 @@ public class FBPParticleRain extends ParticleDigging implements IFBPShadedPartic
 		// RENDER
 		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
-		FBPRenderUtil.renderCubeShaded_WH(buf, par, f5, f6, f7, f4 / 20, height / 20, new FBPVector3d(0, AngleY, 0),
+		FBPRenderUtil.renderCubeShaded_WH(buf, par, f5, f6, f7, f4 / 10, height / 10, new FBPVector3d(0, AngleY, 0),
 				i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
+	}
+
+	@Override
+	public int getBrightnessForRender(float p_189214_1_)
+	{
+		int i = super.getBrightnessForRender(p_189214_1_);
+		int j = 0;
+
+		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ)))
+		{
+			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		}
+
+		return i == 0 ? j : i;
 	}
 }

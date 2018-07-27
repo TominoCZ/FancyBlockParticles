@@ -15,7 +15,8 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
+public class FBPParticleSmokeNormal extends ParticleSmokeNormal
+{
 	Minecraft mc;
 
 	double startScale;
@@ -36,7 +37,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 	protected FBPParticleSmokeNormal(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, final double mX,
 			final double mY, final double mZ, float scale, boolean b, TextureAtlasSprite tex,
-			ParticleSmokeNormal original) {
+			ParticleSmokeNormal original)
+	{
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, mX, mY, mZ, scale);
 
 		this.original = original;
@@ -50,7 +52,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 		scaleAlpha = particleScale * 0.85;
 
-		if (worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn)).getBlock() == Blocks.FIRE) {
+		if (worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn)).getBlock() == Blocks.FIRE)
+		{
 			this.particleScale *= 0.65f;
 			this.particleGravity *= 0.25f;
 
@@ -63,7 +66,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 			scaleAlpha = particleScale * 0.5;
 
 			particleMaxAge = FBP.random.nextInt(7, 18);
-		} else if (worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn)).getBlock() == Blocks.TORCH) {
+		} else if (worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn)).getBlock() == Blocks.TORCH)
+		{
 			particleScale *= 0.45f;
 
 			this.motionX = FBP.random.nextDouble(-0.05, 0.05);
@@ -81,7 +85,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 			scaleAlpha = particleScale * 0.75;
 
 			particleMaxAge = FBP.random.nextInt(5, 10);
-		} else {
+		} else
+		{
 			particleScale = scale;
 			motionY *= 0.935;
 		}
@@ -94,7 +99,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 		cube = new Vec3d[FBP.CUBE.length];
 
-		for (int i = 0; i < FBP.CUBE.length; i++) {
+		for (int i = 0; i < FBP.CUBE.length; i++)
+		{
 			Vec3d vec = FBP.CUBE[i];
 			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, AngleY, 0);
 		}
@@ -106,12 +112,14 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 	}
 
 	@Override
-	public int getFXLayer() {
+	public int getFXLayer()
+	{
 		return 1;
 	}
 
 	@Override
-	public void onUpdate() {
+	public void onUpdate()
+	{
 		prevPosX = posX;
 		prevPosY = posY;
 		prevPosZ = posZ;
@@ -124,13 +132,15 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 		particleAge++;
 
-		if (this.particleAge >= this.particleMaxAge) {
+		if (this.particleAge >= this.particleMaxAge)
+		{
 			if (FBP.randomFadingSpeed)
 				particleScale *= 0.887654321F * endMult;
 			else
 				particleScale *= 0.887654321F;
 
-			if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
+			if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
+			{
 				if (FBP.randomFadingSpeed)
 					particleAlpha *= 0.7654321F * endMult;
 				else
@@ -144,7 +154,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		this.motionY += 0.004D;
 		this.move(this.motionX, this.motionY, this.motionZ);
 
-		if (this.posY == this.prevPosY) {
+		if (this.posY == this.prevPosY)
+		{
 			this.motionX *= 1.1D;
 			this.motionZ *= 1.1D;
 		}
@@ -153,7 +164,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		this.motionY *= 0.9599999785423279D;
 		this.motionZ *= 0.9599999785423279D;
 
-		if (this.onGround) {
+		if (this.onGround)
+		{
 			this.motionX *= 0.699999988079071D;
 			this.motionZ *= 0.699999988079071D;
 		}
@@ -161,7 +173,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 
 	@Override
 	public void renderParticle(BufferBuilder worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
-			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
+	{
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
@@ -183,19 +196,21 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 		par = new Vec2f(f, f1);
 
 		worldRendererIn.setTranslation(f5, f6, f7);
-		putCube(worldRendererIn, f4 * 0.05F, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue,
+		putCube(worldRendererIn, f4 / 20, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue,
 				alpha);
 		worldRendererIn.setTranslation(0, 0, 0);
 	}
 
-	public void putCube(BufferBuilder worldRendererIn, double scale, int j, int k, float r, float g, float b, float a) {
+	public void putCube(BufferBuilder worldRendererIn, double scale, int j, int k, float r, float g, float b, float a)
+	{
 		float brightnessForRender = _brightnessForRender;
 
 		float R = 0;
 		float G = 0;
 		float B = 0;
 
-		for (int i = 0; i < cube.length; i += 4) {
+		for (int i = 0; i < cube.length; i += 4)
+		{
 			Vec3d v1 = cube[i];
 			Vec3d v2 = cube[i + 1];
 			Vec3d v3 = cube[i + 2];
@@ -215,17 +230,20 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 	}
 
 	private void addVt(BufferBuilder worldRendererIn, double scale, Vec3d pos, double u, double v, int j, int k,
-			float r, float g, float b, float a) { // add vertex to buffer
+			float r, float g, float b, float a)
+	{ // add vertex to buffer
 		worldRendererIn.pos(pos.x * scale, pos.y * scale, pos.z * scale).tex(u, v).color(r, g, b, a).lightmap(j, k)
 				.endVertex();
 	}
 
 	@Override
-	public int getBrightnessForRender(float p_189214_1_) {
+	public int getBrightnessForRender(float p_189214_1_)
+	{
 		int i = super.getBrightnessForRender(p_189214_1_);
 		int j = 0;
 
-		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+		if (this.world.isBlockLoaded(new BlockPos(posX, posY, posZ)))
+		{
 			j = this.world.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
 		}
 
@@ -233,7 +251,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal {
 	}
 
 	@Override
-	public void setExpired() {
+	public void setExpired()
+	{
 		this.isExpired = true;
 
 		original.setExpired();

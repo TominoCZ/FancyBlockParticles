@@ -11,40 +11,49 @@ import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
-public final class FBPModelTransformer {
+public final class FBPModelTransformer
+{
 	public static FBPSimpleBakedModel transform(IBakedModel model, IBlockState state, long rand,
-			IVertexTransformer transformer) {
-		try {
+			IVertexTransformer transformer)
+	{
+		try
+		{
 			FBPSimpleBakedModel out = new FBPSimpleBakedModel(model);
 
-			for (int i = 0; i <= 6; i++) {
+			for (int i = 0; i <= 6; i++)
+			{
 				EnumFacing side = (i == 6 ? null : EnumFacing.getFront(i));
 
-				for (BakedQuad quad : model.getQuads(state, side, rand)) {
+				for (BakedQuad quad : model.getQuads(state, side, rand))
+				{
 					out.addQuad(side, transform(quad, transformer));
 				}
 			}
 
 			return out;
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 			return null;
 		}
 	}
 
-	private static BakedQuad transform(BakedQuad quad, IVertexTransformer transformer) {
+	private static BakedQuad transform(BakedQuad quad, IVertexTransformer transformer)
+	{
 		VertexFormat format = quad.getFormat();
 		UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
 		LightUtil.putBakedQuad(new VertexTransformerWrapper(builder, quad, transformer), quad);
 		return builder.build();
 	}
 
-	private static final class VertexTransformerWrapper implements IVertexConsumer {
+	private static final class VertexTransformerWrapper implements IVertexConsumer
+	{
 		private final IVertexConsumer parent;
 		private final BakedQuad parentQuad;
 		private final VertexFormat format;
 		private final IVertexTransformer transformer;
 
-		public VertexTransformerWrapper(IVertexConsumer parent, BakedQuad parentQuad, IVertexTransformer transformer) {
+		public VertexTransformerWrapper(IVertexConsumer parent, BakedQuad parentQuad, IVertexTransformer transformer)
+		{
 			this.parent = parent;
 			this.parentQuad = parentQuad;
 			this.format = parent.getVertexFormat();
@@ -52,38 +61,45 @@ public final class FBPModelTransformer {
 		}
 
 		@Override
-		public VertexFormat getVertexFormat() {
+		public VertexFormat getVertexFormat()
+		{
 			return format;
 		}
 
 		@Override
-		public void setQuadTint(int tint) {
+		public void setQuadTint(int tint)
+		{
 			parent.setQuadTint(tint);
 		}
 
 		@Override
-		public void setQuadOrientation(EnumFacing orientation) {
+		public void setQuadOrientation(EnumFacing orientation)
+		{
 			parent.setQuadOrientation(orientation);
 		}
 
 		@Override
-		public void setApplyDiffuseLighting(boolean diffuse) {
+		public void setApplyDiffuseLighting(boolean diffuse)
+		{
 			parent.setApplyDiffuseLighting(diffuse);
 		}
 
 		@Override
-		public void setTexture(TextureAtlasSprite texture) {
+		public void setTexture(TextureAtlasSprite texture)
+		{
 			parent.setTexture(texture);
 		}
 
 		@Override
-		public void put(int elementId, float... data) {
+		public void put(int elementId, float... data)
+		{
 			VertexFormatElement element = format.getElement(elementId);
 			parent.put(elementId, transformer.transform(parentQuad, element, data));
 		}
 	}
 
-	public interface IVertexTransformer {
+	public interface IVertexTransformer
+	{
 		float[] transform(BakedQuad quad, VertexFormatElement element, float... data);
 	}
 }

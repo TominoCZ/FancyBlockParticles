@@ -44,7 +44,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 @Mod(clientSideOnly = true, modid = FBP.MODID, acceptedMinecraftVersions = "[1.12,1.13)")
-public class FBP {
+public class FBP
+{
 	@Instance(FBP.MODID)
 	public static FBP INSTANCE;
 
@@ -57,8 +58,8 @@ public class FBP {
 	public static final ResourceLocation FBP_FBP = new ResourceLocation(FBP.MODID + ":textures/gui/fbp.png");
 	public static final ResourceLocation FBP_WIDGETS = new ResourceLocation(FBP.MODID + ":textures/gui/widgets.png");
 
-	public static File animExceptionsFile = null;
-	public static File particleExceptionsFile = null;
+	public static File animBlacklistFile = null;
+	public static File particleBlacklistFile = null;
 	public static File floatingMaterialsFile = null;
 	public static File config = null;
 
@@ -69,13 +70,13 @@ public class FBP {
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
 	public static boolean infiniteDuration = false;
-	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
+	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, randomizedScale,
 			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyPlaceAnim,
 			animSmoothLighting, spawnPlaceParticles, fancyRain, fancySnow, fancyFlame, fancySmoke, waterPhysics,
 			restOnFloor, frozen;
 
-	public List<String> blockParticleExceptions;
-	public List<String> blockAnimExceptions;
+	public List<String> blockParticleBlacklist;
+	public List<String> blockAnimBlacklist;
 	public HashMap<Material, Boolean> floatingMaterials;
 
 	public static SplittableRandom random = new SplittableRandom();
@@ -117,7 +118,8 @@ public class FBP {
 	public FBPEventHandler eventHandler = new FBPEventHandler();
 	public FBPGuiHandler guiHandler = new FBPGuiHandler();
 
-	public FBP() {
+	public FBP()
+	{
 		INSTANCE = this;
 
 		POSITION_TEX_COLOR_LMAP_NORMAL = new VertexFormat();
@@ -128,16 +130,17 @@ public class FBP {
 		POSITION_TEX_COLOR_LMAP_NORMAL.addElement(DefaultVertexFormats.TEX_2S);
 		POSITION_TEX_COLOR_LMAP_NORMAL.addElement(DefaultVertexFormats.NORMAL_3B);
 
-		blockParticleExceptions = Collections.synchronizedList(new ArrayList<String>());
-		blockAnimExceptions = Collections.synchronizedList(new ArrayList<String>());
-		floatingMaterials = new HashMap<Material, Boolean>();
+		blockParticleBlacklist = Collections.synchronizedList(new ArrayList<>());
+		blockAnimBlacklist = Collections.synchronizedList(new ArrayList<>());
+		floatingMaterials = new HashMap<>();
 	}
 
 	@EventHandler
-	public void preInit(FMLPreInitializationEvent evt) {
+	public void preInit(FMLPreInitializationEvent evt)
+	{
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-		animExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
-		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
+		animBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockBlacklist.txt");
+		particleBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockBlacklist.txt");
 		floatingMaterialsFile = new File(evt.getModConfigurationDirectory() + "/FBP/FloatingMaterials.txt");
 
 		FBPKeyBindings.init();
@@ -146,31 +149,37 @@ public class FBP {
 	}
 
 	@EventHandler
-	public void init(FMLInitializationEvent evt) {
+	public void init(FMLInitializationEvent evt)
+	{
 		MinecraftForge.EVENT_BUS.register(eventHandler);
 		FMLCommonHandler.instance().bus().register(eventHandler);
 	}
 
 	@EventHandler
-	public void postInit(FMLPostInitializationEvent evt) {
+	public void postInit(FMLPostInitializationEvent evt)
+	{
 		MinecraftForge.EVENT_BUS.register(guiHandler);
 
 		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
 
-		try {
+		try
+		{
 			setSourcePos = lookup
 					.unreflectSetter(ReflectionHelper.findField(ParticleDigging.class, "field_181019_az", "sourcePos"));
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			throw Throwables.propagate(e);
 		}
 	}
 
 	@SubscribeEvent
-	public static void registerItems(final RegistryEvent.Register<Block> event) {
+	public static void registerItems(final RegistryEvent.Register<Block> event)
+	{
 		event.getRegistry().register(FBPBlock);
 	}
 
-	public static boolean isEnabled() {
+	public static boolean isEnabled()
+	{
 		boolean result = enabled;
 
 		if (!result)
@@ -179,13 +188,17 @@ public class FBP {
 		return result;
 	}
 
-	public static void setEnabled(boolean enabled) {
-		if (FBP.enabled != enabled) {
-			if (enabled) {
+	public static void setEnabled(boolean enabled)
+	{
+		if (FBP.enabled != enabled)
+		{
+			if (enabled)
+			{
 				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
 				if (fancyRain || fancySnow) // just to ensure compatibility once more..
 					Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
-			} else {
+			} else
+			{
 				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;
 				Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
 			}
@@ -193,67 +206,76 @@ public class FBP {
 		FBP.enabled = enabled;
 	}
 
-	public static boolean isDev() {
+	public static boolean isDev()
+	{
 		return (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 	}
 
-	public boolean isInExceptions(Block b, boolean particle) {
+	public boolean isBlacklisted(Block b, boolean particle)
+	{
 		if (b == null)
 			return true;
 
-		return (particle ? blockParticleExceptions : blockAnimExceptions).contains(b.getRegistryName().toString());
+		return (particle ? blockParticleBlacklist : blockAnimBlacklist).contains(b.getRegistryName().toString());
 	}
 
-	public boolean doesMaterialFloat(Material mat) {
+	public boolean doesMaterialFloat(Material mat)
+	{
 		return floatingMaterials.getOrDefault(mat, false);
 	}
 
-	public void addException(Block b, boolean particle) {
+	public void addToBlacklist(Block b, boolean particle)
+	{
 		if (b == null)
 			return;
 
 		String name = b.getRegistryName().toString();
 
-		if (!(particle ? blockParticleExceptions : blockAnimExceptions).contains(name))
-			(particle ? blockParticleExceptions : blockAnimExceptions).add(name);
+		if (!(particle ? blockParticleBlacklist : blockAnimBlacklist).contains(name))
+			(particle ? blockParticleBlacklist : blockAnimBlacklist).add(name);
 	}
 
-	public void removeException(Block b, boolean particle) {
+	public void removeFromBlacklist(Block b, boolean particle)
+	{
 		if (b == null)
 			return;
 
 		String name = b.getRegistryName().toString();
 
-		if ((particle ? blockParticleExceptions : blockAnimExceptions).contains(name))
-			(particle ? blockParticleExceptions : blockAnimExceptions).remove(name);
+		if ((particle ? blockParticleBlacklist : blockAnimBlacklist).contains(name))
+			(particle ? blockParticleBlacklist : blockAnimBlacklist).remove(name);
 	}
 
-	public void addException(String name, boolean particle) {
+	public void addToBlacklist(String name, boolean particle)
+	{
 		if (StringUtils.isEmpty(name))
 			return;
 
 		Iterator it = Block.REGISTRY.getKeys().iterator();
 
-		while (it.hasNext()) {
+		while (it.hasNext())
+		{
 			ResourceLocation rl = ((ResourceLocation) it.next());
 			String s = rl.toString();
 
-			if (s.equals(name)) {
+			if (s.equals(name))
+			{
 				Block b = Block.REGISTRY.getObject(rl);
 
 				if (b == Blocks.REDSTONE_BLOCK)
 					break;
 
-				addException(b, particle);
+				addToBlacklist(b, particle);
 				break;
 			}
 		}
 	}
 
-	public void resetExceptions(boolean particle) {
+	public void resetBlacklist(boolean particle)
+	{
 		if (particle)
-			blockParticleExceptions.clear();
+			blockParticleBlacklist.clear();
 		else
-			blockAnimExceptions.clear();
+			blockAnimBlacklist.clear();
 	}
 }

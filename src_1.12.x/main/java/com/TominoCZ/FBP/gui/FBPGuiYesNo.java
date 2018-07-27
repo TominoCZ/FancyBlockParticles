@@ -10,18 +10,21 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPGuiYesNo extends GuiScreen {
+public class FBPGuiYesNo extends GuiScreen
+{
 
 	GuiButton yes, no;
 
 	GuiScreen parent;
 
-	public FBPGuiYesNo(GuiScreen s) {
+	public FBPGuiYesNo(GuiScreen s)
+	{
 		parent = s;
 	}
 
 	@Override
-	public void initGui() {
+	public void initGui()
+	{
 		this.buttonList.clear();
 
 		yes = new FBPGuiButton(1, this.width / 2 - 75, (int) (this.height / 1.85), "\u00A7aYes", false, false);
@@ -35,8 +38,10 @@ public class FBPGuiYesNo extends GuiScreen {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) throws IOException {
-		switch (button.id) {
+	protected void actionPerformed(GuiButton button) throws IOException
+	{
+		switch (button.id)
+		{
 		case 1:
 			FBPConfigHandler.defaults(true);
 			break;
@@ -47,18 +52,22 @@ public class FBPGuiYesNo extends GuiScreen {
 	}
 
 	@Override
-	public void updateScreen() {
+	public void updateScreen()
+	{
 
 	}
 
 	@Override
-	public boolean doesGuiPauseGame() {
+	public boolean doesGuiPauseGame()
+	{
 		return false;
 	}
 
 	@Override
-	protected void keyTyped(char c, int keyCode) throws IOException {
-		if (keyCode == 1) {
+	protected void keyTyped(char c, int keyCode) throws IOException
+	{
+		if (keyCode == 1)
+		{
 			closeGui();
 			return;
 		}
@@ -67,7 +76,8 @@ public class FBPGuiYesNo extends GuiScreen {
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
 		parent.width = this.width;
 		parent.height = this.height;
 
@@ -81,7 +91,8 @@ public class FBPGuiYesNo extends GuiScreen {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	void closeGui() {
+	void closeGui()
+	{
 		mc.displayGuiScreen(parent);
 	}
 }

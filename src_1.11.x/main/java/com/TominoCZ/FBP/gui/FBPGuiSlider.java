@@ -11,7 +11,8 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
-public class FBPGuiSlider extends GuiButton {
+public class FBPGuiSlider extends GuiButton
+{
 	public double value;
 
 	double sliderPosX;
@@ -21,14 +22,16 @@ public class FBPGuiSlider extends GuiButton {
 
 	boolean mouseDown = false;
 
-	public FBPGuiSlider(int x, int y, double value) {
+	public FBPGuiSlider(int x, int y, double value)
+	{
 		super(Integer.MIN_VALUE, x, y, "");
 		this.value = value;
 		this.width = 200;
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+	public void drawButton(Minecraft mc, int mouseX, int mouseY)
+	{
 		FontRenderer fontrenderer = mc.fontRendererObj;
 
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -56,7 +59,8 @@ public class FBPGuiSlider extends GuiButton {
 		// slider
 		boolean tmpMouseDown = Mouse.isButtonDown(0);
 
-		if (!tmpMouseDown && mouseDown && dragging) {
+		if (!tmpMouseDown && mouseDown && dragging)
+		{
 			dragging = false;
 
 			FBPConfigHandler.check();
@@ -67,7 +71,8 @@ public class FBPGuiSlider extends GuiButton {
 
 		sliderPosX = this.xPosition + (15 + (value * (width - 30)));
 
-		if (dragging) {
+		if (dragging)
+		{
 			double max = this.xPosition + width - 15;
 			double min = this.xPosition + 15;
 
@@ -88,14 +93,17 @@ public class FBPGuiSlider extends GuiButton {
 	}
 
 	@Override
-	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
+	{
 		if (!enabled)
 			return false;
 
 		if (dragging = isMouseOverSlider(mouseX, mouseY))
 			mouseGap = mouseX - sliderPosX;
-		else {
-			if (isMouseOverBar(mouseX, mouseY)) {
+		else
+		{
+			if (isMouseOverBar(mouseX, mouseY))
+			{
 				float posX = MathHelper.clamp(mouseX - (this.xPosition + 4), 0, width - 5);
 
 				value = MathHelper.clamp(posX / (width - 10), 0, 1);
@@ -109,7 +117,8 @@ public class FBPGuiSlider extends GuiButton {
 		return false;
 	}
 
-	boolean isMouseOverBar(int mouseX, int mouseY) {
+	boolean isMouseOverBar(int mouseX, int mouseY)
+	{
 		int X1 = this.xPosition + 4;
 		int X2 = this.xPosition + width - 6;
 
@@ -124,7 +133,8 @@ public class FBPGuiSlider extends GuiButton {
 		return inRectangle || inCircle1 || inCircle2;
 	}
 
-	boolean isMouseOverSlider(int mouseX, int mouseY) {
+	boolean isMouseOverSlider(int mouseX, int mouseY)
+	{
 		int X1 = (int) (sliderPosX - 15 + 5);
 		int X2 = (int) (sliderPosX + 15 - 5);
 
@@ -139,7 +149,8 @@ public class FBPGuiSlider extends GuiButton {
 		return inRectangle || inCircle1 || inCircle2;
 	}
 
-	public boolean isMouseOver(int mouseX, int mouseY) {
+	public boolean isMouseOver(int mouseX, int mouseY)
+	{
 		return isMouseOverBar(mouseX, mouseY) || isMouseOverSlider(mouseX, mouseY);
 	}
 }

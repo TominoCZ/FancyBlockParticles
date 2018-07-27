@@ -7,39 +7,44 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.util.FBPObfUtil;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.util.math.MathHelper;
-import scala.reflect.io.Path;
 
-public class FBPConfigHandler {
+public class FBPConfigHandler
+{
 	static FileInputStream fis;
 	static InputStreamReader isr;
 	static BufferedReader br;
 
-	public static void init() {
-		try {
+	public static void init()
+	{
+		try
+		{
 			defaults(false);
 
-			if (!Path.apply(FBP.config.getParent()).exists())
-				Path.apply(FBP.config.getParent()).createDirectory(true, false);
+			if (!Paths.get(FBP.config.getParent()).toFile().exists())
+				Paths.get(FBP.config.getParent()).toFile().mkdirs();
 
-			if (!FBP.config.exists()) {
+			if (!FBP.config.exists())
+			{
 				FBP.config.createNewFile();
 
 				write();
 			}
 
-			if (!FBP.animExceptionsFile.exists())
-				FBP.animExceptionsFile.createNewFile();
+			if (!FBP.animBlacklistFile.exists())
+				FBP.animBlacklistFile.createNewFile();
 
-			if (!FBP.particleExceptionsFile.exists())
-				FBP.particleExceptionsFile.createNewFile();
+			if (!FBP.particleBlacklistFile.exists())
+				FBP.particleBlacklistFile.createNewFile();
 
-			if (!FBP.floatingMaterialsFile.exists()) {
+			if (!FBP.floatingMaterialsFile.exists())
+			{
 				FBP.floatingMaterialsFile.createNewFile();
 
 				FBP.INSTANCE.floatingMaterials.clear();
@@ -64,22 +69,25 @@ public class FBPConfigHandler {
 			writeFloatingMaterials();
 
 			closeStreams();
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			closeStreams();
 
 			write();
 		}
 	}
 
-	public static void write() {
-		try {
+	public static void write()
+	{
+		try
+		{
 			check();
 
 			PrintWriter writer = new PrintWriter(FBP.config.getPath(), "UTF-8");
 			writer.println("enabled=" + FBP.enabled);
 			writer.println("weatherParticleDensity=" + FBP.weatherParticleDensity);
-			writer.println("particlesPerAxis=" + FBP.restOnFloor);
-			writer.println("restOnFloor=" + FBP.waterPhysics);
+			writer.println("particlesPerAxis=" + FBP.particlesPerAxis);
+			writer.println("restOnFloor=" + FBP.restOnFloor);
 			writer.println("waterPhysics=" + FBP.waterPhysics);
 			writer.println("fancyFlame=" + FBP.fancyFlame);
 			writer.println("fancySmoke=" + FBP.fancySmoke);
@@ -95,7 +103,7 @@ public class FBPConfigHandler {
 			writer.println("randomRotation=" + FBP.randomRotation);
 			writer.println("cartoonMode=" + FBP.cartoonMode);
 			writer.println("entityCollision=" + FBP.entityCollision);
-			writer.println("smoothTransitions=" + FBP.smoothTransitions);
+			writer.println("randomizedScale=" + FBP.randomizedScale);
 			writer.println("randomFadingSpeed=" + FBP.randomFadingSpeed);
 			writer.println("spawnRedstoneBlockParticles=" + FBP.spawnRedstoneBlockParticles);
 			writer.println("spawnWhileFrozen=" + FBP.spawnWhileFrozen);
@@ -106,16 +114,20 @@ public class FBPConfigHandler {
 			writer.println("gravityMult=" + FBP.gravityMult);
 			writer.print("rotationMult=" + FBP.rotationMult);
 			writer.close();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			closeStreams();
 
-			if (!FBP.config.exists()) {
-				if (!Path.apply(FBP.config.getParent()).exists())
-					Path.apply(FBP.config.getParent()).createDirectory(true, false);
+			if (!FBP.config.exists())
+			{
+				if (!Paths.get(FBP.config.getParent()).toFile().exists())
+					Paths.get(FBP.config.getParent()).toFile().mkdirs();
 
-				try {
+				try
+				{
 					FBP.config.createNewFile();
-				} catch (IOException e1) {
+				} catch (IOException e1)
+				{
 					e1.printStackTrace();
 				}
 			}
@@ -124,66 +136,83 @@ public class FBPConfigHandler {
 		}
 	}
 
-	public static void writeAnimExceptions() {
-		try {
-			PrintWriter writer = new PrintWriter(FBP.animExceptionsFile.getPath(), "UTF-8");
+	public static void writeAnimExceptions()
+	{
+		try
+		{
+			PrintWriter writer = new PrintWriter(FBP.animBlacklistFile.getPath(), "UTF-8");
 
-			for (String ex : FBP.INSTANCE.blockAnimExceptions)
+			for (String ex : FBP.INSTANCE.blockAnimBlacklist)
 				writer.println(ex);
 
 			writer.close();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			closeStreams();
 
-			if (!FBP.animExceptionsFile.exists()) {
-				if (!Path.apply(FBP.animExceptionsFile.getParent()).exists())
-					Path.apply(FBP.animExceptionsFile.getParent()).createDirectory(true, false);
+			if (!FBP.animBlacklistFile.exists())
+			{
+				if (!Paths.get(FBP.animBlacklistFile.getParent()).toFile().exists())
+					Paths.get(FBP.animBlacklistFile.getParent()).toFile().mkdirs();
 
-				try {
-					FBP.animExceptionsFile.createNewFile();
-				} catch (IOException e1) {
+				try
+				{
+					FBP.animBlacklistFile.createNewFile();
+				} catch (IOException e1)
+				{
 					e1.printStackTrace();
 				}
 			}
 		}
 	}
 
-	public static void writeParticleExceptions() {
-		try {
-			PrintWriter writer = new PrintWriter(FBP.particleExceptionsFile.getPath(), "UTF-8");
+	public static void writeParticleExceptions()
+	{
+		try
+		{
+			PrintWriter writer = new PrintWriter(FBP.particleBlacklistFile.getPath(), "UTF-8");
 
-			for (String ex : FBP.INSTANCE.blockParticleExceptions)
+			for (String ex : FBP.INSTANCE.blockParticleBlacklist)
 				writer.println(ex);
 
 			writer.close();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			closeStreams();
 
-			if (!FBP.particleExceptionsFile.exists()) {
-				if (!Path.apply(FBP.particleExceptionsFile.getParent()).exists())
-					Path.apply(FBP.particleExceptionsFile.getParent()).createDirectory(true, false);
+			if (!FBP.particleBlacklistFile.exists())
+			{
+				if (!Paths.get(FBP.particleBlacklistFile.getParent()).toFile().exists())
+					Paths.get(FBP.particleBlacklistFile.getParent()).toFile().mkdirs();
 
-				try {
-					FBP.particleExceptionsFile.createNewFile();
-				} catch (IOException e1) {
+				try
+				{
+					FBP.particleBlacklistFile.createNewFile();
+				} catch (IOException e1)
+				{
 					e1.printStackTrace();
 				}
 			}
 		}
 	}
 
-	static void writeFloatingMaterials() {
-		try {
+	static void writeFloatingMaterials()
+	{
+		try
+		{
 			PrintWriter writer = new PrintWriter(FBP.floatingMaterialsFile.getPath(), "UTF-8");
 
 			Field[] materials = Material.class.getDeclaredFields();
 
-			for (Field f : materials) {
+			for (Field f : materials)
+			{
 				String fieldName = f.getName();
 
-				if (f.getType() == Material.class) {
+				if (f.getType() == Material.class)
+				{
 					String translated = FBPObfUtil.translateObfMaterialName(fieldName).toLowerCase();
-					try {
+					try
+					{
 						Material mat = (Material) f.get(null);
 						if (mat == Material.AIR)
 							continue;
@@ -191,27 +220,32 @@ public class FBPConfigHandler {
 						boolean flag = FBP.INSTANCE.doesMaterialFloat(mat);
 
 						writer.println(translated + "=" + flag);
-					} catch (Exception ex) {
+					} catch (Exception ex)
+					{
 
 					}
 				}
 			}
 
 			writer.close();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			closeStreams();
 		}
 	}
 
-	static void read() {
-		try {
+	static void read()
+	{
+		try
+		{
 			fis = new FileInputStream(FBP.config);
 			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 			br = new BufferedReader(isr);
 
 			String line;
 
-			while ((line = br.readLine()) != null) {
+			while ((line = br.readLine()) != null)
+			{
 				line = line.replaceAll(" ", "");
 
 				if (line.contains("enabled="))
@@ -255,7 +289,7 @@ public class FBPConfigHandler {
 				else if (line.contains("randomFadingSpeed="))
 					FBP.randomFadingSpeed = Boolean.valueOf(line.replace("randomFadingSpeed=", ""));
 				else if (line.contains("smoothTransitions="))
-					FBP.smoothTransitions = Boolean.valueOf(line.replace("smoothTransitions=", ""));
+					FBP.randomizedScale = Boolean.valueOf(line.replace("randomizedScale=", ""));
 				else if (line.contains("spawnWhileFrozen="))
 					FBP.spawnWhileFrozen = Boolean.valueOf(line.replace("spawnWhileFrozen=", ""));
 				else if (line.contains("spawnRedstoneBlockParticles="))
@@ -277,7 +311,8 @@ public class FBPConfigHandler {
 			closeStreams();
 
 			check();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			closeStreams();
 
 			check();
@@ -286,46 +321,54 @@ public class FBPConfigHandler {
 		}
 	}
 
-	static void readAnimExceptions() {
-		try {
-			fis = new FileInputStream(FBP.animExceptionsFile);
+	static void readAnimExceptions()
+	{
+		try
+		{
+			fis = new FileInputStream(FBP.animBlacklistFile);
 			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 			br = new BufferedReader(isr);
 
 			String line;
 
-			FBP.INSTANCE.resetExceptions(false);
+			FBP.INSTANCE.resetBlacklist(false);
 
 			while ((line = br.readLine()) != null && !(line = line.replaceAll(" ", "").toLowerCase()).equals(""))
-				FBP.INSTANCE.addException(line, false);
-		} catch (Exception e) {
+				FBP.INSTANCE.addToBlacklist(line, false);
+		} catch (Exception e)
+		{
 
 		}
 
 		closeStreams();
 	}
 
-	static void readParticleExceptions() {
-		try {
-			fis = new FileInputStream(FBP.particleExceptionsFile);
+	static void readParticleExceptions()
+	{
+		try
+		{
+			fis = new FileInputStream(FBP.particleBlacklistFile);
 			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 			br = new BufferedReader(isr);
 
 			String line;
 
-			FBP.INSTANCE.resetExceptions(true);
+			FBP.INSTANCE.resetBlacklist(true);
 
 			while ((line = br.readLine()) != null && !(line = line.replaceAll(" ", "").toLowerCase()).equals(""))
-				FBP.INSTANCE.addException(line, true);
-		} catch (Exception e) {
+				FBP.INSTANCE.addToBlacklist(line, true);
+		} catch (Exception e)
+		{
 
 		}
 
 		closeStreams();
 	}
 
-	static void readFloatingMaterials() {
-		try {
+	static void readFloatingMaterials()
+	{
+		try
+		{
 			fis = new FileInputStream(FBP.floatingMaterialsFile);
 			isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 			br = new BufferedReader(isr);
@@ -336,19 +379,24 @@ public class FBPConfigHandler {
 
 			Field[] materials = Material.class.getDeclaredFields();
 
-			while ((line = br.readLine()) != null) {
+			while ((line = br.readLine()) != null)
+			{
 				line = line.trim().toLowerCase();
 
 				boolean found = false;
 
-				for (Field f : materials) {
+				for (Field f : materials)
+				{
 					String fieldName = f.getName();
 
-					if (f.getType() == Material.class) {
+					if (f.getType() == Material.class)
+					{
 						String translated = FBPObfUtil.translateObfMaterialName(fieldName).toLowerCase();
 
-						if (line.contains(translated) || line.contains(translated.replace("_", ""))) {
-							try {
+						if (line.contains(translated) || line.contains(translated.replace("_", "")))
+						{
+							try
+							{
 								boolean flag = line.split("=")[1].equals("true");
 
 								Material mat = (Material) f.get(null);
@@ -358,7 +406,8 @@ public class FBPConfigHandler {
 
 								found = true;
 								break;
-							} catch (Exception ex) {
+							} catch (Exception ex)
+							{
 
 							}
 						}
@@ -372,7 +421,8 @@ public class FBPConfigHandler {
 			closeStreams();
 
 			check();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			closeStreams();
 
 			check();
@@ -381,17 +431,21 @@ public class FBPConfigHandler {
 		}
 	}
 
-	static void closeStreams() {
-		try {
+	static void closeStreams()
+	{
+		try
+		{
 			br.close();
 			isr.close();
 			fis.close();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	public static void defaults(boolean write) {
+	public static void defaults(boolean write)
+	{
 		FBP.minAge = 10;
 		FBP.maxAge = 55;
 		FBP.scaleMult = 0.75;
@@ -404,7 +458,7 @@ public class FBPConfigHandler {
 		FBP.randomRotation = true;
 		FBP.cartoonMode = false;
 		FBP.entityCollision = false;
-		FBP.smoothTransitions = true;
+		FBP.randomizedScale = true;
 		FBP.randomFadingSpeed = true;
 		FBP.spawnRedstoneBlockParticles = false;
 		FBP.infiniteDuration = false;
@@ -424,15 +478,16 @@ public class FBPConfigHandler {
 			write();
 	}
 
-	public static void check() {
+	public static void check()
+	{
 		FBP.maxAge = MathHelper.clamp(FBP.maxAge, 10, 100);
 		FBP.minAge = MathHelper.clamp(FBP.minAge, 10, FBP.maxAge);
 
 		FBP.particlesPerAxis = MathHelper.clamp(FBP.particlesPerAxis, 2, 5);
 
-		FBP.scaleMult = MathHelper.clamp(FBP.scaleMult, 0.75D, 1.25D);
+		FBP.scaleMult = MathHelper.clamp(FBP.scaleMult, 0.5D, 1.25D);
 
-		FBP.gravityMult = MathHelper.clamp(FBP.gravityMult, 0.5D, 2.0D);
+		FBP.gravityMult = MathHelper.clamp(FBP.gravityMult, 0.05D, 3.0D);
 
 		FBP.rotationMult = MathHelper.clamp(FBP.rotationMult, 0.0D, 1.5D);
 
