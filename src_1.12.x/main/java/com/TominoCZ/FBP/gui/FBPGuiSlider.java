@@ -64,13 +64,12 @@ public class FBPGuiSlider extends GuiButton
 		{
 			dragging = false;
 
-			FBPConfigHandler.check();
 			FBPConfigHandler.write();
 		}
 
 		mouseDown = tmpMouseDown;
 
-		sliderPosX = this.x + (15 + (value * (width - 30)));
+		sliderPosX = this.x + (15 + (MathHelper.clamp(value, 0, 1) * (width - 30)));
 
 		if (dragging)
 		{

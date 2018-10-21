@@ -5,7 +5,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SplittableRandom;
@@ -17,6 +16,7 @@ import com.TominoCZ.FBP.handler.FBPEventHandler;
 import com.TominoCZ.FBP.handler.FBPGuiHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
+import com.TominoCZ.FBP.particle.FBPParticleManager;
 import com.google.common.base.Throwables;
 
 import net.minecraft.block.Block;
@@ -44,7 +44,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 @Mod(clientSideOnly = true, modid = FBP.MODID, acceptedMinecraftVersions = "[1.10,1.11)")
-public class FBP {
+public class FBP
+{
 	@Instance(FBP.MODID)
 	public static FBP INSTANCE;
 
@@ -78,7 +79,7 @@ public class FBP {
 	public List<String> blockParticleBlacklist;
 	public List<String> blockAnimBlacklist;
 
-	public HashMap<Material, Boolean> floatingMaterials;
+	public List<Material> floatingMaterials;
 
 	public static SplittableRandom random = new SplittableRandom();
 
@@ -114,12 +115,14 @@ public class FBP {
 	public static FBPAnimationDummyBlock FBPBlock = new FBPAnimationDummyBlock();
 
 	public static IRenderHandler fancyWeatherRenderer, originalWeatherRenderer;
-	public static ParticleManager fancyEffectRenderer, originalEffectRenderer;
+	public static FBPParticleManager fancyEffectRenderer;
+	public static ParticleManager originalEffectRenderer;
 
 	public FBPEventHandler eventHandler = new FBPEventHandler();
 	public FBPGuiHandler guiHandler = new FBPGuiHandler();
 
-	public FBP() {
+	public FBP()
+	{
 		INSTANCE = this;
 
 		POSITION_TEX_COLOR_LMAP_NORMAL = new VertexFormat();
@@ -133,14 +136,15 @@ public class FBP {
 		blockParticleBlacklist = Collections.synchronizedList(new ArrayList<String>());
 		blockAnimBlacklist = Collections.synchronizedList(new ArrayList<String>());
 
-		floatingMaterials = new HashMap<Material, Boolean>();
+		floatingMaterials = Collections.synchronizedList(new ArrayList<Material>());
 	}
 
 	@EventHandler
-	public void preInit(FMLPreInitializationEvent evt) {
+	public void preInit(FMLPreInitializationEvent evt)
+	{
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-		animBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
-		particleBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
+		animBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockBlacklist.txt");
+		particleBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockBlacklist.txt");
 		floatingMaterialsFile = new File(evt.getModConfigurationDirectory() + "/FBP/FloatingMaterials.txt");
 
 		FBPKeyBindings.init();
@@ -149,31 +153,37 @@ public class FBP {
 	}
 
 	@EventHandler
-	public void init(FMLInitializationEvent evt) {
+	public void init(FMLInitializationEvent evt)
+	{
 		MinecraftForge.EVENT_BUS.register(eventHandler);
 		FMLCommonHandler.instance().bus().register(eventHandler);
 	}
 
 	@EventHandler
-	public void postInit(FMLPostInitializationEvent evt) {
+	public void postInit(FMLPostInitializationEvent evt)
+	{
 		MinecraftForge.EVENT_BUS.register(guiHandler);
 
 		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
 
-		try {
+		try
+		{
 			setSourcePos = lookup
 					.unreflectSetter(ReflectionHelper.findField(ParticleDigging.class, "field_181019_az", "sourcePos"));
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			throw Throwables.propagate(e);
 		}
 	}
 
 	@SubscribeEvent
-	public static void registerItems(final RegistryEvent.Register<Block> event) {
+	public static void registerItems(final RegistryEvent.Register<Block> event)
+	{
 		event.getRegistry().register(FBPBlock);
 	}
 
-	public static boolean isEnabled() {
+	public static boolean isEnabled()
+	{
 		boolean result = enabled;
 
 		if (!result)
@@ -182,13 +192,18 @@ public class FBP {
 		return result;
 	}
 
-	public static void setEnabled(boolean enabled) {
-		if (FBP.enabled != enabled) {
-			if (enabled) {
+	public static void setEnabled(boolean enabled)
+	{
+		if (FBP.enabled != enabled)
+		{
+			if (enabled)
+			{
+				FBP.fancyEffectRenderer.carryOver();
+
 				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
-				if (fancyRain || fancySnow) // just to ensure compatibility once more..
-					Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
-			} else {
+				Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
+			} else
+			{
 				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;
 				Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
 			}
@@ -196,22 +211,26 @@ public class FBP {
 		FBP.enabled = enabled;
 	}
 
-	public static boolean isDev() {
+	public static boolean isDev()
+	{
 		return (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 	}
 
-	public boolean isBlacklisted(Block b, boolean particle) {
+	public boolean isBlacklisted(Block b, boolean particle)
+	{
 		if (b == null)
 			return true;
 
 		return (particle ? blockParticleBlacklist : blockAnimBlacklist).contains(b.getRegistryName().toString());
 	}
 
-	public boolean doesMaterialFloat(Material mat) {
-		return floatingMaterials.getOrDefault(mat, false);
+	public boolean doesMaterialFloat(Material mat)
+	{
+		return floatingMaterials.contains(mat);
 	}
 
-	public void addToBlacklist(Block b, boolean particle) {
+	public void addToBlacklist(Block b, boolean particle)
+	{
 		if (b == null)
 			return;
 
@@ -221,7 +240,8 @@ public class FBP {
 			(particle ? blockParticleBlacklist : blockAnimBlacklist).add(name);
 	}
 
-	public void removeFromBlacklist(Block b, boolean particle) {
+	public void removeFromBlacklist(Block b, boolean particle)
+	{
 		if (b == null)
 			return;
 
@@ -231,17 +251,20 @@ public class FBP {
 			(particle ? blockParticleBlacklist : blockAnimBlacklist).remove(name);
 	}
 
-	public void addToBlacklist(String name, boolean particle) {
+	public void addToBlacklist(String name, boolean particle)
+	{
 		if (StringUtils.isEmpty(name))
 			return;
 
 		Iterator it = Block.REGISTRY.getKeys().iterator();
 
-		while (it.hasNext()) {
+		while (it.hasNext())
+		{
 			ResourceLocation rl = ((ResourceLocation) it.next());
 			String s = rl.toString();
 
-			if (s.equals(name)) {
+			if (s.equals(name))
+			{
 				Block b = Block.REGISTRY.getObject(rl);
 
 				if (b == Blocks.REDSTONE_BLOCK)
@@ -253,7 +276,8 @@ public class FBP {
 		}
 	}
 
-	public void resetBlacklist(boolean particle) {
+	public void resetBlacklist(boolean particle)
+	{
 		if (particle)
 			blockParticleBlacklist.clear();
 		else

@@ -12,6 +12,7 @@ import com.TominoCZ.FBP.handler.FBPEventHandler;
 import com.TominoCZ.FBP.handler.FBPGuiHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
+import com.TominoCZ.FBP.particle.FBPParticleManager;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -44,7 +45,7 @@ public class FBP {
 	public static final ResourceLocation FBP_FBP = new ResourceLocation(FBP.MODID + ":textures/gui/fbp.png");
 	public static final ResourceLocation FBP_WIDGETS = new ResourceLocation(FBP.MODID + ":textures/gui/widgets.png");
 
-	public static File particleExceptionsFile = null;
+	public static File particleBlacklistFile = null;
 	public static File floatingMaterialsFile = null;
 	public static File config = null;
 
@@ -55,11 +56,11 @@ public class FBP {
 	public static boolean enabled = true;
 	public static boolean showInMillis = false;
 	public static boolean infiniteDuration = false;
-	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, smoothTransitions,
+	public static boolean randomRotation, cartoonMode, spawnWhileFrozen, spawnRedstoneBlockParticles, randomizedScale,
 			randomFadingSpeed, entityCollision, bounceOffWalls, lowTraction, smartBreaking, fancyRain, fancySnow,
 			fancyFlame, fancySmoke, waterPhysics, restOnFloor, frozen;
 
-	public List<String> blockParticleExceptions;
+	public List<String> blockParticleBlacklist;
 	public List<Material> floatingMaterials;
 
 	public static SplittableRandom random = new SplittableRandom();
@@ -93,7 +94,8 @@ public class FBP {
 			new FBPVector3d(-1, 0, 0), new FBPVector3d(1, 0, 0) };
 
 	public static IRenderHandler fancyWeatherRenderer, originalWeatherRenderer;
-	public static EffectRenderer fancyEffectRenderer, originalEffectRenderer;
+	public static FBPParticleManager fancyEffectRenderer;
+	public static EffectRenderer originalEffectRenderer;
 
 	public FBPEventHandler eventHandler = new FBPEventHandler();
 	public FBPGuiHandler guiHandler = new FBPGuiHandler();
@@ -101,14 +103,14 @@ public class FBP {
 	public FBP() {
 		INSTANCE = this;
 
-		blockParticleExceptions = Collections.synchronizedList(new ArrayList<String>());
+		blockParticleBlacklist = Collections.synchronizedList(new ArrayList<String>());
 		floatingMaterials = Collections.synchronizedList(new ArrayList<Material>());
 	}
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt) {
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-		particleExceptionsFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
+		particleBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockBlacklist.txt");
 		floatingMaterialsFile = new File(evt.getModConfigurationDirectory() + "/FBP/FloatingMaterials.txt");
 
 		FBPKeyBindings.init();
@@ -139,9 +141,10 @@ public class FBP {
 	public static void setEnabled(boolean enabled) {
 		if (FBP.enabled != enabled) {
 			if (enabled) {
+				FBP.fancyEffectRenderer.carryOver();
+
 				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
-				if (fancyRain || fancySnow) // just to ensure compatibility once more..
-					Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
+				Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			} else {
 				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;
 				Minecraft.getMinecraft().theWorld.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
@@ -154,47 +157,47 @@ public class FBP {
 		return (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 	}
 
-	public boolean isInExceptions(Block b) {
+	public boolean isBlacklisted(Block b) {
 		if (b == null)
 			return true;
 
-		return blockParticleExceptions.contains(b.blockRegistry.getNameForObject(b));
+		return blockParticleBlacklist.contains(b.blockRegistry.getNameForObject(b));
 	}
 
 	public boolean doesMaterialFloat(Material mat) {
 		return floatingMaterials.contains(mat);
 	}
 
-	public void addException(Block b) {
-		if (b == null)
-			return;
-
-		String name = Block.blockRegistry.getNameForObject(b);
-
-		if (!blockParticleExceptions.contains(name))
-			blockParticleExceptions.add(name);
-	}
-
-	public void removeException(Block b) {
-		if (b == null)
-			return;
-
-		String name = Block.blockRegistry.getNameForObject(b);
-
-		if (blockParticleExceptions.contains(name))
-			blockParticleExceptions.remove(name);
-	}
-
-	public void addException(String name) {
+	public void addToBlacklist(String name) {
 		if (StringUtils.isEmpty(name))
 			return;
 
 		Block b = (Block) Block.blockRegistry.getObject(name);
 
-		addException(b);
+		addToBlacklist(b);
 	}
 
-	public void resetExceptions() {
-		blockParticleExceptions.clear();
+	public void addToBlacklist(Block b) {
+		if (b == null)
+			return;
+
+		String name = Block.blockRegistry.getNameForObject(b);
+
+		if (!blockParticleBlacklist.contains(name))
+			blockParticleBlacklist.add(name);
+	}
+
+	public void removeFromBlacklist(Block b) {
+		if (b == null)
+			return;
+
+		String name = Block.blockRegistry.getNameForObject(b);
+
+		if (blockParticleBlacklist.contains(name))
+			blockParticleBlacklist.remove(name);
+	}
+
+	public void resetBlacklist() {
+		blockParticleBlacklist.clear();
 	}
 }

@@ -118,7 +118,6 @@ public class FBPGuiMenuPage4 extends GuiScreen
 		else
 			mc.world.provider.setWeatherRenderer(FBP.originalWeatherRenderer);
 
-		FBPConfigHandler.check();
 		FBPConfigHandler.write();
 
 		initGui();

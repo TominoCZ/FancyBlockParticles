@@ -196,8 +196,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 		par = new Vec2f(f, f1);
 
 		worldRendererIn.setTranslation(f5, f6, f7);
-		putCube(worldRendererIn, f4 / 20, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue,
-				alpha);
+		putCube(worldRendererIn, f4 / 20, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue, alpha);
 		worldRendererIn.setTranslation(0, 0, 0);
 	}
 

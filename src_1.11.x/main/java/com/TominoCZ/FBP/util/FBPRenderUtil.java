@@ -24,10 +24,6 @@ public class FBPRenderUtil
 	public static void renderCubeShaded_S(VertexBuffer buf, Vec2f[] par, float f5, float f6, float f7, double scale,
 			FBPVector3d rotVec, int j, int k, float r, float g, float b, float a, boolean cartoon)
 	{
-		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		buf.begin(GL11.GL_QUADS, FBP.POSITION_TEX_COLOR_LMAP_NORMAL);
-
 		// switch to vertex format that supports normals
 		Tessellator.getInstance().draw();
 		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
@@ -50,18 +46,11 @@ public class FBPRenderUtil
 		buf.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 
 		RenderHelper.disableStandardItemLighting();
-
 	}
 
 	public static void renderCubeShaded_WH(VertexBuffer buf, Vec2f[] par, float f5, float f6, float f7, double width,
 			double height, FBPVector3d rotVec, int j, int k, float r, float g, float b, float a, boolean cartoon)
 	{
-
-		// switch to vertex format that supports normals
-		Tessellator.getInstance().draw();
-		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		buf.begin(GL11.GL_QUADS, FBP.POSITION_TEX_COLOR_LMAP_NORMAL);
-
 		// switch to vertex format that supports normals
 		Tessellator.getInstance().draw();
 		Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
@@ -84,7 +73,6 @@ public class FBPRenderUtil
 		buf.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 
 		RenderHelper.disableStandardItemLighting();
-
 	}
 
 	static void putCube_S(VertexBuffer worldRendererIn, Vec2f[] par, double scale, FBPVector3d rotVec, int j, int k,

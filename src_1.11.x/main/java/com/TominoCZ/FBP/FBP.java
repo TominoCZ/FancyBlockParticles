@@ -5,7 +5,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SplittableRandom;
@@ -17,6 +16,7 @@ import com.TominoCZ.FBP.handler.FBPEventHandler;
 import com.TominoCZ.FBP.handler.FBPGuiHandler;
 import com.TominoCZ.FBP.handler.FBPKeyInputHandler;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
+import com.TominoCZ.FBP.particle.FBPParticleManager;
 import com.google.common.base.Throwables;
 
 import net.minecraft.block.Block;
@@ -78,7 +78,7 @@ public class FBP
 
 	public List<String> blockParticleBlacklist;
 	public List<String> blockAnimBlacklist;
-	public HashMap<Material, Boolean> floatingMaterials;
+	public List<Material> floatingMaterials;
 
 	public static SplittableRandom random = new SplittableRandom();
 
@@ -113,7 +113,8 @@ public class FBP
 	public static FBPAnimationDummyBlock FBPBlock = new FBPAnimationDummyBlock();
 
 	public static IRenderHandler fancyWeatherRenderer, originalWeatherRenderer;
-	public static ParticleManager fancyEffectRenderer, originalEffectRenderer;
+	public static FBPParticleManager fancyEffectRenderer;
+	public static ParticleManager originalEffectRenderer;
 
 	public FBPEventHandler eventHandler = new FBPEventHandler();
 	public FBPGuiHandler guiHandler = new FBPGuiHandler();
@@ -132,15 +133,15 @@ public class FBP
 
 		blockParticleBlacklist = Collections.synchronizedList(new ArrayList<String>());
 		blockAnimBlacklist = Collections.synchronizedList(new ArrayList<String>());
-		floatingMaterials = new HashMap<Material, Boolean>();
+		floatingMaterials = Collections.synchronizedList(new ArrayList<Material>());
 	}
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent evt)
 	{
 		config = new File(evt.getModConfigurationDirectory() + "/FBP/Particle.properties");
-		animBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockExceptions.txt");
-		particleBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockExceptions.txt");
+		animBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/AnimBlockBlacklist.txt");
+		particleBlacklistFile = new File(evt.getModConfigurationDirectory() + "/FBP/ParticleBlockBlacklist.txt");
 		floatingMaterialsFile = new File(evt.getModConfigurationDirectory() + "/FBP/FloatingMaterials.txt");
 
 		FBPKeyBindings.init();
@@ -194,9 +195,10 @@ public class FBP
 		{
 			if (enabled)
 			{
+				FBP.fancyEffectRenderer.carryOver();
+
 				Minecraft.getMinecraft().effectRenderer = FBP.fancyEffectRenderer;
-				if (fancyRain || fancySnow) // just to ensure compatibility once more..
-					Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
+				Minecraft.getMinecraft().world.provider.setWeatherRenderer(FBP.fancyWeatherRenderer);
 			} else
 			{
 				Minecraft.getMinecraft().effectRenderer = FBP.originalEffectRenderer;
@@ -221,7 +223,7 @@ public class FBP
 
 	public boolean doesMaterialFloat(Material mat)
 	{
-		return floatingMaterials.getOrDefault(mat, false);
+		return floatingMaterials.contains(mat);
 	}
 
 	public void addToBlacklist(Block b, boolean particle)

@@ -5,7 +5,6 @@ import java.util.List;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.TominoCZ.FBP.FBP;
-import com.TominoCZ.FBP.util.FBPPartialTicksUtil;
 import com.TominoCZ.FBP.util.FBPRenderUtil;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
@@ -24,14 +23,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedParticle {
+public class FBPParticleRain extends EntityDiggingFX {
 	private final IBlockState sourceState;
 
 	Minecraft mc;
 
 	double particleHeight;
 
-	double scaleAlpha, prevParticleScale, prevParticleHeight, prevParticleAlpha;
+	double prevParticleScale, prevParticleHeight, prevParticleAlpha;
 
 	double scaleMult = 1.45;
 
@@ -66,8 +65,6 @@ public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedPartic
 		mc = Minecraft.getMinecraft();
 
 		particleMaxAge = (int) FBP.random.nextDouble(95, 115);
-
-		scaleAlpha = particleScale * 0.75;
 
 		this.particleAlpha = 0f;
 		this.particleScale = 0f;
@@ -113,19 +110,21 @@ public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedPartic
 
 			if (this.particleAge < this.particleMaxAge) {
 				if (!onGround) {
-					if (particleScale < FBP.scaleMult * 1.5f) {
-						if (FBP.randomFadingSpeed)
-							particleScale += 0.75F * endMult;
-						else
-							particleScale += 0.75F;
+					double max = FBP.scaleMult * 0.5;
 
-						if (particleScale > 1)
-							particleScale = 1;
+					if (particleScale < max) {
+						if (FBP.randomFadingSpeed)
+							particleScale += 0.05F * endMult;
+						else
+							particleScale += 0.05F;
+
+						if (particleScale > max)
+							particleScale = (float) max;
 
 						particleHeight = particleScale;
 					}
 
-					if (particleAlpha < 0.625f) {
+					if (particleAlpha < 0.65f) {
 						if (FBP.randomFadingSpeed)
 							particleAlpha += 0.085F * endMult;
 						else
@@ -153,7 +152,7 @@ public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedPartic
 				motionZ = 0;
 
 				if (particleHeight > 0.075f)
-					particleHeight *= 0.8f;
+					particleHeight *= 0.725f;
 
 				if (particleScale < FBP.scaleMult * 4.5f) {
 					particleScale *= scaleMult;
@@ -164,19 +163,17 @@ public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedPartic
 						scaleMult = 1;
 				}
 
-				if (particleScale >= FBP.scaleMult * 2) {
-					if (FBP.randomFadingSpeed)
-						particleAlpha *= 0.75F * endMult;
-					else
-						particleAlpha *= 0.75F;
-				}
+				if (FBP.randomFadingSpeed)
+					particleAlpha *= 0.75F * endMult;
+				else
+					particleAlpha *= 0.75F;
 
 				if (particleAlpha <= 0.001f)
 					setDead();
 			}
 		}
 
-		Vec3 rgb = mc.theWorld.getSkyColor(mc.thePlayer, FBPPartialTicksUtil.partialTicks);
+		Vec3 rgb = mc.theWorld.getSkyColor(mc.thePlayer, 0);
 
 		this.particleRed = (float) rgb.xCoord;
 		this.particleGreen = (float) MathHelper.clamp_double(rgb.yCoord + 0.25, 0.25, 1);
@@ -231,24 +228,8 @@ public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedPartic
 	}
 
 	@Override
-	public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
-			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-	}
-
-	@Override
-	public int getBrightnessForRender(float p_189214_1_) {
-		int i = super.getBrightnessForRender(p_189214_1_);
-		int j = 0;
-
-		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
-		}
-
-		return i == 0 ? j : i;
-	}
-
-	@Override
-	public void renderShadedParticle(WorldRenderer buf, float partialTicks) {
+	public void renderParticle(WorldRenderer buf, Entity entityIn, float partialTicks, float rotationX, float rotationZ,
+			float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
@@ -275,7 +256,7 @@ public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedPartic
 
 		int i = getBrightnessForRender(partialTicks);
 
-		float alpha = particleAlpha;
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
@@ -284,7 +265,19 @@ public class FBPParticleRain extends EntityDiggingFX implements IFBPShadedPartic
 		// RENDER
 		par = new Vector2f[] { new Vector2f(f1, f3), new Vector2f(f1, f2), new Vector2f(f, f2), new Vector2f(f, f3) };
 
-		FBPRenderUtil.renderCubeShaded_WH(buf, par, f5, f6, f7, f4 / 20, height / 20, new FBPVector3d(0, AngleY, 0),
+		FBPRenderUtil.renderCubeShaded_WH(buf, par, f5, f6, f7, f4 / 10, height / 10, new FBPVector3d(0, AngleY, 0),
 				i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue, alpha);
+	}
+
+	@Override
+	public int getBrightnessForRender(float p_189214_1_) {
+		int i = super.getBrightnessForRender(p_189214_1_);
+		int j = 0;
+
+		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		}
+
+		return i == 0 ? j : i;
 	}
 }

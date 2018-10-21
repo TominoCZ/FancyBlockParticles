@@ -2,8 +2,11 @@ package com.TominoCZ.FBP.particle;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
+import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
 
 import javax.annotation.Nullable;
 
@@ -55,6 +58,8 @@ public class FBPParticleManager extends ParticleManager
 	private static IBlockState blockState;
 	private static TextureAtlasSprite white;
 
+	private static MethodHandles.Lookup lookup;
+
 	Minecraft mc;
 
 	public FBPParticleManager(World worldIn, TextureManager rendererIn, IParticleFactory particleFactory)
@@ -67,7 +72,7 @@ public class FBPParticleManager extends ParticleManager
 
 		white = mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture((Blocks.SNOW.getDefaultState()));
 
-		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+		lookup = MethodHandles.publicLookup();
 
 		try
 		{
@@ -96,6 +101,35 @@ public class FBPParticleManager extends ParticleManager
 		} catch (Throwable e)
 		{
 			throw Throwables.propagate(e);
+		}
+	}
+
+	public void carryOver()
+	{
+		if (Minecraft.getMinecraft().effectRenderer == this)
+			return;
+
+		Field f1 = ReflectionHelper.findField(ParticleManager.class, "field_78876_b", "fxLayers");
+		Field f2 = ReflectionHelper.findField(ParticleManager.class, "field_178933_d", "particleEmitters");
+		Field f3 = ReflectionHelper.findField(ParticleManager.class, "field_187241_h", "queue");
+
+		try
+		{
+			MethodHandle getF1 = lookup.unreflectGetter(f1);
+			MethodHandle setF1 = lookup.unreflectSetter(f1);
+
+			MethodHandle getF2 = lookup.unreflectGetter(f2);
+			MethodHandle setF2 = lookup.unreflectSetter(f2);
+
+			MethodHandle getF3 = lookup.unreflectGetter(f3);
+			MethodHandle setF3 = lookup.unreflectSetter(f3);
+
+			setF1.invokeExact((ParticleManager) this, (ArrayDeque[][]) getF1.invokeExact(mc.effectRenderer));
+			setF2.invokeExact((ParticleManager) this, (Queue) getF2.invokeExact(mc.effectRenderer));
+			setF3.invokeExact((ParticleManager) this, (Queue) getF3.invokeExact(mc.effectRenderer));
+		} catch (Throwable e)
+		{
+			e.printStackTrace();
 		}
 	}
 

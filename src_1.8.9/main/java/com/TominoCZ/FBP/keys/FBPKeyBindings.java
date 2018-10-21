@@ -13,7 +13,7 @@ public class FBPKeyBindings {
 		FBPFreeze = new KeyBinding("Toggle Freeze Effect", Keyboard.KEY_R, "Fancy Block Particles");
 		FBPToggle = new KeyBinding("Enable/Disable", Keyboard.KEY_NONE, "Fancy Block Particles");
 		FBPSweep = new KeyBinding("Kill Particles", Keyboard.KEY_NONE, "Fancy Block Particles");
-		FBPFastAdd = new KeyBinding("Fast Exception Menu", Keyboard.KEY_X, "Fancy Block Particles");
+		FBPFastAdd = new KeyBinding("Blacklist Block", Keyboard.KEY_X, "Fancy Block Particles");
 
 		ClientRegistry.registerKeyBinding(FBPMenu);
 		ClientRegistry.registerKeyBinding(FBPFreeze);

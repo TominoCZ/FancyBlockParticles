@@ -20,7 +20,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 	String b1Text = "Random Rotation";
 	String b2Text = "Cartoon Mode";
 
-	String b3Text = "Smooth Transitions";
+	String b3Text = "Randomized Scale";
 	String b4Text = "Random Fade Speed";
 
 	String b5Text = "Spawn Redstone Block Particles";
@@ -45,7 +45,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 		b1 = new FBPGuiButton(1, x, this.height / 5 - 10 + GUIOffsetY, b1Text, FBP.randomRotation, true);
 		b2 = new FBPGuiButton(2, x, b1.yPosition + b1.height + 1, b2Text, FBP.cartoonMode, true);
 
-		b3 = new FBPGuiButton(3, x, b2.yPosition + b2.height + 6, b3Text, FBP.smoothTransitions, true);
+		b3 = new FBPGuiButton(3, x, b2.yPosition + b2.height + 6, b3Text, FBP.randomizedScale, true);
 		b4 = new FBPGuiButton(4, x, b3.yPosition + b3.height + 1, b4Text, FBP.randomFadingSpeed, true);
 
 		b5 = new FBPGuiButton(5, x, b4.yPosition + b4.height + 6, b5Text, FBP.spawnRedstoneBlockParticles, true);
@@ -107,7 +107,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 			FBP.cartoonMode = !FBP.cartoonMode;
 			break;
 		case 3:
-			FBP.smoothTransitions = !FBP.smoothTransitions;
+			FBP.randomizedScale = !FBP.randomizedScale;
 			break;
 		case 4:
 			FBP.randomFadingSpeed = !FBP.randomFadingSpeed;
@@ -120,7 +120,6 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 			break;
 		}
 
-		FBPConfigHandler.check();
 		FBPConfigHandler.write();
 
 		initGui();
@@ -200,7 +199,7 @@ public class FBPGuiMenuPage2 extends GuiScreen {
 					description = "Makes the particles look \u00A76cartoon\u00A7a-ish.";
 					break;
 				case 3:
-					description = "Makes the particles \u00A76rotate\u00A7a, \u00A76scale \u00A7aand \u00A76fade away\u00A7a smoothly.";
+					description = "Makes the particle \u00A76scale\u00A7a slightly \u00A76randomized\u00A7a.";
 					break;
 				case 4:
 					description = "Enables \u00A76random \u00A7aparticle \u00A76fade away\u00A7a-transition speed.";

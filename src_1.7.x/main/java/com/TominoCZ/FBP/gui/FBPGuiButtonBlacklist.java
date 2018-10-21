@@ -1,16 +1,17 @@
 package com.TominoCZ.FBP.gui;
 
+import org.lwjgl.opengl.GL11;
+
 import com.TominoCZ.FBP.FBP;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 
-public class FBPGuiButtonException extends FBPGuiButton {
+public class FBPGuiButtonBlacklist extends FBPGuiButton {
 
 	public boolean particle;
 	public boolean isInExceptions;
 
-	public FBPGuiButtonException(int buttonId, int x, int y, String buttonText, boolean particle,
+	public FBPGuiButtonBlacklist(int buttonId, int x, int y, String buttonText, boolean particle,
 			boolean isInExceptions) {
 		super(buttonId, x, y, buttonText, false, false);
 
@@ -31,26 +32,22 @@ public class FBPGuiButtonException extends FBPGuiButton {
 					.sqrt((mouseX - centerX1) * (mouseX - centerX1) + (mouseY - centerY1) * (mouseY - centerY1));
 			double radius = (this.height - 1) / 2;
 
-			hovered = distance <= radius;
+			field_146123_n = distance <= radius;
 
 			mc.getTextureManager().bindTexture(FBP.FBP_WIDGETS);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-			GlStateManager.enableBlend();
+			GL11.glEnable(GL11.GL_BLEND);
 
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-					GlStateManager.DestFactor.ZERO);
-			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
 			this.drawTexturedModalRect(xPosition, yPosition, enabled ? (isInExceptions ? 60 : 0) : 120, 196, 60, 60);
 
 			if (!enabled)
-				GlStateManager.color(0.25f, 0.25f, 0.25f);
+				GL11.glColor3f(0.25f, 0.25f, 0.25f);
 			// render icon
-			this.drawTexturedModalRect(xPosition + width / 2.0f - 22.5f + (particle ? 0 : 2),
-					yPosition + height / 2.0f - 22.5f, 256 - 45, particle ? 45 : 0, 45, 45);
+			this.drawTexturedModalRect((int) (xPosition + width / 2.0f - 22.5f + (particle ? 0 : 2)),
+					(int) (yPosition + height / 2.0f - 22.5f), 256 - 45, particle ? 45 : 0, 45, 45);
 
 			this.mouseDragged(mc, mouseX, mouseY);
 		}

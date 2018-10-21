@@ -24,7 +24,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedParticle {
+public class FBPParticleDigging extends EntityDiggingFX {
 	private final Block sourceBlock;
 	private final int blockSide;
 
@@ -37,7 +37,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 	boolean modeDebounce = false, wasFrozen = false, destroyed = false;
 
-	boolean spawned = false, dying = false, killToggle = false;
+	boolean dying = false, killToggle = false;
 
 	FBPVector3d rotStep;
 
@@ -47,8 +47,6 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 	FBPVector3d[] par;
 
 	double endMult = 0.75;
-
-	long tick = 0;
 
 	protected FBPParticleDigging(World w, double X, double Y, double Z, double mx, double my, double mz, float R,
 			float G, float B, float scale, Block b, int meta, int side) {
@@ -91,7 +89,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 		particleGravity = (float) (b.blockParticleGravity * FBP.gravityMult);
 
-		particleScale *= FBP.scaleMult;
+		particleScale = (float) (FBP.scaleMult * (FBP.randomizedScale ? particleScale : 1));
 		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
 
 		scaleAlpha = particleScale * 0.82;
@@ -123,13 +121,10 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 	@Override
 	public void onUpdate() {
-		if (!spawned)
-			tick++;
-
 		boolean allowedToMove = MathHelper.abs((float) motionX) > 0.0001D || MathHelper.abs((float) motionZ) > 0.0001D;
 
-		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused()) {
-			if (!wasFrozen && spawned && allowedToMove) {
+		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused() && particleAge > 0) {
+			if (!wasFrozen && allowedToMove) {
 				boolean xCollided = prevPosX == posX;
 				boolean zCollided = prevPosZ == posZ;
 
@@ -235,35 +230,31 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 				// PHYSICS
 				if (FBP.entityCollision) {
-					AxisAlignedBB box = null;
+					List<Entity> list = worldObj.getEntitiesWithinAABB(Entity.class, this.getBoundingBox());
 
-					if ((box = this.boundingBox) != null) {
-						List<Entity> list = worldObj.getEntitiesWithinAABB(Entity.class, box);
+					for (Entity entityIn : list) {
+						if (!entityIn.noClip) {
+							double d0 = this.posX - entityIn.posX;
+							double d1 = this.posZ - entityIn.posZ;
+							double d2 = MathHelper.abs_max(d0, d1);
 
-						for (Entity entityIn : list) {
-							if (!entityIn.noClip) {
-								double d0 = this.posX - entityIn.posX;
-								double d1 = this.posZ - entityIn.posZ;
-								double d2 = MathHelper.abs_max(d0, d1);
+							if (d2 >= 0.009999999776482582D) {
+								d2 = Math.sqrt(d2);
+								d0 /= d2;
+								d1 /= d2;
 
-								if (d2 >= 0.009999999776482582D) {
-									d2 = Math.sqrt(d2);
-									d0 /= d2;
-									d1 /= d2;
+								double d3 = 1.0D / d2;
 
-									double d3 = 1.0D / d2;
+								if (d3 > 1.0D)
+									d3 = 1.0D;
 
-									if (d3 > 1.0D)
-										d3 = 1.0D;
+								this.motionX += d0 * d3 / 20;
+								this.motionZ += d1 * d3 / 20;
 
-									this.motionX += d0 * d3 / 20;
-									this.motionZ += d1 * d3 / 20;
-
-									if (!FBP.randomRotation)
-										calculateYAngle();
-									if (!FBP.frozen)
-										this.isCollided = false;
-								}
+								if (!FBP.randomRotation)
+									calculateYAngle();
+								if (!FBP.frozen)
+									this.isCollided = false;
 							}
 						}
 					}
@@ -304,9 +295,6 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 				}
 			}
 		}
-
-		if (destroyed || !spawned && tick >= 2)
-			spawned = true;
 	}
 
 	@Override
@@ -437,6 +425,73 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 	@Override
 	public void renderParticle(Tessellator tes, float partialTicks, float rotationX, float rotationZ, float rotationYZ,
 			float rotationXY, float rotationXZ) {
+		if (!FBP.isEnabled() && particleMaxAge != 0)
+			particleMaxAge = 0;
+		if (FBPKeyBindings.FBPSweep.isPressed() && !killToggle)
+			killToggle = true;
+
+		float f = 0, f1 = 0, f2 = 0, f3 = 0;
+
+		float f4 = particleScale;
+
+		if (particleIcon != null) {
+			if (!FBP.cartoonMode) {
+				f = particleIcon.getInterpolatedU(particleTextureJitterX / 4 * 16);
+				f2 = particleIcon.getInterpolatedV(particleTextureJitterY / 4 * 16);
+			}
+
+			f1 = particleIcon.getInterpolatedU((particleTextureJitterX + 1) / 4 * 16);
+			f3 = particleIcon.getInterpolatedV((particleTextureJitterY + 1) / 4 * 16);
+		} else {
+			f = (particleTextureIndexX + particleTextureJitterX / 4) / 16;
+			f1 = f + 0.015609375F;
+			f2 = (particleTextureIndexY + particleTextureJitterY / 4) / 16;
+			f3 = f2 + 0.015609375F;
+		}
+
+		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
+		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
+
+		int i = getBrightnessForRender(partialTicks);
+
+		par = new FBPVector3d[] { new FBPVector3d(f1, f3, 0), new FBPVector3d(f1, f2, 0), new FBPVector3d(f, f2, 0),
+				new FBPVector3d(f, f3, 0) };
+
+		float alpha = particleAlpha;
+
+		// SMOOTH TRANSITION
+		if ((dying && !FBP.frozen) || (FBP.frozen && killToggle)) {
+			f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
+
+			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
+		}
+
+		FBPVector3d smoothRot = new FBPVector3d();
+
+		if (FBP.rotationMult > 0) {
+			smoothRot.y = rot.y;
+			smoothRot.z = rot.z;
+
+			if (!FBP.randomRotation)
+				smoothRot.x = rot.x;
+
+			// SMOOTH ROTATION
+			if (!FBP.frozen) {
+				FBPVector3d vec = rot.partialVec(prevRot, partialTicks);
+
+				if (FBP.randomRotation) {
+					smoothRot.y = vec.y;
+					smoothRot.z = vec.z;
+				} else {
+					smoothRot.x = vec.x;
+				}
+			}
+		}
+
+		// RENDER
+		FBPRenderUtil.renderCubeShaded_S(tes, par, f5, f6, f7, f4 / 10, smoothRot, i, particleRed, particleGreen,
+				particleBlue, alpha, FBP.cartoonMode);
 	}
 
 	@Override
@@ -514,77 +569,5 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 	double getMult() {
 		return Math.sqrt(motionX * motionX + motionZ * motionZ) * (FBP.randomRotation ? 200 : 500) * FBP.rotationMult;
-	}
-
-	@Override
-	public void renderShadedParticle(Tessellator tes, float partialTicks) {
-		if (!FBP.isEnabled() && particleMaxAge != 0)
-			particleMaxAge = 0;
-		if (FBPKeyBindings.FBPSweep.isPressed() && !killToggle)
-			killToggle = true;
-
-		float f = 0, f1 = 0, f2 = 0, f3 = 0;
-
-		float f4 = particleScale;
-
-		if (particleIcon != null) {
-			if (!FBP.cartoonMode) {
-				f = particleIcon.getInterpolatedU(particleTextureJitterX / 4 * 16);
-				f2 = particleIcon.getInterpolatedV(particleTextureJitterY / 4 * 16);
-			}
-
-			f1 = particleIcon.getInterpolatedU((particleTextureJitterX + 1) / 4 * 16);
-			f3 = particleIcon.getInterpolatedV((particleTextureJitterY + 1) / 4 * 16);
-		} else {
-			f = (particleTextureIndexX + particleTextureJitterX / 4) / 16;
-			f1 = f + 0.015609375F;
-			f2 = (particleTextureIndexY + particleTextureJitterY / 4) / 16;
-			f3 = f2 + 0.015609375F;
-		}
-
-		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
-		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
-
-		int i = getBrightnessForRender(partialTicks);
-
-		par = new FBPVector3d[] { new FBPVector3d(f1, f3, 0), new FBPVector3d(f1, f2, 0), new FBPVector3d(f, f2, 0),
-				new FBPVector3d(f, f3, 0) };
-
-		float alpha = particleAlpha;
-
-		// SMOOTH TRANSITION
-		if ((dying && FBP.smoothTransitions && !FBP.frozen) || (FBP.frozen && killToggle && FBP.smoothTransitions)) {
-			f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
-
-			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
-		}
-
-		FBPVector3d smoothRot = new FBPVector3d();
-
-		if (FBP.rotationMult > 0) {
-			smoothRot.y = rot.y;
-			smoothRot.z = rot.z;
-
-			if (!FBP.randomRotation)
-				smoothRot.x = rot.x;
-
-			// SMOOTH ROTATION
-			if (FBP.smoothTransitions && !FBP.frozen) {
-				FBPVector3d vec = rot.partialVec(prevRot, partialTicks);
-
-				if (FBP.randomRotation) {
-					smoothRot.y = vec.y;
-					smoothRot.z = vec.z;
-				} else {
-					smoothRot.x = vec.x;
-				}
-			}
-		}
-
-		// RENDER
-		if (spawned)
-			FBPRenderUtil.renderCubeShaded_S(tes, par, f5, f6, f7, f4 / 10, smoothRot, i, particleRed, particleGreen,
-					particleBlue, alpha, FBP.cartoonMode);
 	}
 }

@@ -41,7 +41,7 @@ public class FBPParticleDigging extends ParticleDigging
 	private final IBlockState sourceState;
 
 	Minecraft mc;
-	
+
 	double scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
 	float prevGravity;
 

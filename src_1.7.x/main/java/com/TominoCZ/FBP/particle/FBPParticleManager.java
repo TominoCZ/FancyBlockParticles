@@ -2,12 +2,11 @@ package com.TominoCZ.FBP.particle;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.block.FBPBlockPos;
@@ -28,10 +27,7 @@ import net.minecraft.client.particle.EntityRainFX;
 import net.minecraft.client.particle.EntitySmokeFX;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
@@ -51,7 +47,7 @@ public class FBPParticleManager extends EffectRenderer {
 	private static MethodHandle X, Y, Z;
 	private static MethodHandle mX, mY, mZ;
 
-	private List[] fxLayers = new List[4];
+	private static MethodHandles.Lookup lookup;
 
 	Minecraft mc;
 	private Random rand;
@@ -62,7 +58,7 @@ public class FBPParticleManager extends EffectRenderer {
 		mc = Minecraft.getMinecraft();
 
 		rand = new Random();
-		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+		lookup = MethodHandles.publicLookup();
 
 		try {
 			X = lookup.unreflectGetter(ReflectionHelper.findField(Entity.class, "field_70165_t", "posX"));
@@ -85,13 +81,24 @@ public class FBPParticleManager extends EffectRenderer {
 			getParticleIcon = lookup
 					.unreflectGetter(ReflectionHelper.findField(EntityFX.class, "field_70550_a", "particleIcon"));
 			getParticleBlockSide = lookup.unreflectGetter(ReflectionHelper.findField(EntityDiggingFX.class, "side"));
-
-			MethodHandle getFxLayers = lookup
-					.unreflectGetter(ReflectionHelper.findField(EffectRenderer.class, "field_78876_b", "fxLayers"));
-
-			fxLayers = (List[]) getFxLayers.invokeExact((EffectRenderer) this);
 		} catch (Throwable e) {
 			throw Throwables.propagate(e);
+		}
+	}
+
+	public void carryOver() {
+		if (Minecraft.getMinecraft().effectRenderer == this)
+			return;
+
+		Field f1 = ReflectionHelper.findField(EffectRenderer.class, "field_78876_b", "fxLayers");
+
+		try {
+			MethodHandle getF1 = lookup.unreflectGetter(f1);
+			MethodHandle setF1 = lookup.unreflectSetter(f1);
+
+			setF1.invokeExact((EffectRenderer) this, (List[]) getF1.invokeExact(mc.effectRenderer));
+		} catch (Throwable e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -152,7 +159,7 @@ public class FBPParticleManager extends EffectRenderer {
 							&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)) {
 						effect.setDead();
 
-						if (!(b instanceof BlockLiquid) && !FBP.INSTANCE.isInExceptions(b)) {
+						if (!(b instanceof BlockLiquid) && !FBP.INSTANCE.isBlacklisted(b)) {
 							float R = 1;
 							float G = 1;
 							float B = 1;
@@ -182,7 +189,7 @@ public class FBPParticleManager extends EffectRenderer {
 					if (b != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)) {
 
-						if (b instanceof BlockLiquid || FBP.INSTANCE.isInExceptions(b))
+						if (b instanceof BlockLiquid || FBP.INSTANCE.isBlacklisted(b))
 							toAdd = null;
 					}
 				} catch (Throwable e) {
@@ -193,44 +200,6 @@ public class FBPParticleManager extends EffectRenderer {
 
 		if (toAdd != null)
 			super.addEffect(toAdd);
-	}
-
-	@Override
-	public void renderParticles(Entity e, float f) {
-		if (e != null)
-			super.renderParticles(e, f);
-
-		renderShadedParticles(f);
-	}
-
-	private void renderShadedParticles(float partialTicks) {
-		if (fxLayers.length < 2 || fxLayers[1].size() == 0)
-			return;
-
-		Tessellator tes = Tessellator.instance;
-
-		mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-		tes.startDrawingQuads();
-
-		RenderHelper.enableStandardItemLighting();
-		mc.entityRenderer.enableLightmap(partialTicks);
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glEnable(GL11.GL_BLEND);
-
-		int size = fxLayers[1].size();
-
-		for (int i = 0; i < size; i++) {
-			EntityFX p = (EntityFX) fxLayers[1].get(i);
-
-			if (p instanceof IFBPShadedParticle)
-				((IFBPShadedParticle) p).renderShadedParticle(tes, partialTicks);
-		}
-
-		tes.draw();
-
-		GL11.glDisable(GL11.GL_BLEND);
-		RenderHelper.disableStandardItemLighting();
-		mc.entityRenderer.disableLightmap(partialTicks);
 	}
 
 	@Override
@@ -248,7 +217,7 @@ public class FBPParticleManager extends EffectRenderer {
 						if (FBP.enabled) {
 							if ((!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 									&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)
-									&& !FBP.INSTANCE.isInExceptions(b)) {
+									&& !FBP.INSTANCE.isBlacklisted(b)) {
 								float scale = (float) FBP.random.nextDouble(0.75, 1);
 
 								EntityDiggingFX toSpawn = new FBPParticleDigging(this.worldObj, d0, d1, d2,
@@ -361,7 +330,7 @@ public class FBPParticleManager extends EffectRenderer {
 
 					EntityFX toSpawn;
 
-					if (!FBP.INSTANCE.isInExceptions(block)) {
+					if (!FBP.INSTANCE.isBlacklisted(block)) {
 						toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1.0f, 1.0f, 1.0f, -1,
 								block, worldObj.getBlockMetadata(x, y, z), side).applyColourMultiplier(x, y, z);
 

@@ -13,7 +13,6 @@ import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.util.FBPObfUtil;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.util.math.MathHelper;
 
 public class FBPConfigHandler
 {
@@ -49,23 +48,23 @@ public class FBPConfigHandler
 
 				FBP.INSTANCE.floatingMaterials.clear();
 
-				FBP.INSTANCE.floatingMaterials.put(Material.LEAVES, true);
-				FBP.INSTANCE.floatingMaterials.put(Material.PLANTS, true);
-				FBP.INSTANCE.floatingMaterials.put(Material.ICE, true);
-				FBP.INSTANCE.floatingMaterials.put(Material.PACKED_ICE, true);
-				FBP.INSTANCE.floatingMaterials.put(Material.CARPET, true);
-				FBP.INSTANCE.floatingMaterials.put(Material.WOOD, true);
-				FBP.INSTANCE.floatingMaterials.put(Material.WEB, true);
+				FBP.INSTANCE.floatingMaterials.add(Material.LEAVES);
+				FBP.INSTANCE.floatingMaterials.add(Material.PLANTS);
+				FBP.INSTANCE.floatingMaterials.add(Material.ICE);
+				FBP.INSTANCE.floatingMaterials.add(Material.PACKED_ICE);
+				FBP.INSTANCE.floatingMaterials.add(Material.CARPET);
+				FBP.INSTANCE.floatingMaterials.add(Material.WOOD);
+				FBP.INSTANCE.floatingMaterials.add(Material.WEB);
 			} else
 				readFloatingMaterials();
 
 			read();
-			readAnimExceptions();
-			readParticleExceptions();
+			readAnimBlacklist();
+			readParticleBlacklist();
 
 			write();
-			writeAnimExceptions();
-			writeParticleExceptions();
+			writeAnimBlacklist();
+			writeParticleBlacklist();
 			writeFloatingMaterials();
 
 			closeStreams();
@@ -81,8 +80,6 @@ public class FBPConfigHandler
 	{
 		try
 		{
-			check();
-
 			PrintWriter writer = new PrintWriter(FBP.config.getPath(), "UTF-8");
 			writer.println("enabled=" + FBP.enabled);
 			writer.println("weatherParticleDensity=" + FBP.weatherParticleDensity);
@@ -136,7 +133,7 @@ public class FBPConfigHandler
 		}
 	}
 
-	public static void writeAnimExceptions()
+	public static void writeAnimBlacklist()
 	{
 		try
 		{
@@ -166,7 +163,7 @@ public class FBPConfigHandler
 		}
 	}
 
-	public static void writeParticleExceptions()
+	public static void writeParticleBlacklist()
 	{
 		try
 		{
@@ -309,19 +306,15 @@ public class FBPConfigHandler
 			}
 
 			closeStreams();
-
-			check();
 		} catch (Exception e)
 		{
 			closeStreams();
-
-			check();
 
 			write();
 		}
 	}
 
-	static void readAnimExceptions()
+	static void readAnimBlacklist()
 	{
 		try
 		{
@@ -343,7 +336,7 @@ public class FBPConfigHandler
 		closeStreams();
 	}
 
-	static void readParticleExceptions()
+	static void readParticleBlacklist()
 	{
 		try
 		{
@@ -383,6 +376,17 @@ public class FBPConfigHandler
 			{
 				line = line.trim().toLowerCase();
 
+				String[] split = line.split("=");
+
+				if (split.length < 2)
+					continue;
+
+				String materialName = split[0].replace("_", "");
+				boolean flag = Boolean.parseBoolean(split[1]);
+
+				if (!flag)
+					continue;
+
 				boolean found = false;
 
 				for (Field f : materials)
@@ -391,18 +395,17 @@ public class FBPConfigHandler
 
 					if (f.getType() == Material.class)
 					{
-						String translated = FBPObfUtil.translateObfMaterialName(fieldName).toLowerCase();
+						String translated = FBPObfUtil.translateObfMaterialName(fieldName).toLowerCase().replace("_",
+								"");
 
-						if (line.contains(translated) || line.contains(translated.replace("_", "")))
+						if (materialName.equals(translated))
 						{
 							try
 							{
-								boolean flag = line.split("=")[1].equals("true");
-
 								Material mat = (Material) f.get(null);
 
-								if (mat != Material.AIR && !FBP.INSTANCE.floatingMaterials.containsKey(mat))
-									FBP.INSTANCE.floatingMaterials.put(mat, flag);
+								if (!FBP.INSTANCE.floatingMaterials.contains(mat))
+									FBP.INSTANCE.floatingMaterials.add(mat);
 
 								found = true;
 								break;
@@ -415,17 +418,13 @@ public class FBPConfigHandler
 				}
 
 				if (!found)
-					System.out.println("[FBP]: Material not recognized: " + line);
+					System.out.println("[FBP]: Material not recognized: " + materialName);
 			}
 
 			closeStreams();
-
-			check();
 		} catch (Exception e)
 		{
 			closeStreams();
-
-			check();
 
 			write();
 		}
@@ -476,21 +475,5 @@ public class FBPConfigHandler
 
 		if (write)
 			write();
-	}
-
-	public static void check()
-	{
-		FBP.maxAge = MathHelper.clamp_int(FBP.maxAge, 10, 100);
-		FBP.minAge = MathHelper.clamp_int(FBP.minAge, 10, FBP.maxAge);
-
-		FBP.particlesPerAxis = MathHelper.clamp_int(FBP.particlesPerAxis, 2, 5);
-
-		FBP.scaleMult = MathHelper.clamp_double(FBP.scaleMult, 0.5D, 1.25D);
-
-		FBP.gravityMult = MathHelper.clamp_double(FBP.gravityMult, 0.05D, 3.0D);
-
-		FBP.rotationMult = MathHelper.clamp_double(FBP.rotationMult, 0.0D, 1.5D);
-
-		FBP.weatherParticleDensity = MathHelper.clamp_double(FBP.weatherParticleDensity, 0.75D, 5.0D);
 	}
 }

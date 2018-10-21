@@ -7,7 +7,6 @@ import org.lwjgl.opengl.GL11;
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.particle.FBPParticleRain;
 import com.TominoCZ.FBP.particle.FBPParticleSnow;
-import com.TominoCZ.FBP.util.FBPPartialTicksUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -215,7 +214,7 @@ public class FBPWeatherRenderer extends IRenderHandler {
 
 	public void onUpdate() {
 		if (FBP.fancySnow || FBP.fancyRain) {
-			float f = this.mc.theWorld.getRainStrength(FBPPartialTicksUtil.partialTicks);
+			float f = this.mc.theWorld.getRainStrength(0);
 
 			if (f > 0.0F) {
 				if (tickCounter++ >= 2) {

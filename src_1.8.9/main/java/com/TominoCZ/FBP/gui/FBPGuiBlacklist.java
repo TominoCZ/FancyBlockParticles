@@ -27,9 +27,9 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 
-public class FBPGuiFastAdd extends GuiScreen {
+public class FBPGuiBlacklist extends GuiScreen {
 
-	FBPGuiButtonException animation, particle;
+	FBPGuiButtonBlacklist animation, particle;
 
 	final BlockPos selectedPos;
 	final IBlockState selectedBlock;
@@ -38,7 +38,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 	boolean closing = false;
 
-	public FBPGuiFastAdd(BlockPos selected) {
+	public FBPGuiBlacklist(BlockPos selected) {
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = selected;
@@ -52,7 +52,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 		displayItemStack = is.copy();
 	}
 
-	public FBPGuiFastAdd(ItemStack is) {
+	public FBPGuiBlacklist(ItemStack is) {
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = null;
@@ -71,10 +71,10 @@ public class FBPGuiFastAdd extends GuiScreen {
 	public void initGui() {
 		this.buttonList.clear();
 
-		animation = new FBPGuiButtonException(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
+		animation = new FBPGuiButtonBlacklist(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
 				false);
-		particle = new FBPGuiButtonException(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
-				FBP.INSTANCE.isInExceptions(selectedBlock.getBlock()));
+		particle = new FBPGuiButtonBlacklist(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
+				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock()));
 
 		Item ib = Item.getItemFromBlock(selectedBlock.getBlock());
 		Block b = ib instanceof ItemBlock ? ((ItemBlock) ib).getBlock() : null;
@@ -127,13 +127,13 @@ public class FBPGuiFastAdd extends GuiScreen {
 
 			if (selected != null) {
 				if (selected.enabled) {
-					if (!FBP.INSTANCE.isInExceptions(b))
-						FBP.INSTANCE.addException(b);
+					if (!FBP.INSTANCE.isBlacklisted(b))
+						FBP.INSTANCE.addToBlacklist(b);
 					else
-						FBP.INSTANCE.removeException(b);
+						FBP.INSTANCE.removeFromBlacklist(b);
 
 					if (particle.isMouseOver())
-						FBPConfigHandler.writeParticleExceptions();
+						FBPConfigHandler.writeParticleBlacklist();
 
 					mc.getSoundHandler()
 							.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press")));
@@ -208,7 +208,7 @@ public class FBPGuiFastAdd extends GuiScreen {
 			FBPGuiHelper._drawCenteredString(fontRendererObj, "\u00A7a\u00A7lPARTICLES", particle.xPosition + 30,
 					particle.yPosition - 12, 0);
 
-		this.drawCenteredString(fontRendererObj, "\u00A7LAdd Block to Exceptions", width / 2, 20,
+		this.drawCenteredString(fontRendererObj, "\u00A7LBlacklist a Block", width / 2, 20,
 				fontRendererObj.getColorCode('a'));
 
 		mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/widgets.png"));

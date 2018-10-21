@@ -38,7 +38,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedParticle {
+public class FBPParticleDigging extends EntityDiggingFX {
 	private final IBlockState sourceState;
 
 	Minecraft mc;
@@ -48,7 +48,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 	boolean modeDebounce = false, wasFrozen = false, destroyed = false;
 
-	boolean spawned = false, dying = false, killToggle = false;
+	boolean dying = false, killToggle = false;
 
 	FBPVector3d rotStep;
 
@@ -56,8 +56,6 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 	FBPVector3d prevRot;
 
 	double endMult = 0.75;
-
-	long tick = 0;
 
 	Vector2f uvMin;
 	Vector2f uvMax;
@@ -89,7 +87,6 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 		if (scale < -1) {
 			if (facing != null) {
-				tick = 0;
 				if (facing == EnumFacing.UP && FBP.smartBreaking) {
 					motionX *= 1.5D;
 					motionY *= 0.1D;
@@ -119,7 +116,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 		particleGravity = (float) (b.blockParticleGravity * FBP.gravityMult);
 
-		particleScale *= FBP.scaleMult;
+		particleScale = (float) (FBP.scaleMult * (FBP.randomizedScale ? particleScale : 1));
 		particleMaxAge = (int) FBP.random.nextDouble(FBP.minAge, FBP.maxAge + 0.5);
 
 		scaleAlpha = particleScale * 0.82;
@@ -185,6 +182,9 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 	}
 
 	protected void multiplyColor(Block b, @Nullable BlockPos pos) {
+		if (b == null || pos == null)
+			return;
+		
 		int i = b.colorMultiplier(worldObj, pos, 0);
 
 		this.particleRed *= (i >> 16 & 255) / 255.0F;
@@ -199,13 +199,10 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 	@Override
 	public void onUpdate() {
-		if (!spawned)
-			tick++;
-
 		boolean allowedToMove = MathHelper.abs((float) motionX) > 0.0001D || MathHelper.abs((float) motionZ) > 0.0001D;
 
-		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused()) {
-			if (!wasFrozen && spawned && allowedToMove) {
+		if (!FBP.frozen && FBP.bounceOffWalls && !mc.isGamePaused() && particleAge > 0) {
+			if (!wasFrozen && allowedToMove) {
 				boolean xCollided = prevPosX == posX;
 				boolean zCollided = prevPosZ == posZ;
 
@@ -287,12 +284,12 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 			}
 
 			if (!killToggle) {
-				if (!onGround)
+				if (!isCollided)
 					motionY -= 0.04D * particleGravity;
 
 				moveEntity(motionX, motionY, motionZ);
 
-				if (onGround && FBP.restOnFloor) {
+				if (isCollided && FBP.restOnFloor) {
 					rot.x = (float) Math.round(rot.x / 90) * 90;
 					rot.z = (float) Math.round(rot.z / 90) * 90;
 				}
@@ -335,7 +332,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 								if (!FBP.randomRotation)
 									calculateYAngle();
 								if (!FBP.frozen)
-									this.onGround = false;
+									this.isCollided = false;
 							}
 						}
 					}
@@ -358,14 +355,14 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 						if (!FBP.randomRotation)
 							calculateYAngle();
 
-						if (onGround)
-							onGround = false;
+						if (isCollided)
+							isCollided = false;
 					} else {
 						particleGravity = prevGravity;
 					}
 				}
 
-				if (onGround) {
+				if (isCollided) {
 					if (FBP.lowTraction) {
 						motionX *= 0.932515086137662D;
 						motionZ *= 0.932515086137662D;
@@ -376,9 +373,6 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 				}
 			}
 		}
-
-		if (destroyed || !spawned && tick >= 2)
-			spawned = true;
 	}
 
 	@Override
@@ -421,23 +415,23 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		double Y = y;
 		double Z = z;
 
-		List<AxisAlignedBB> list1 = this.worldObj.getCollidingBoundingBoxes(this,
+		List<AxisAlignedBB> list = this.worldObj.getCollidingBoundingBoxes(this,
 				this.getEntityBoundingBox().addCoord(x, y, z));
 
-		for (AxisAlignedBB axisalignedbb1 : list1) {
-			y = axisalignedbb1.calculateYOffset(this.getEntityBoundingBox(), y);
+		for (AxisAlignedBB axisalignedbb : list) {
+			y = axisalignedbb.calculateYOffset(this.getEntityBoundingBox(), y);
 		}
 
 		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, y, 0.0D));
 
-		for (AxisAlignedBB axisalignedbb2 : list1) {
-			x = axisalignedbb2.calculateXOffset(this.getEntityBoundingBox(), x);
+		for (AxisAlignedBB axisalignedbb : list) {
+			x = axisalignedbb.calculateXOffset(this.getEntityBoundingBox(), x);
 		}
 
 		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, 0.0D, 0.0D));
 
-		for (AxisAlignedBB axisalignedbb13 : list1) {
-			z = axisalignedbb13.calculateZOffset(this.getEntityBoundingBox(), z);
+		for (AxisAlignedBB axisalignedbb : list) {
+			z = axisalignedbb.calculateZOffset(this.getEntityBoundingBox(), z);
 		}
 
 		this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, z));
@@ -448,7 +442,7 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 		this.posY = axisalignedbb.minY + (FBP.restOnFloor ? particleScale / 10 : 0);
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
-		this.onGround = y != Y && Y < 0.0D;
+		this.isCollided = y != Y && Y < 0.0D;
 
 		if (!FBP.lowTraction && !FBP.bounceOffWalls) {
 			if (x != X)
@@ -465,9 +459,90 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 	}
 
 	@Override
-	public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
-			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+	public void renderParticle(WorldRenderer buf, Entity entityIn, float partialTicks, float rotationX, float rotationZ,
+			float rotationYZ, float rotationXY, float rotationXZ) {
+		if (!FBP.isEnabled() && particleMaxAge != 0)
+			particleMaxAge = 0;
+		if (FBPKeyBindings.FBPSweep.isKeyDown() && !killToggle)
+			killToggle = true;
 
+		float minX = 0, maxX = 0, minY = 0, maxY = 0;
+
+		float f4 = particleScale;
+
+		if (particleIcon != null) {
+			if (uvMin == null && uvMax == null) {
+				minX = particleIcon.getInterpolatedU((particleTextureJitterX) / 4 * 16);
+				minY = particleIcon.getInterpolatedV((particleTextureJitterY) / 4 * 16);
+
+				maxX = particleIcon.getInterpolatedU((particleTextureJitterX + 1) / 4 * 16);
+				maxY = particleIcon.getInterpolatedV((particleTextureJitterY + 1) / 4 * 16);
+			} else {
+				int size = 4;
+
+				float sizeX = uvMax.x - uvMin.x;
+				float sizeY = uvMax.y - uvMin.y;
+
+				float startX = (particleTextureJitterX + 1) * 4 - size;
+				float startY = (particleTextureJitterY + 1) * 4 - size;
+
+				minX = uvMin.x + (sizeX / 16 * startX);
+				minY = uvMin.y + (sizeY / 16 * startY);
+
+				maxX = uvMax.x - (sizeX / 16 * (16 - startX - size));
+				maxY = uvMax.y - (sizeY / 16 * (16 - startY - size));
+			}
+		} else {
+			minX = (0 + particleTextureJitterX / 4) / 16;
+			minY = (0 + particleTextureJitterY / 4) / 16;
+
+			maxX = minX + 0.015609375F;
+			maxY = minY + 0.015609375F;
+		}
+
+		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
+		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
+
+		int i = this.getBrightnessForRender(partialTicks);
+
+		float alpha = particleAlpha;
+
+		// SMOOTH TRANSITION
+		if ((dying && !FBP.frozen) || (FBP.frozen && killToggle)) {
+			f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
+
+			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
+		}
+
+		FBPVector3d smoothRot = new FBPVector3d(0, 0, 0);
+
+		if (FBP.rotationMult > 0) {
+			smoothRot.y = rot.y;
+			smoothRot.z = rot.z;
+
+			if (!FBP.randomRotation)
+				smoothRot.x = rot.x;
+
+			// SMOOTH ROTATION
+			if (!FBP.frozen) {
+				FBPVector3d vec = rot.partialVec(prevRot, partialTicks);
+
+				if (FBP.randomRotation) {
+					smoothRot.y = vec.y;
+					smoothRot.z = vec.z;
+				} else {
+					smoothRot.x = vec.x;
+				}
+			}
+		}
+
+		// RENDER
+		FBPRenderUtil.renderCubeShaded_S(buf,
+				new Vector2f[] { new Vector2f(maxX, maxY), new Vector2f(maxX, minY), new Vector2f(minX, minY),
+						new Vector2f(minX, maxY) },
+				f5, f6, f7, f4 / 10, smoothRot, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue,
+				alpha);
 	}
 
 	private void createRotationMatrix() {
@@ -522,92 +597,5 @@ public class FBPParticleDigging extends EntityDiggingFX implements IFBPShadedPar
 
 	double getMult() {
 		return Math.sqrt(motionX * motionX + motionZ * motionZ) * (FBP.randomRotation ? 200 : 500) * FBP.rotationMult;
-	}
-
-	@Override
-	public void renderShadedParticle(WorldRenderer buf, float partialTicks) {
-		if (!FBP.isEnabled() && particleMaxAge != 0)
-			particleMaxAge = 0;
-		if (FBPKeyBindings.FBPSweep.isKeyDown() && !killToggle)
-			killToggle = true;
-
-		float minX = 0, maxX = 0, minY = 0, maxY = 0;
-
-		float f4 = particleScale;
-
-		if (particleIcon != null) {
-			if (uvMin == null && uvMax == null) {
-				minX = particleIcon.getInterpolatedU((particleTextureJitterX) / 4 * 16);
-				minY = particleIcon.getInterpolatedV((particleTextureJitterY) / 4 * 16);
-
-				maxX = particleIcon.getInterpolatedU((particleTextureJitterX + 1) / 4 * 16);
-				maxY = particleIcon.getInterpolatedV((particleTextureJitterY + 1) / 4 * 16);
-			} else {
-				int size = 4;
-
-				float sizeX = uvMax.x - uvMin.x;
-				float sizeY = uvMax.y - uvMin.y;
-
-				float startX = (particleTextureJitterX + 1) * 4 - size;
-				float startY = (particleTextureJitterY + 1) * 4 - size;
-
-				minX = uvMin.x + (sizeX / 16 * startX);
-				minY = uvMin.y + (sizeY / 16 * startY);
-
-				maxX = uvMax.x - (sizeX / 16 * (16 - startX - size));
-				maxY = uvMax.y - (sizeY / 16 * (16 - startY - size));
-			}
-		} else {
-			minX = (0 + particleTextureJitterX / 4) / 16;
-			minY = (0 + particleTextureJitterY / 4) / 16;
-
-			maxX = minX + 0.015609375F;
-			maxY = minY + 0.015609375F;
-		}
-
-		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
-		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
-
-		int i = this.getBrightnessForRender(partialTicks);
-
-		float alpha = particleAlpha;
-
-		// SMOOTH TRANSITION
-		if ((dying && FBP.smoothTransitions && !FBP.frozen) || (FBP.frozen && killToggle && FBP.smoothTransitions)) {
-			f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
-
-			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
-		}
-
-		FBPVector3d smoothRot = new FBPVector3d(0, 0, 0);
-
-		if (FBP.rotationMult > 0) {
-			smoothRot.y = rot.y;
-			smoothRot.z = rot.z;
-
-			if (!FBP.randomRotation)
-				smoothRot.x = rot.x;
-
-			// SMOOTH ROTATION
-			if (FBP.smoothTransitions && !FBP.frozen) {
-				FBPVector3d vec = rot.partialVec(prevRot, partialTicks);
-
-				if (FBP.randomRotation) {
-					smoothRot.y = vec.y;
-					smoothRot.z = vec.z;
-				} else {
-					smoothRot.x = vec.x;
-				}
-			}
-		}
-
-		// RENDER
-		if (spawned)
-			FBPRenderUtil.renderCubeShaded_S(buf,
-					new Vector2f[] { new Vector2f(maxX, maxY), new Vector2f(maxX, minY), new Vector2f(minX, minY),
-							new Vector2f(minX, maxY) },
-					f5, f6, f7, f4 / 10, smoothRot, i >> 16 & 65535, i & 65535, particleRed, particleGreen,
-					particleBlue, alpha);
 	}
 }

@@ -2,13 +2,13 @@ package com.TominoCZ.FBP.particle;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import javax.annotation.Nullable;
-
-import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
 import com.google.common.base.Throwables;
@@ -25,14 +25,9 @@ import net.minecraft.client.particle.EntityRainFX;
 import net.minecraft.client.particle.EntitySmokeFX;
 import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.renderer.DestroyBlockProgress;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
@@ -62,7 +57,7 @@ public class FBPParticleManager extends EffectRenderer {
 	private static IBlockState blockState;
 	private static TextureAtlasSprite white;
 
-	private List<EntityFX>[][] fxLayers;
+	private static MethodHandles.Lookup lookup;
 
 	Minecraft mc;
 
@@ -75,7 +70,7 @@ public class FBPParticleManager extends EffectRenderer {
 
 		white = mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture((Blocks.snow.getDefaultState()));
 
-		MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+		lookup = MethodHandles.publicLookup();
 
 		try {
 			getParticleTypes = lookup.unreflectGetter(
@@ -100,13 +95,29 @@ public class FBPParticleManager extends EffectRenderer {
 					.unreflectGetter(ReflectionHelper.findField(EntityDiggingFX.class, "field_174847_a"));
 			getBlockDamage = lookup
 					.unreflectGetter(ReflectionHelper.findField(RenderGlobal.class, "field_72738_E", "damagedBlocks"));
-
-			MethodHandle getFxLayers = lookup
-					.unreflectGetter(ReflectionHelper.findField(EffectRenderer.class, "field_78876_b", "fxLayers"));
-
-			fxLayers = (List<EntityFX>[][]) getFxLayers.invokeExact((EffectRenderer) this);
 		} catch (Throwable e) {
 			throw Throwables.propagate(e);
+		}
+	}
+
+	public void carryOver() {
+		if (Minecraft.getMinecraft().effectRenderer == this)
+			return;
+
+		Field f1 = ReflectionHelper.findField(EffectRenderer.class, "field_78876_b", "fxLayers");
+		Field f2 = ReflectionHelper.findField(EffectRenderer.class, "field_178933_d", "particleEmitters");
+
+		try {
+			MethodHandle getF1 = lookup.unreflectGetter(f1);
+			MethodHandle setF1 = lookup.unreflectSetter(f1);
+
+			MethodHandle getF2 = lookup.unreflectGetter(f2);
+			MethodHandle setF2 = lookup.unreflectSetter(f2);
+
+			setF1.invokeExact((EffectRenderer) this, (List[][]) getF1.invokeExact(mc.effectRenderer));
+			setF2.invokeExact((EffectRenderer) this, (Queue) getF2.invokeExact(mc.effectRenderer));
+		} catch (Throwable e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -159,7 +170,7 @@ public class FBPParticleManager extends EffectRenderer {
 						effect.setDead();
 
 						if (!(blockState.getBlock() instanceof BlockLiquid)
-								&& !FBP.INSTANCE.isInExceptions(blockState.getBlock())) {
+								&& !FBP.INSTANCE.isBlacklisted(blockState.getBlock())) {
 							toAdd = new FBPParticleDigging(worldObj, (double) X.invokeExact(effect),
 									(double) Y.invokeExact(effect) - 0.10000000149011612D,
 									(double) Z.invokeExact(effect), 0, 0, 0, ((EntityFX) toAdd).getRedColorF(),
@@ -180,7 +191,7 @@ public class FBPParticleManager extends EffectRenderer {
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.redstone_block)) {
 
 						if (blockState.getBlock() instanceof BlockLiquid
-								|| FBP.INSTANCE.isInExceptions(blockState.getBlock())) {
+								|| FBP.INSTANCE.isBlacklisted(blockState.getBlock())) {
 							effect.setDead();
 							return;
 						}
@@ -192,45 +203,6 @@ public class FBPParticleManager extends EffectRenderer {
 		}
 
 		super.addEffect((EntityFX) toAdd);
-	}
-
-	@Override
-	public void renderParticles(Entity e, float f) {
-		if (e != null)
-			super.renderParticles(e, f);
-
-		renderShadedParticles(f);
-	}
-
-	private void renderShadedParticles(float partialTicks) {
-		Tessellator tes = Tessellator.getInstance();
-		WorldRenderer buff = tes.getWorldRenderer();
-
-		mc.getRenderManager().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-		buff.begin(GL11.GL_QUADS, FBP.POSITION_TEX_COLOR_LMAP_NORMAL);
-
-		mc.entityRenderer.enableLightmap();
-
-		GlStateManager.enableCull();
-		GlStateManager.enableBlend();
-		RenderHelper.enableStandardItemLighting();
-
-		for (int list = 0; list < 2; list++)
-			renderParticleArray(partialTicks, buff, fxLayers[1][list]);
-
-		tes.draw();
-
-		GlStateManager.disableBlend();
-		RenderHelper.disableStandardItemLighting();
-	}
-
-	private void renderParticleArray(float partialTicks, WorldRenderer buff, List<EntityFX> particles) {
-		for (int i = 0; i < particles.size(); i++) {
-			EntityFX p = particles.get(i);
-
-			if (p instanceof IFBPShadedParticle)
-				((IFBPShadedParticle) p).renderShadedParticle(buff, partialTicks);
-		}
 	}
 
 	@Nullable
@@ -257,7 +229,7 @@ public class FBPParticleManager extends EffectRenderer {
 					if (blockState != null && !(FBP.frozen && !FBP.spawnWhileFrozen)
 							&& (FBP.spawnRedstoneBlockParticles || blockState.getBlock() != Blocks.redstone_block)) {
 						if (!(blockState.getBlock() instanceof BlockLiquid)
-								&& !FBP.INSTANCE.isInExceptions(blockState.getBlock())) {
+								&& !FBP.INSTANCE.isBlacklisted(blockState.getBlock())) {
 							toSpawn = new FBPParticleDigging(mc.theWorld, xCoord, yCoord, zCoord, xSpeed, ySpeed,
 									zSpeed, 1, 1, 1, blockState, EnumFacing.UP, -1, null).multipleParticleScaleBy(0.6F);
 						} else
@@ -296,7 +268,7 @@ public class FBPParticleManager extends EffectRenderer {
 								if (state != null
 										&& (!(b instanceof BlockLiquid) && !(FBP.frozen && !FBP.spawnWhileFrozen))
 										&& (FBP.spawnRedstoneBlockParticles || b != Blocks.redstone_block)
-										&& !FBP.INSTANCE.isInExceptions(b)) {
+										&& !FBP.INSTANCE.isBlacklisted(b)) {
 									float scale = (float) FBP.random.nextDouble(0.75, 1);
 
 									FBPParticleDigging toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2,
@@ -410,7 +382,7 @@ public class FBPParticleManager extends EffectRenderer {
 
 						EntityFX toSpawn;
 
-						if (!FBP.INSTANCE.isInExceptions(iblockstate.getBlock())) {
+						if (!FBP.INSTANCE.isBlacklisted(iblockstate.getBlock())) {
 							toSpawn = new FBPParticleDigging(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, 1, 1, 1,
 									iblockstate, side, -2, null);
 

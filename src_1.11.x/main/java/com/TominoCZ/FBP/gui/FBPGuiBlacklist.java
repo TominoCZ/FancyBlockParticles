@@ -33,7 +33,7 @@ import net.minecraft.util.math.RayTraceResult;
 public class FBPGuiBlacklist extends GuiScreen
 {
 
-	FBPGuiButtonException animation, particle;
+	FBPGuiButtonBlacklist animation, particle;
 
 	final BlockPos selectedPos;
 	final IBlockState selectedBlock;
@@ -89,9 +89,9 @@ public class FBPGuiBlacklist extends GuiScreen
 	{
 		this.buttonList.clear();
 
-		animation = new FBPGuiButtonException(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
+		animation = new FBPGuiButtonBlacklist(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
 				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock(), false));
-		particle = new FBPGuiButtonException(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
+		particle = new FBPGuiButtonBlacklist(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
 				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock(), true));
 
 		Item ib = Item.getItemFromBlock(selectedBlock.getBlock());
@@ -166,9 +166,9 @@ public class FBPGuiBlacklist extends GuiScreen
 						FBP.INSTANCE.removeFromBlacklist(b, isParticle);
 
 					if (isParticle)
-						FBPConfigHandler.writeParticleExceptions();
+						FBPConfigHandler.writeParticleBlacklist();
 					else
-						FBPConfigHandler.writeAnimExceptions();
+						FBPConfigHandler.writeAnimBlacklist();
 
 					mc.getSoundHandler()
 							.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));

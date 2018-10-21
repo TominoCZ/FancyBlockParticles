@@ -2,34 +2,73 @@ package com.TominoCZ.FBP.util;
 
 import javax.vecmath.Vector3d;
 
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.vector.FBPVector3d;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 
 public class FBPRenderUtil {
 	public static void renderCubeShaded_S(Tessellator tes, FBPVector3d[] par, double f5, double f6, double f7,
 			double scale, FBPVector3d rotVec, int brightness, float r, float g, float b, float a, boolean cartoon) {
+		// switch to vertex format that supports normals
+		Tessellator.instance.draw();
+		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+		tes.startDrawingQuads();
+
+		// some GL commands
+		GL11.glDepthMask(true);
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		RenderHelper.enableStandardItemLighting();
+
+		// render particle
 		tes.setTranslation(f5, f6, f7);
 
 		putCube_S(tes, par, scale, rotVec, brightness, r, g, b, a, FBP.cartoonMode);
 
 		tes.setTranslation(0, 0, 0);
+
+		// continue with the regular vertex format
+		Tessellator.instance.draw();
+		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+		tes.startDrawingQuads();
+
+		RenderHelper.disableStandardItemLighting();
 	}
 
 	public static void renderCubeShaded_WH(Tessellator tes, FBPVector3d[] par, double f5, double f6, double f7,
 			double width, double height, FBPVector3d rotVec, int brightness, float r, float g, float b, float a,
 			boolean cartoon) {
+		// switch to vertex format that supports normals
+		Tessellator.instance.draw();
+		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+		tes.startDrawingQuads();
+
+		// some GL commands
+		GL11.glDepthMask(true);
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		RenderHelper.enableStandardItemLighting();
+
 		// render particle
 		tes.setTranslation(f5, f6, f7);
 
 		putCube_WH(tes, par, width, height, rotVec, brightness, r, g, b, a, FBP.cartoonMode);
 
 		tes.setTranslation(0, 0, 0);
+
+		// continue with the regular vertex format
+		Tessellator.instance.draw();
+		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+		tes.startDrawingQuads();
+
+		RenderHelper.disableStandardItemLighting();
 	}
 
 	static void putCube_S(Tessellator tes, FBPVector3d[] par, double scale, FBPVector3d rotVec, int brightness, float r,

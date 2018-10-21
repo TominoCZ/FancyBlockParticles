@@ -148,15 +148,15 @@ public class FBPParticleRain extends ParticleDigging
 						particleHeight = particleScale;
 					}
 
-					if (particleAlpha < 0.625f)
+					if (particleAlpha < 0.65f)
 					{
 						if (FBP.randomFadingSpeed)
 							particleAlpha += 0.085F * endMult;
 						else
 							particleAlpha += 0.085F;
 
-						if (particleAlpha > 0.625f)
-							particleAlpha = 0.625f;
+						if (particleAlpha > 0.65f)
+							particleAlpha = 0.65f;
 					}
 				}
 			} else
@@ -178,7 +178,7 @@ public class FBPParticleRain extends ParticleDigging
 				motionZ = 0;
 
 				if (particleHeight > 0.075f)
-					particleHeight *= 0.8f;
+					particleHeight *= 0.725f;
 
 				if (particleScale < FBP.scaleMult * 4.5f)
 				{
@@ -190,20 +190,17 @@ public class FBPParticleRain extends ParticleDigging
 						scaleMult = 1;
 				}
 
-				if (particleScale >= FBP.scaleMult * 2)
-				{
-					if (FBP.randomFadingSpeed)
-						particleAlpha *= 0.75F * endMult;
-					else
-						particleAlpha *= 0.75F;
-				}
+				if (FBP.randomFadingSpeed)
+					particleAlpha *= 0.75F * endMult;
+				else
+					particleAlpha *= 0.75F;
 
 				if (particleAlpha <= 0.001f)
 					setExpired();
 			}
 		}
 
-		Vec3d rgb = mc.theWorld.getSkyColor(mc.thePlayer, mc.getRenderPartialTicks());
+		Vec3d rgb = mc.theWorld.getSkyColor(mc.thePlayer, 0);
 
 		this.particleRed = (float) rgb.xCoord;
 		this.particleGreen = (float) MathHelper.clamp_double(rgb.yCoord + 0.25, 0.25, 1);
@@ -288,7 +285,7 @@ public class FBPParticleRain extends ParticleDigging
 
 		int i = getBrightnessForRender(partialTicks);
 
-		float alpha = particleAlpha;
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);

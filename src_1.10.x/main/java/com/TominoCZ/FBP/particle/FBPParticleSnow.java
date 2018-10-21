@@ -333,12 +333,8 @@ public class FBPParticleSnow extends ParticleDigging
 
 		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
-		buf.setTranslation(f5, f6, f7);
-
 		FBPRenderUtil.renderCubeShaded_S(buf, par, f5, f6, f7, f4 / 10, smoothRot, i >> 16 & 65535, i & 65535,
 				particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
-
-		buf.setTranslation(0, 0, 0);
 	}
 
 	@Override

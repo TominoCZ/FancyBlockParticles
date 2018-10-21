@@ -101,7 +101,6 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 			break;
 		}
 
-		FBPConfigHandler.check();
 		FBPConfigHandler.write();
 
 		if (init)
@@ -259,7 +258,6 @@ public class FBPGuiMenuPage1 extends GuiScreen {
 
 	@Override
 	public void onGuiClosed() {
-		FBPConfigHandler.check();
 		FBPConfigHandler.write();
 	}
 }

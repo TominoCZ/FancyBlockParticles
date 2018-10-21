@@ -4,7 +4,6 @@ import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.particle.FBPParticleDigging;
 import com.TominoCZ.FBP.particle.FBPParticleManager;
 import com.TominoCZ.FBP.renderer.FBPWeatherRenderer;
-import com.TominoCZ.FBP.util.FBPPartialTicksUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.IRenderHandler;
@@ -29,11 +28,6 @@ public class FBPEventHandler {
 				&& mc.theWorld.provider.getWeatherRenderer() == FBP.fancyWeatherRenderer && FBP.enabled) {
 			((FBPWeatherRenderer) FBP.fancyWeatherRenderer).onUpdate();
 		}
-	}
-
-	@SubscribeEvent
-	public void onRenderTick(TickEvent.RenderTickEvent e) {
-		FBPPartialTicksUtil.partialTicks = e.renderTickTime;
 	}
 
 	@SideOnly(Side.CLIENT)

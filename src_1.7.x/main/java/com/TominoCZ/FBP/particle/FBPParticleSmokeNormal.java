@@ -189,7 +189,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 		GL11.glDepthMask(true);
 		tes.setTranslation(f5, f6, f7);
-		putCube(tes, f4 * 0.05F, 240, particleRed, particleGreen, particleBlue, alpha);
+		putCube(tes, f4 / 10F, 240, particleRed, particleGreen, particleBlue, alpha);
 		tes.setTranslation(0, 0, 0);
 	}
 

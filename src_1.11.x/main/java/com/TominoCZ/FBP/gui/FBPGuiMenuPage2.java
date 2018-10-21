@@ -127,7 +127,6 @@ public class FBPGuiMenuPage2 extends GuiScreen
 			break;
 		}
 
-		FBPConfigHandler.check();
 		FBPConfigHandler.write();
 
 		initGui();

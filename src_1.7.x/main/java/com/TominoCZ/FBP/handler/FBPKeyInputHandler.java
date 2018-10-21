@@ -5,7 +5,7 @@ import org.lwjgl.input.Mouse;
 
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.block.FBPBlockPos;
-import com.TominoCZ.FBP.gui.FBPGuiFastAdd;
+import com.TominoCZ.FBP.gui.FBPGuiBlacklist;
 import com.TominoCZ.FBP.gui.FBPGuiMenuPage0;
 import com.TominoCZ.FBP.keys.FBPKeyBindings;
 
@@ -54,7 +54,7 @@ public class FBPKeyInputHandler {
 				FBP.frozen = false;
 
 		boolean isShiftDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
-		boolean isKeyDown = FBPKeyBindings.FBPFastAdd.getIsKeyPressed();
+		boolean isKeyDown = FBPKeyBindings.FBPQuickAdd.getIsKeyPressed();
 
 		if (isShiftDown && isKeyDown || isKeyDown) {
 			Block b = null;
@@ -67,8 +67,8 @@ public class FBPKeyInputHandler {
 			if (!wasOpened && isKeyDown
 					&& ((mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit.equals(MovingObjectType.BLOCK))
 							|| useHeldBlock)) {
-				GuiScreen screen = useHeldBlock ? new FBPGuiFastAdd(new ItemStack(b))
-						: new FBPGuiFastAdd(new FBPBlockPos(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY,
+				GuiScreen screen = useHeldBlock ? new FBPGuiBlacklist(new ItemStack(b))
+						: new FBPGuiBlacklist(new FBPBlockPos(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY,
 								mc.objectMouseOver.blockZ));
 
 				mc.displayGuiScreen(screen);

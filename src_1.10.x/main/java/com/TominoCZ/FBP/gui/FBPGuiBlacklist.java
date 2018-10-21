@@ -30,9 +30,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 
-public class FBPGuiBlacklist extends GuiScreen {
+public class FBPGuiBlacklist extends GuiScreen
+{
 
-	FBPGuiButtonException animation, particle;
+	FBPGuiButtonBlacklist animation, particle;
 
 	final BlockPos selectedPos;
 	final IBlockState selectedBlock;
@@ -41,7 +42,8 @@ public class FBPGuiBlacklist extends GuiScreen {
 
 	boolean closing = false;
 
-	public FBPGuiBlacklist(BlockPos selected) {
+	public FBPGuiBlacklist(BlockPos selected)
+	{
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = selected;
@@ -54,16 +56,19 @@ public class FBPGuiBlacklist extends GuiScreen {
 
 		TileEntity te = mc.theWorld.getTileEntity(selectedPos);
 
-		try {
+		try
+		{
 			if (te != null)
 				mc.storeTEInStack(is, te);
-		} catch (Throwable t) {
+		} catch (Throwable t)
+		{
 		}
 
 		displayItemStack = is.copy();
 	}
 
-	public FBPGuiBlacklist(ItemStack is) {
+	public FBPGuiBlacklist(ItemStack is)
+	{
 		this.mc = Minecraft.getMinecraft();
 
 		selectedPos = null;
@@ -74,17 +79,19 @@ public class FBPGuiBlacklist extends GuiScreen {
 	}
 
 	@Override
-	public boolean doesGuiPauseGame() {
+	public boolean doesGuiPauseGame()
+	{
 		return false;
 	}
 
 	@Override
-	public void initGui() {
+	public void initGui()
+	{
 		this.buttonList.clear();
 
-		animation = new FBPGuiButtonException(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
+		animation = new FBPGuiButtonBlacklist(0, this.width / 2 - 100 - 30, this.height / 2 - 30 + 35, "", false,
 				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock(), false));
-		particle = new FBPGuiButtonException(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
+		particle = new FBPGuiButtonBlacklist(1, this.width / 2 + 100 - 30, this.height / 2 - 30 + 35, "", true,
 				FBP.INSTANCE.isBlacklisted(selectedBlock.getBlock(), true));
 
 		Item ib = Item.getItemFromBlock(selectedBlock.getBlock());
@@ -104,7 +111,8 @@ public class FBPGuiBlacklist extends GuiScreen {
 	}
 
 	@Override
-	public void updateScreen() {
+	public void updateScreen()
+	{
 		Mouse.setGrabbed(true);
 
 		boolean keyUp = false;
@@ -112,45 +120,55 @@ public class FBPGuiBlacklist extends GuiScreen {
 		if (selectedPos != null && (mc.objectMouseOver == null
 				|| !mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK)
 				|| mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != selectedBlock.getBlock()
-						&& mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != FBP.FBPBlock)) {
+						&& mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() != FBP.FBPBlock))
+		{
 			keyUp = true;
 			FBPKeyInputHandler.INSTANCE.onInput();
 		}
-		try {
+		try
+		{
 			if (!Keyboard.isKeyDown(FBPKeyBindings.FBPFastAdd.getKeyCode())
-					|| (selectedPos == null && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
+					|| (selectedPos == null && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)))
+			{
 				keyUp = true;
 			}
-		} catch (Exception e) {
-			try {
+		} catch (Exception e)
+		{
+			try
+			{
 				if (!Mouse.isButtonDown(FBPKeyBindings.FBPFastAdd.getKeyCode() + 100)
-						|| (selectedPos == null && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
+						|| (selectedPos == null && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)))
+				{
 					keyUp = true;
 				}
-			} catch (Exception e1) {
+			} catch (Exception e1)
+			{
 				closing = true;
 				e.printStackTrace();
 			}
 		}
 
-		if (closing || keyUp) {
+		if (closing || keyUp)
+		{
 			Block b = selectedBlock.getBlock();
 
 			GuiButton selected = animation.isMouseOver() ? animation : (particle.isMouseOver() ? particle : null);
 
-			if (selected != null) {
+			if (selected != null)
+			{
 				boolean isParticle = particle.isMouseOver();
 
-				if (selected.enabled) {
+				if (selected.enabled)
+				{
 					if (!FBP.INSTANCE.isBlacklisted(b, isParticle))
 						FBP.INSTANCE.addToBlacklist(b, isParticle);
 					else
 						FBP.INSTANCE.removeFromBlacklist(b, isParticle);
 
 					if (isParticle)
-						FBPConfigHandler.writeParticleExceptions();
+						FBPConfigHandler.writeParticleBlacklist();
 					else
-						FBPConfigHandler.writeAnimExceptions();
+						FBPConfigHandler.writeAnimBlacklist();
 
 					mc.getSoundHandler()
 							.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
@@ -165,7 +183,8 @@ public class FBPGuiBlacklist extends GuiScreen {
 	}
 
 	@Override
-	public void mouseClicked(int mouseX, int mouseY, int button) {
+	public void mouseClicked(int mouseX, int mouseY, int button)
+	{
 		GuiButton clicked = animation.isMouseOver() ? animation : (particle.isMouseOver() ? particle : null);
 
 		if (clicked != null && clicked.enabled)
@@ -173,7 +192,8 @@ public class FBPGuiBlacklist extends GuiScreen {
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
 		this.drawDefaultBackground();
 
 		// LIMIT MOUSE POS

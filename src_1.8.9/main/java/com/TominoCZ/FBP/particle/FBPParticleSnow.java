@@ -24,7 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedParticle {
+public class FBPParticleSnow extends EntityDiggingFX {
 	private final IBlockState sourceState;
 
 	Minecraft mc;
@@ -243,24 +243,8 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 	}
 
 	@Override
-	public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float partialTicks, float rotationX,
-			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-	}
-
-	@Override
-	public int getBrightnessForRender(float p_189214_1_) {
-		int i = super.getBrightnessForRender(p_189214_1_);
-		int j = 0;
-
-		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
-			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
-		}
-
-		return i == 0 ? j : i;
-	}
-
-	@Override
-	public void renderShadedParticle(WorldRenderer buf, float partialTicks) {
+	public void renderParticle(WorldRenderer buf, Entity entityIn, float partialTicks, float rotationX, float rotationZ,
+			float rotationYZ, float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 
@@ -302,7 +286,7 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 				smoothRot.x = rot.x;
 
 			// SMOOTH ROTATION
-			if (FBP.smoothTransitions && !FBP.frozen) {
+			if (!FBP.frozen) {
 				FBPVector3d vec = rot.partialVec(prevRot, partialTicks);
 
 				if (FBP.randomRotation) {
@@ -321,5 +305,17 @@ public class FBPParticleSnow extends EntityDiggingFX implements IFBPShadedPartic
 
 		FBPRenderUtil.renderCubeShaded_S(buf, par, f5, f6, f7, f4 / 10, smoothRot, i >> 16 & 65535, i & 65535,
 				particleRed, particleGreen, particleBlue, alpha);
+	}
+
+	@Override
+	public int getBrightnessForRender(float p_189214_1_) {
+		int i = super.getBrightnessForRender(p_189214_1_);
+		int j = 0;
+
+		if (this.worldObj.isBlockLoaded(new BlockPos(posX, posY, posZ))) {
+			j = this.worldObj.getCombinedLight(new BlockPos(posX, posY, posZ), 0);
+		}
+
+		return i == 0 ? j : i;
 	}
 }
