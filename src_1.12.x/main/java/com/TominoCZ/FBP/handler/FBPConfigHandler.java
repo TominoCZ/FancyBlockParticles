@@ -13,7 +13,6 @@ import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.util.FBPObfUtil;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.util.math.MathHelper;
 
 public class FBPConfigHandler
 {

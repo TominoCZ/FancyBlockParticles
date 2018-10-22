@@ -185,6 +185,20 @@ public class FBPParticleDigging extends ParticleDigging
 			endMult = MathHelper.clamp(FBP.random.nextDouble(0.5, 0.9), 0.55, 0.8);
 
 		prevGravity = particleGravity;
+
+		multipleParticleScaleBy(1);
+	}
+
+	@Override
+	public Particle multipleParticleScaleBy(float scale)
+	{
+		Particle p = super.multipleParticleScaleBy(scale);
+
+		float f = particleScale / 10;
+
+		this.setBoundingBox(new AxisAlignedBB(posX - f, posY, posZ - f, posX + f, posY + 2 * f, posZ + f));
+
+		return p;
 	}
 
 	public Particle MultiplyVelocity(float multiplier)
@@ -504,11 +518,7 @@ public class FBPParticleDigging extends ParticleDigging
 		this.setBoundingBox(this.getBoundingBox().offset(0.0D, 0.0D, z));
 
 		// RESET
-		AxisAlignedBB axisalignedbb = this.getBoundingBox();
-		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
-		this.posY = axisalignedbb.minY + (FBP.restOnFloor ? particleScale / 10 : 0);
-		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
-
+		resetPositionToBB();
 		this.onGround = y != Y && Y < 0.0D;
 
 		if (!FBP.lowTraction && !FBP.bounceOffWalls)
@@ -568,6 +578,9 @@ public class FBPParticleDigging extends ParticleDigging
 
 			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 		}
+
+		if (FBP.restOnFloor)
+			f6 += f4 / 10;
 
 		FBPVector3d smoothRot = new FBPVector3d(0, 0, 0);
 

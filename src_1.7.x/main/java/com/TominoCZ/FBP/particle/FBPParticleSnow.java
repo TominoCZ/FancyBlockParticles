@@ -10,6 +10,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityDiggingFX;
+import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
@@ -63,6 +64,8 @@ public class FBPParticleSnow extends EntityDiggingFX {
 
 		if (FBP.randomFadingSpeed)
 			endMult *= FBP.random.nextDouble(0.7, 1);
+
+		multipleParticleScaleBy(1);
 	}
 
 	private void createRotationMatrix() {
@@ -78,6 +81,18 @@ public class FBPParticleSnow extends EntityDiggingFX {
 	@Override
 	public void setParticleTextureIndex(int particleTextureIndex) {
 
+	}
+
+	@Override
+	public EntityFX multipleParticleScaleBy(float scale) {
+		EntityFX p = super.multipleParticleScaleBy(scale);
+
+		float f = particleScale / 10;
+
+		this.boundingBox
+				.setBB(AxisAlignedBB.getBoundingBox(posX - f, posY, posZ - f, posX + f, posY + 2 * f, posZ + f));
+
+		return p;
 	}
 
 	@Override
@@ -172,6 +187,7 @@ public class FBPParticleSnow extends EntityDiggingFX {
 		}
 	}
 
+	@Override
 	public void moveEntity(double x, double y, double z) {
 		double X = x;
 		double Y = y;
@@ -200,7 +216,7 @@ public class FBPParticleSnow extends EntityDiggingFX {
 		// RESET
 		AxisAlignedBB axisalignedbb = this.boundingBox;
 		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
-		this.posY = axisalignedbb.minY + (FBP.restOnFloor ? particleScale / 10 : 0);
+		this.posY = axisalignedbb.minY;
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
 		this.isCollided = y != Y && Y < 0.0D;
@@ -242,10 +258,13 @@ public class FBPParticleSnow extends EntityDiggingFX {
 
 		int i = getBrightnessForRender(partialTicks);
 
-		float alpha = particleAlpha;
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
+
+		if (FBP.restOnFloor)
+			f6 += f4 / 10;
 
 		FBPVector3d smoothRot = new FBPVector3d(0, 0, 0);
 
@@ -287,8 +306,8 @@ public class FBPParticleSnow extends EntityDiggingFX {
 		int j = MathHelper.floor_double(this.posZ);
 
 		if (this.worldObj.blockExists(i, 0, j)) {
-			double d0 = (this.boundingBox.maxY - this.boundingBox.minY) * 0.66D + 0.1D;
-			int k = MathHelper.floor_double(this.posY - (double) this.yOffset + d0);
+			double d0 = (this.boundingBox.maxY - this.boundingBox.minY) * 0.66D;
+			int k = MathHelper.floor_double(this.posY + d0);
 			return this.worldObj.getLightBrightnessForSkyBlocks(i, k, j, 0);
 		} else {
 			return 0;

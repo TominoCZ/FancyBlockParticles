@@ -1,5 +1,7 @@
 package com.TominoCZ.FBP.particle;
 
+import java.util.List;
+
 import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
@@ -7,6 +9,7 @@ import com.TominoCZ.FBP.util.FBPRenderUtil;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFlame;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -15,6 +18,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -45,8 +49,8 @@ public class FBPParticleFlame extends ParticleFlame
 	protected FBPParticleFlame(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double mX, double mY,
 			double mZ, boolean spawnAnother)
 	{
-		super(worldIn, xCoordIn, yCoordIn - 0.11f, zCoordIn, mX, mY, mZ);
-		IBlockState bs = worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
+		super(worldIn, xCoordIn, yCoordIn - 0.06, zCoordIn, mX, mY, mZ);
+		IBlockState bs = worldIn.getBlockState(new BlockPos(posX, posY, posZ));
 
 		this.spawnAnother = spawnAnother;
 
@@ -54,9 +58,9 @@ public class FBPParticleFlame extends ParticleFlame
 			spawnAnother = false;
 
 		if (bs == Blocks.TORCH.getDefaultState())
-			yCoordIn += 0.11f;
+			prevPosY = posY = posY + 0.04f;
 
-		startPos = new Vec3d(xCoordIn, yCoordIn, zCoordIn);
+		startPos = new Vec3d(posX, posY, posZ);
 
 		mc = Minecraft.getMinecraft();
 
@@ -73,8 +77,6 @@ public class FBPParticleFlame extends ParticleFlame
 		this.particleGreen = 1f;
 		this.particleBlue = 0f;
 
-		scaleAlpha = particleScale * 0.35;
-
 		AngleY = rand.nextFloat() * 80;
 
 		cube = new Vec3d[FBP.CUBE.length];
@@ -86,10 +88,26 @@ public class FBPParticleFlame extends ParticleFlame
 		}
 
 		particleAlpha = 1f;
-		startScale = particleScale;
 
 		if (FBP.randomFadingSpeed)
 			endMult *= FBP.random.nextDouble(0.9875, 1);
+
+		multipleParticleScaleBy(1);
+	}
+
+	@Override
+	public Particle multipleParticleScaleBy(float scale)
+	{
+		Particle p = super.multipleParticleScaleBy(scale);
+
+		startScale = particleScale;
+		scaleAlpha = particleScale * 0.35;
+
+		float f = particleScale / 80;
+
+		this.setBoundingBox(new AxisAlignedBB(posX - f, posY - f, posZ - f, posX + f, posY + f, posZ + f));
+
+		return p;
 	}
 
 	@Override
@@ -117,8 +135,6 @@ public class FBPParticleFlame extends ParticleFlame
 
 			if (this.particleAge >= this.particleMaxAge)
 			{
-				this.particleGreen = (float) (particleScale / startScale);
-
 				if (FBP.randomFadingSpeed)
 					particleScale *= 0.95F * endMult;
 				else
@@ -139,8 +155,8 @@ public class FBPParticleFlame extends ParticleFlame
 				{
 					spawnAnother = false;
 
-					mc.effectRenderer.addEffect(new FBPParticleFlame(world, startPos.x, startPos.y - 0.065f, startPos.z,
-							0, 0, 0, spawnAnother));
+					mc.effectRenderer.addEffect(
+							new FBPParticleFlame(world, startPos.x, startPos.y, startPos.z, 0, 0, 0, spawnAnother));
 				}
 			}
 
@@ -148,6 +164,50 @@ public class FBPParticleFlame extends ParticleFlame
 			move(0, motionY, 0);
 			motionY *= 0.95D;
 		}
+	}
+
+	@Override
+	public void move(double x, double y, double z)
+	{
+		double X = x;
+		double Y = y;
+		double Z = z;
+
+		List<AxisAlignedBB> list = this.world.getCollisionBoxes((Entity) null, this.getBoundingBox().expand(x, y, z));
+
+		for (AxisAlignedBB axisalignedbb : list)
+		{
+			y = axisalignedbb.calculateYOffset(this.getBoundingBox(), y);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(0.0D, y, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list)
+		{
+			x = axisalignedbb.calculateXOffset(this.getBoundingBox(), x);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(x, 0.0D, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list)
+		{
+			z = axisalignedbb.calculateZOffset(this.getBoundingBox(), z);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(0.0D, 0.0D, z));
+
+		// RESET
+		resetPositionToBB();
+		this.onGround = y != Y;
+	}
+
+	@Override
+	protected void resetPositionToBB()
+	{
+		AxisAlignedBB axisalignedbb = this.getBoundingBox();
+		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
+		this.posY = (axisalignedbb.minY + axisalignedbb.maxY) / 2.0D;
+		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 	}
 
 	@Override
@@ -161,15 +221,18 @@ public class FBPParticleFlame extends ParticleFlame
 		float f1 = particleTexture.getInterpolatedV((0.1f + 1) / 4 * 16);
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
 		int i = getBrightnessForRender(partialTicks);
 
-		float alpha = particleAlpha;
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
+
+		if (this.particleAge >= this.particleMaxAge)
+			this.particleGreen = (float) (f4 / startScale);
 
 		GlStateManager.enableCull();
 
@@ -211,7 +274,7 @@ public class FBPParticleFlame extends ParticleFlame
 			G = g * brightnessForRender;
 			B = b * brightnessForRender;
 
-			brightnessForRender *= 0.95;// TODO
+			brightnessForRender *= 0.95;
 
 			addVt(worldRendererIn, scale, v1, par.x, par.y, j, k, R, G, B, a);
 			addVt(worldRendererIn, scale, v2, par.x, par.y, j, k, R, G, B, a);

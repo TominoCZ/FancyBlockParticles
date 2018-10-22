@@ -79,6 +79,8 @@ public class FBPParticleSnow extends ParticleDigging
 
 		if (FBP.randomFadingSpeed)
 			endMult *= FBP.random.nextDouble(0.7, 1);
+
+		multipleParticleScaleBy(1);
 	}
 
 	private void createRotationMatrix()
@@ -96,6 +98,18 @@ public class FBPParticleSnow extends ParticleDigging
 	public void setParticleTextureIndex(int particleTextureIndex)
 	{
 
+	}
+
+	@Override
+	public Particle multipleParticleScaleBy(float scale)
+	{
+		Particle p = super.multipleParticleScaleBy(scale);
+
+		float f = particleScale / 10;
+
+		this.setBoundingBox(new AxisAlignedBB(posX - f, posY, posZ - f, posX + f, posY + 2 * f, posZ + f));
+
+		return p;
 	}
 
 	public Particle MultiplyVelocity(float multiplier)
@@ -246,22 +260,17 @@ public class FBPParticleSnow extends ParticleDigging
 
 		this.setBoundingBox(this.getBoundingBox().offset(0.0D, 0.0D, z));
 
+		// RESET
 		resetPositionToBB();
 		this.onGround = y != Y && Y < 0.0D;
 
-		if (x != X)
-			motionX *= 0.699999988079071D;
-		if (z != Z)
-			motionZ *= 0.699999988079071D;
-	}
-
-	@Override
-	protected void resetPositionToBB()
-	{
-		AxisAlignedBB axisalignedbb = this.getBoundingBox();
-		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
-		this.posY = axisalignedbb.minY + (FBP.restOnFloor ? particleScale / 10 : 0);
-		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
+		if (!FBP.lowTraction && !FBP.bounceOffWalls)
+		{
+			if (x != X)
+				motionX *= 0.699999988079071D;
+			if (z != Z)
+				motionZ *= 0.699999988079071D;
+		}
 	}
 
 	@Override
@@ -297,10 +306,13 @@ public class FBPParticleSnow extends ParticleDigging
 
 		int i = getBrightnessForRender(partialTicks);
 
-		float alpha = particleAlpha;
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
+
+		if (FBP.restOnFloor)
+			f6 += f4 / 10;
 
 		FBPVector3d smoothRot = new FBPVector3d(0, 0, 0);
 

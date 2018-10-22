@@ -30,6 +30,8 @@ public class FBPParticleRain extends EntityDiggingFX {
 
 	double scaleMult = 1.45;
 
+	double scalar = FBP.scaleMult;
+	
 	double endMult = 1;
 
 	double AngleY;
@@ -80,17 +82,21 @@ public class FBPParticleRain extends EntityDiggingFX {
 		prevParticleScale = particleScale;
 		prevParticleHeight = particleHeight;
 
-		if (!mc.isGamePaused()) {
+		if (!mc.isGamePaused())
+		{
 			particleAge++;
 
 			if (posY < mc.thePlayer.posY - (mc.gameSettings.renderDistanceChunks * 9))
 				setDead();
 
-			if (this.particleAge < this.particleMaxAge) {
-				if (!isCollided) {
-					double max = FBP.scaleMult * 0.5;
+			if (this.particleAge < this.particleMaxAge)
+			{
+				if (!onGround)
+				{
+					double max = scalar * 0.5;
 
-					if (particleScale < max) {
+					if (particleScale < max)
+					{
 						if (FBP.randomFadingSpeed)
 							particleScale += 0.05F * endMult;
 						else
@@ -102,7 +108,8 @@ public class FBPParticleRain extends EntityDiggingFX {
 						particleHeight = particleScale;
 					}
 
-					if (particleAlpha < 0.65f) {
+					if (particleAlpha < 0.65f)
+					{
 						if (FBP.randomFadingSpeed)
 							particleAlpha += 0.085F * endMult;
 						else
@@ -115,8 +122,7 @@ public class FBPParticleRain extends EntityDiggingFX {
 			} else
 				setDead();
 
-			if (worldObj.getBlock(MathHelper.floor_double(posX), MathHelper.floor_double(posY),
-					MathHelper.floor_double(posZ)).getMaterial().isLiquid())
+			if (worldObj.getBlock(MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ)).getMaterial().isLiquid())
 				setDead();
 
 			motionY -= 0.04D * this.particleGravity;
@@ -125,7 +131,8 @@ public class FBPParticleRain extends EntityDiggingFX {
 
 			motionY *= 1.00025000190734863D;
 
-			if (isCollided) {
+			if (onGround)
+			{
 				motionX = 0;
 				motionY = -0.25f;
 				motionZ = 0;
@@ -133,22 +140,26 @@ public class FBPParticleRain extends EntityDiggingFX {
 				if (particleHeight > 0.075f)
 					particleHeight *= 0.725f;
 
-				if (particleScale < FBP.scaleMult * 4.5f) {
-					particleScale *= scaleMult;
+				float max = (float) scalar * 4.25f;
 
-					if (scaleMult > 1)
-						scaleMult *= 0.95;
-					if (scaleMult < 1)
-						scaleMult = 1;
+				if (particleScale < max)
+				{
+					particleScale += max / 10;
+					
+					if (particleScale > max)
+						particleScale = max;
 				}
 
-				if (FBP.randomFadingSpeed)
-					particleAlpha *= 0.75F * endMult;
-				else
-					particleAlpha *= 0.75F;
+				if (particleScale >= max / 2)
+				{
+					if (FBP.randomFadingSpeed)
+						particleAlpha *= 0.75F * endMult;
+					else
+						particleAlpha *= 0.75F;
 
-				if (particleAlpha <= 0.001f)
-					setDead();
+					if (particleAlpha <= 0.001f)
+						setDead();
+				}
 			}
 		}
 
@@ -164,6 +175,7 @@ public class FBPParticleRain extends EntityDiggingFX {
 			particleBlue = 1;
 	}
 
+	@Override
 	public void moveEntity(double x, double y, double z) {
 		double X = x;
 		double Y = y;
@@ -195,7 +207,7 @@ public class FBPParticleRain extends EntityDiggingFX {
 		this.posY = axisalignedbb.minY;
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
-		this.isCollided = y != Y && Y < 0.0D;
+		this.onGround = y != Y && Y < 0.0D;
 
 		if (x != X)
 			motionX *= 0.699999988079071D;
@@ -229,7 +241,7 @@ public class FBPParticleRain extends EntityDiggingFX {
 		}
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
 		int i = getBrightnessForRender(partialTicks);
@@ -244,8 +256,8 @@ public class FBPParticleRain extends EntityDiggingFX {
 		par = new FBPVector3d[] { new FBPVector3d(f1, f3, 0), new FBPVector3d(f1, f2, 0), new FBPVector3d(f, f2, 0),
 				new FBPVector3d(f, f3, 0) };
 
-		FBPRenderUtil.renderCubeShaded_WH(tes, par, f5, f6, f7, f4 / 10, height / 10, new FBPVector3d(0, AngleY, 0), i,
-				particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
+		FBPRenderUtil.renderCubeShaded_WH(tes, par, f5, f6 + height / 10, f7, f4 / 10, height / 10,
+				new FBPVector3d(0, AngleY, 0), i, particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
 	}
 
 	@Override

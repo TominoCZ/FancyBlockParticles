@@ -25,7 +25,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class FBPParticleFlame extends EntityFlameFX {
+public class FBPParticleFlameBKP extends EntityFlameFX {
 	Minecraft mc;
 
 	double startScale;
@@ -46,9 +46,9 @@ public class FBPParticleFlame extends EntityFlameFX {
 
 	boolean spawnAnother = true;
 
-	protected FBPParticleFlame(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double mX, double mY,
-			double mZ, boolean spawnAnother) {
-		super(worldIn, xCoordIn, yCoordIn - 0.06, zCoordIn, mX, mY, mZ);
+	protected FBPParticleFlameBKP(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double mX,
+			double mY, double mZ, boolean spawnAnother) {
+		super(worldIn, xCoordIn, yCoordIn - 0.075, zCoordIn, mX, mY, mZ);
 		IBlockState bs = worldIn.getBlockState(new BlockPos(posX, posY, posZ));
 
 		this.spawnAnother = spawnAnother;
@@ -190,7 +190,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 		this.posY = (axisalignedbb.minY + axisalignedbb.maxY) / 2.0D;
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
-		this.isCollided = y != Y;
+		this.onGround = y != Y;
 	}
 
 	@Override

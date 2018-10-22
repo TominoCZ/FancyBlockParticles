@@ -15,6 +15,7 @@ import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityDiggingFX;
+import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -107,11 +108,50 @@ public class FBPParticleDigging extends EntityDiggingFX {
 			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.5, 0.9), 0.55, 0.8);
 
 		prevGravity = particleGravity;
+
+		multipleParticleScaleBy(1);
 	}
 
 	protected FBPParticleDigging(World w, double x, double y, double z, double mx, double my, double mz, float scale,
 			float r, float g, float b, Block bl, int meta) {
 		this(w, x, y, z, mx, my, mz, r, g, b, scale, bl, meta, -1);
+	}
+
+	@Override
+	public EntityFX multipleParticleScaleBy(float scale) {
+		EntityFX p = super.multipleParticleScaleBy(scale);
+
+		float f = particleScale / 10;
+
+		this.boundingBox
+				.setBB(AxisAlignedBB.getBoundingBox(posX - f, posY, posZ - f, posX + f, posY + 2 * f, posZ + f));
+
+		return p;
+	}
+
+	@Override
+	public FBPParticleDigging applyColourMultiplier(int p_70596_1_, int p_70596_2_, int p_70596_3_) {
+		if (this.sourceBlock == Blocks.grass && this.blockSide != 1) {
+			return this;
+		} else {
+			int l = this.sourceBlock.colorMultiplier(this.worldObj, p_70596_1_, p_70596_2_, p_70596_3_);
+
+			if (this.sourceBlock == Blocks.tallgrass)
+				l = -7226023;
+
+			this.particleRed *= (float) (l >> 16 & 255) / 255.0F;
+			this.particleGreen *= (float) (l >> 8 & 255) / 255.0F;
+			this.particleBlue *= (float) (l & 255) / 255.0F;
+			return this;
+		}
+	}
+
+	@Override
+	public FBPParticleDigging multiplyVelocity(float p_70543_1_) {
+		this.motionX *= (double) p_70543_1_;
+		this.motionY = (this.motionY - 0.10000000149011612D) * (double) p_70543_1_ + 0.10000000149011612D;
+		this.motionZ *= (double) p_70543_1_;
+		return this;
 	}
 
 	@Override
@@ -230,7 +270,7 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 				// PHYSICS
 				if (FBP.entityCollision) {
-					List<Entity> list = worldObj.getEntitiesWithinAABB(Entity.class, this.getBoundingBox());
+					List<Entity> list = worldObj.getEntitiesWithinAABB(Entity.class, this.boundingBox);
 
 					for (Entity entityIn : list) {
 						if (!entityIn.noClip) {
@@ -409,7 +449,7 @@ public class FBPParticleDigging extends EntityDiggingFX {
 		// RESET
 		AxisAlignedBB axisalignedbb = this.boundingBox;
 		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
-		this.posY = axisalignedbb.minY + (FBP.restOnFloor ? particleScale / 10 : 0);
+		this.posY = axisalignedbb.minY;
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
 		this.isCollided = y != Y && Y < 0.0D;
@@ -467,6 +507,9 @@ public class FBPParticleDigging extends EntityDiggingFX {
 			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 		}
 
+		if (FBP.restOnFloor)
+			f6 += f4 / 10;
+
 		FBPVector3d smoothRot = new FBPVector3d();
 
 		if (FBP.rotationMult > 0) {
@@ -507,38 +550,6 @@ public class FBPParticleDigging extends EntityDiggingFX {
 		} else {
 			return 0;
 		}
-	}
-
-	@Override
-	public FBPParticleDigging applyColourMultiplier(int p_70596_1_, int p_70596_2_, int p_70596_3_) {
-		if (this.sourceBlock == Blocks.grass && this.blockSide != 1) {
-			return this;
-		} else {
-			int l = this.sourceBlock.colorMultiplier(this.worldObj, p_70596_1_, p_70596_2_, p_70596_3_);
-
-			if (this.sourceBlock == Blocks.tallgrass)
-				l = -7226023;
-
-			this.particleRed *= (float) (l >> 16 & 255) / 255.0F;
-			this.particleGreen *= (float) (l >> 8 & 255) / 255.0F;
-			this.particleBlue *= (float) (l & 255) / 255.0F;
-			return this;
-		}
-	}
-
-	@Override
-	public FBPParticleDigging multiplyVelocity(float p_70543_1_) {
-		this.motionX *= (double) p_70543_1_;
-		this.motionY = (this.motionY - 0.10000000149011612D) * (double) p_70543_1_ + 0.10000000149011612D;
-		this.motionZ *= (double) p_70543_1_;
-		return this;
-	}
-
-	@Override
-	public FBPParticleDigging multipleParticleScaleBy(float p_70541_1_) {
-		this.setSize(0.2F * p_70541_1_, 0.2F * p_70541_1_);
-		this.particleScale *= p_70541_1_;
-		return this;
 	}
 
 	private void createRotationMatrix() {

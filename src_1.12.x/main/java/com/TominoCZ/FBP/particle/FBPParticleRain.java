@@ -38,12 +38,14 @@ public class FBPParticleRain extends ParticleDigging
 
 	double scaleMult = 1.45;
 
+	double scalar = FBP.scaleMult;
+	
 	double endMult = 1;
 
 	double AngleY;
 
 	float brightness = 1;
-
+	
 	Vec2f[] par;
 
 	public FBPParticleRain(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
@@ -133,7 +135,7 @@ public class FBPParticleRain extends ParticleDigging
 			{
 				if (!onGround)
 				{
-					double max = FBP.scaleMult * 0.5;
+					double max = scalar * 0.5;
 
 					if (particleScale < max)
 					{
@@ -180,23 +182,26 @@ public class FBPParticleRain extends ParticleDigging
 				if (particleHeight > 0.075f)
 					particleHeight *= 0.725f;
 
-				if (particleScale < FBP.scaleMult * 4.5f)
-				{
-					particleScale *= scaleMult;
+				float max = (float) scalar * 4.25f;
 
-					if (scaleMult > 1)
-						scaleMult *= 0.95;
-					if (scaleMult < 1)
-						scaleMult = 1;
+				if (particleScale < max)
+				{
+					particleScale += max / 10;
+					
+					if (particleScale > max)
+						particleScale = max;
 				}
 
-				if (FBP.randomFadingSpeed)
-					particleAlpha *= 0.75F * endMult;
-				else
-					particleAlpha *= 0.75F;
+				if (particleScale >= max / 2)
+				{
+					if (FBP.randomFadingSpeed)
+						particleAlpha *= 0.75F * endMult;
+					else
+						particleAlpha *= 0.75F;
 
-				if (particleAlpha <= 0.001f)
-					setExpired();
+					if (particleAlpha <= 0.001f)
+						setExpired();
+				}
 			}
 		}
 
@@ -211,7 +216,8 @@ public class FBPParticleRain extends ParticleDigging
 		if (this.particleBlue > 1)
 			particleBlue = 1;
 	}
-
+                              
+	@Override
 	public void moveEntity(double x, double y, double z)
 	{
 		double X = x;
@@ -279,7 +285,7 @@ public class FBPParticleRain extends ParticleDigging
 		}
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
 		int i = getBrightnessForRender(partialTicks);
@@ -293,8 +299,9 @@ public class FBPParticleRain extends ParticleDigging
 		// RENDER
 		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
-		FBPRenderUtil.renderCubeShaded_WH(buf, par, f5, f6, f7, f4 / 10, height / 10, new FBPVector3d(0, AngleY, 0),
-				i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue, alpha, FBP.cartoonMode);
+		FBPRenderUtil.renderCubeShaded_WH(buf, par, f5, f6 + height / 10, f7, f4 / 10, height / 10,
+				new FBPVector3d(0, AngleY, 0), i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue,
+				alpha, FBP.cartoonMode);
 	}
 
 	@Override

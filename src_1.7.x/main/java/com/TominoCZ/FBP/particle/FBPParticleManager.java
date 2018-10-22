@@ -144,8 +144,7 @@ public class FBPParticleManager extends EffectRenderer {
 					t.printStackTrace();
 				}
 			} else if (FBP.fancyRain && toAdd instanceof EntityRainFX) {
-				effect.setDead();
-				return;
+				effect.setAlphaF(0);
 			} else if (toAdd instanceof EntityDiggingFX && !(toAdd instanceof FBPParticleDigging)) {
 				try {
 					Block b = (Block) getSourceBlock.invokeExact((EntityDiggingFX) effect);
@@ -285,7 +284,7 @@ public class FBPParticleManager extends EffectRenderer {
 			if (side == 0) {
 				d1 = (double) y + block.getBlockBoundsMinY() - (double) f;
 			} else if (side == 1) {
-				d1 = (double) y + block.getBlockBoundsMaxY() + 2 * f;
+				d1 = (double) y + block.getBlockBoundsMaxY() + (double) f;
 			} else if (side == 2) {
 				d2 = (double) z + block.getBlockBoundsMinZ() - (double) f;
 			} else if (side == 3) {

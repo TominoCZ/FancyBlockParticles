@@ -1,5 +1,7 @@
 package com.TominoCZ.FBP.particle;
 
+import java.util.List;
+
 import org.lwjgl.opengl.GL11;
 
 import com.TominoCZ.FBP.FBP;
@@ -9,9 +11,11 @@ import com.TominoCZ.FBP.vector.FBPVector3d;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.particle.EntitySmokeFX;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -106,6 +110,20 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 		if (FBP.randomFadingSpeed)
 			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.425, 1.15), 0.5432, 1);
+
+		multipleParticleScaleBy(1);
+	}
+
+	@Override
+	public EntityFX multipleParticleScaleBy(float scale) {
+		EntityFX p = super.multipleParticleScaleBy(scale);
+
+		float f = particleScale / 20;
+
+		this.boundingBox
+				.setBB(AxisAlignedBB.getBoundingBox(posX - f, posY - f, posZ - f, posX + f, posY + f, posZ + f));
+
+		return p;
 	}
 
 	@Override
@@ -161,9 +179,43 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		this.motionZ *= 0.9599999785423279D;
 
 		if (this.isCollided) {
-			this.motionX *= 0.699999988079071D;
-			this.motionZ *= 0.699999988079071D;
+			this.motionX *= 0.799999988079071D;
+			this.motionZ *= 0.799999988079071D;
 		}
+	}
+
+	public void moveEntity(double x, double y, double z) {
+		double X = x;
+		double Y = y;
+		double Z = z;
+
+		List list = this.worldObj.getCollidingBoundingBoxes(this, this.boundingBox.addCoord(x, y, z));
+
+		for (int i = 0; i < list.size(); ++i) {
+			y = ((AxisAlignedBB) list.get(i)).calculateYOffset(this.boundingBox, y);
+		}
+
+		this.boundingBox.offset(0.0D, y, 0.0D);
+
+		for (int j = 0; j < list.size(); ++j) {
+			x = ((AxisAlignedBB) list.get(j)).calculateXOffset(this.boundingBox, x);
+		}
+
+		this.boundingBox.offset(x, 0.0D, 0.0D);
+
+		for (int j = 0; j < list.size(); ++j) {
+			z = ((AxisAlignedBB) list.get(j)).calculateZOffset(this.boundingBox, z);
+		}
+
+		this.boundingBox.offset(0.0D, 0.0D, z);
+
+		// RESET
+		AxisAlignedBB axisalignedbb = this.boundingBox;
+		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
+		this.posY = (axisalignedbb.minY + axisalignedbb.maxY) / 2.0D;
+		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
+
+		this.isCollided = y != Y;
 	}
 
 	@Override
@@ -176,10 +228,10 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		float f1 = particleIcon.getInterpolatedV((0.1f + 1) / 4 * 16);
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
-		float alpha = particleAlpha;
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
@@ -189,7 +241,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 		GL11.glDepthMask(true);
 		tes.setTranslation(f5, f6, f7);
-		putCube(tes, f4 / 10F, 240, particleRed, particleGreen, particleBlue, alpha);
+		putCube(tes, f4 / 20, 240, particleRed, particleGreen, particleBlue, alpha);
 		tes.setTranslation(0, 0, 0);
 	}
 

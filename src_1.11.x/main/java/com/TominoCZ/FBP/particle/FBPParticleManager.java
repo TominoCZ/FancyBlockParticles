@@ -179,8 +179,7 @@ public class FBPParticleManager extends ParticleManager
 				}
 			} else if (FBP.fancyRain && toAdd instanceof ParticleRain)
 			{
-				effect.setExpired();
-				return;
+				effect.setAlphaF(0);
 			} else if (toAdd instanceof ParticleDigging && !(toAdd instanceof FBPParticleDigging))
 			{
 				try

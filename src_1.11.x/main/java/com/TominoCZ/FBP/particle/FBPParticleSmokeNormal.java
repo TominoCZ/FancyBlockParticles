@@ -1,14 +1,19 @@
 package com.TominoCZ.FBP.particle;
 
+import java.util.List;
+
 import com.TominoCZ.FBP.FBP;
 import com.TominoCZ.FBP.util.FBPRenderUtil;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleSmokeNormal;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
@@ -52,7 +57,9 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 
 		scaleAlpha = particleScale * 0.85;
 
-		if (worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn)).getBlock() == Blocks.FIRE)
+		Block block = worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn)).getBlock();
+
+		if (block == Blocks.FIRE)
 		{
 			this.particleScale *= 0.65f;
 			this.particleGravity *= 0.25f;
@@ -66,7 +73,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 			scaleAlpha = particleScale * 0.5;
 
 			particleMaxAge = FBP.random.nextInt(7, 18);
-		} else if (worldIn.getBlockState(new BlockPos(xCoordIn, yCoordIn, zCoordIn)).getBlock() == Blocks.TORCH)
+		} else if (block == Blocks.TORCH)
 		{
 			particleScale *= 0.45f;
 
@@ -109,6 +116,20 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 
 		if (FBP.randomFadingSpeed)
 			endMult = MathHelper.clamp(FBP.random.nextDouble(0.425, 1.15), 0.5432, 1);
+
+		multipleParticleScaleBy(1);
+	}
+
+	@Override
+	public Particle multipleParticleScaleBy(float scale)
+	{
+		Particle p = super.multipleParticleScaleBy(scale);
+
+		float f = particleScale / 20;
+
+		this.setBoundingBox(new AxisAlignedBB(posX - f, posY - f, posZ - f, posX + f, posY + f, posZ + f));
+
+		return p;
 	}
 
 	@Override
@@ -166,9 +187,53 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 
 		if (this.onGround)
 		{
-			this.motionX *= 0.699999988079071D;
-			this.motionZ *= 0.699999988079071D;
+			this.motionX *= 0.799999988079071D;
+			this.motionZ *= 0.799999988079071D;
 		}
+	}
+
+	@Override
+	public void move(double x, double y, double z)
+	{
+		double X = x;
+		double Y = y;
+		double Z = z;
+
+		List<AxisAlignedBB> list = this.world.getCollisionBoxes((Entity) null, this.getBoundingBox().expand(x, y, z));
+
+		for (AxisAlignedBB axisalignedbb : list)
+		{
+			y = axisalignedbb.calculateYOffset(this.getBoundingBox(), y);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(0.0D, y, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list)
+		{
+			x = axisalignedbb.calculateXOffset(this.getBoundingBox(), x);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(x, 0.0D, 0.0D));
+
+		for (AxisAlignedBB axisalignedbb : list)
+		{
+			z = axisalignedbb.calculateZOffset(this.getBoundingBox(), z);
+		}
+
+		this.setBoundingBox(this.getBoundingBox().offset(0.0D, 0.0D, z));
+
+		// RESET
+		resetPositionToBB();
+		this.onGround = y != Y;
+	}
+
+	@Override
+	protected void resetPositionToBB()
+	{
+		AxisAlignedBB axisalignedbb = this.getBoundingBox();
+		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
+		this.posY = (axisalignedbb.minY + axisalignedbb.maxY) / 2.0D;
+		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 	}
 
 	@Override
@@ -182,12 +247,12 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 		float f1 = particleTexture.getInterpolatedV((0.1f + 1) / 4 * 16);
 
 		float f5 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
-		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY) + 0.01275F;
+		float f6 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
 		float f7 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
 
 		int i = getBrightnessForRender(partialTicks);
 
-		float alpha = particleAlpha;
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
@@ -196,8 +261,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 		par = new Vec2f(f, f1);
 
 		worldRendererIn.setTranslation(f5, f6, f7);
-		putCube(worldRendererIn, f4 * 0.05F, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue,
-				alpha);
+		putCube(worldRendererIn, f4 / 20, i >> 16 & 65535, i & 65535, particleRed, particleGreen, particleBlue, alpha);
 		worldRendererIn.setTranslation(0, 0, 0);
 	}
 

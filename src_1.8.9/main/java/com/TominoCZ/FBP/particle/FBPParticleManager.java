@@ -159,8 +159,7 @@ public class FBPParticleManager extends EffectRenderer {
 					t.printStackTrace();
 				}
 			} else if (FBP.fancyRain && toAdd instanceof EntityRainFX) {
-				effect.setDead();
-				return;
+				efx.setAlphaF(0);
 			} else if (toAdd instanceof EntityDiggingFX && !(toAdd instanceof FBPParticleDigging)) {
 				try {
 					blockState = (IBlockState) getSourceState.invokeExact((EntityDiggingFX) effect);

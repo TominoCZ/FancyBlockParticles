@@ -40,8 +40,6 @@ public class FBPParticleSnow extends EntityDiggingFX {
 
 	double endMult = 1;
 
-	float brightness = 1;
-
 	Vector2f[] par;
 
 	public FBPParticleSnow(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
@@ -82,6 +80,8 @@ public class FBPParticleSnow extends EntityDiggingFX {
 			endMult *= FBP.random.nextDouble(0.7, 1);
 
 		this.particleIcon = mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture(state);
+
+		multipleParticleScaleBy(1);
 	}
 
 	private void createRotationMatrix() {
@@ -97,6 +97,17 @@ public class FBPParticleSnow extends EntityDiggingFX {
 	@Override
 	public void setParticleIcon(TextureAtlasSprite s) {
 
+	}
+
+	@Override
+	public EntityFX multipleParticleScaleBy(float scale) {
+		EntityFX p = super.multipleParticleScaleBy(scale);
+
+		float f = particleScale / 10;
+
+		this.setEntityBoundingBox(new AxisAlignedBB(posX - f, posY, posZ - f, posX + f, posY + 2 * f, posZ + f));
+
+		return p;
 	}
 
 	public EntityFX MultiplyVelocity(float multiplier) {
@@ -225,7 +236,7 @@ public class FBPParticleSnow extends EntityDiggingFX {
 		// RESET
 		AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
 		this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
-		this.posY = axisalignedbb.minY + (FBP.restOnFloor ? particleScale / 10 : 0);
+		this.posY = axisalignedbb.minY;
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
 		this.onGround = y != Y && Y < 0.0D;
@@ -234,12 +245,6 @@ public class FBPParticleSnow extends EntityDiggingFX {
 			motionX *= 0.699999988079071D;
 		if (z != Z)
 			motionZ *= 0.699999988079071D;
-	}
-
-	private void resetPositionToBB() {
-		this.posX = (this.getEntityBoundingBox().minX + this.getEntityBoundingBox().maxX) / 2.0D;
-		this.posY = this.getEntityBoundingBox().minY;
-		this.posZ = (this.getEntityBoundingBox().minZ + this.getEntityBoundingBox().maxZ) / 2.0D;
 	}
 
 	@Override
@@ -271,10 +276,13 @@ public class FBPParticleSnow extends EntityDiggingFX {
 
 		int i = getBrightnessForRender(partialTicks);
 
-		float alpha = particleAlpha;
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		// SMOOTH TRANSITION
 		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
+
+		if (FBP.restOnFloor)
+			f6 += f4 / 10;
 
 		FBPVector3d smoothRot = new FBPVector3d(0, 0, 0);
 
