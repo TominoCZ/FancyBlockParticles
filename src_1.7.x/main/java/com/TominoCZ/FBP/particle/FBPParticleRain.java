@@ -22,25 +22,11 @@ public class FBPParticleRain extends EntityDiggingFX {
 
 	Minecraft mc;
 
-	double particleHeight;
-
-	double prevParticleScale, prevParticleHeight, prevParticleAlpha;
-
-	boolean modeDebounce = false;
-
-	double scaleMult = 1.45;
-
+	double AngleY, particleHeight, prevParticleScale, prevParticleHeight, prevParticleAlpha;
 	double scalar = FBP.scaleMult;
-	
 	double endMult = 1;
 
-	double AngleY;
-
-	float brightness = 1;
-
 	FBPVector3d[] par;
-
-	float partialTicks;
 
 	public FBPParticleRain(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
 			double ySpeedIn, double zSpeedIn) {
@@ -56,7 +42,7 @@ public class FBPParticleRain extends EntityDiggingFX {
 
 		mc = Minecraft.getMinecraft();
 
-		particleMaxAge = (int) FBP.random.nextDouble(95, 115);
+		particleMaxAge = (int) FBP.random.nextDouble(50, 70);
 
 		this.particleAlpha = 0f;
 		this.particleScale = 0f;
@@ -82,21 +68,17 @@ public class FBPParticleRain extends EntityDiggingFX {
 		prevParticleScale = particleScale;
 		prevParticleHeight = particleHeight;
 
-		if (!mc.isGamePaused())
-		{
+		if (!mc.isGamePaused()) {
 			particleAge++;
 
 			if (posY < mc.thePlayer.posY - (mc.gameSettings.renderDistanceChunks * 9))
 				setDead();
 
-			if (this.particleAge < this.particleMaxAge)
-			{
-				if (!onGround)
-				{
+			if (!onGround) {
+				if (this.particleAge < this.particleMaxAge) {
 					double max = scalar * 0.5;
 
-					if (particleScale < max)
-					{
+					if (particleScale < max) {
 						if (FBP.randomFadingSpeed)
 							particleScale += 0.05F * endMult;
 						else
@@ -108,8 +90,7 @@ public class FBPParticleRain extends EntityDiggingFX {
 						particleHeight = particleScale;
 					}
 
-					if (particleAlpha < 0.65f)
-					{
+					if (particleAlpha < 0.65f) {
 						if (FBP.randomFadingSpeed)
 							particleAlpha += 0.085F * endMult;
 						else
@@ -118,11 +99,12 @@ public class FBPParticleRain extends EntityDiggingFX {
 						if (particleAlpha > 0.65f)
 							particleAlpha = 0.65f;
 					}
-				}
-			} else
-				setDead();
+				} else
+					setDead();
+			}
 
-			if (worldObj.getBlock(MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ)).getMaterial().isLiquid())
+			if (worldObj.getBlock(MathHelper.floor_double(posX), MathHelper.floor_double(posY),
+					MathHelper.floor_double(posZ)).getMaterial().isLiquid())
 				setDead();
 
 			motionY -= 0.04D * this.particleGravity;
@@ -131,8 +113,7 @@ public class FBPParticleRain extends EntityDiggingFX {
 
 			motionY *= 1.00025000190734863D;
 
-			if (onGround)
-			{
+			if (onGround) {
 				motionX = 0;
 				motionY = -0.25f;
 				motionZ = 0;
@@ -142,16 +123,14 @@ public class FBPParticleRain extends EntityDiggingFX {
 
 				float max = (float) scalar * 4.25f;
 
-				if (particleScale < max)
-				{
+				if (particleScale < max) {
 					particleScale += max / 10;
-					
+
 					if (particleScale > max)
 						particleScale = max;
 				}
 
-				if (particleScale >= max / 2)
-				{
+				if (particleScale >= max / 2) {
 					if (FBP.randomFadingSpeed)
 						particleAlpha *= 0.75F * endMult;
 					else
@@ -218,8 +197,6 @@ public class FBPParticleRain extends EntityDiggingFX {
 	@Override
 	public void renderParticle(Tessellator tes, float partialTicks, float rotationX, float rotationZ, float rotationYZ,
 			float rotationXY, float rotationXZ) {
-		this.partialTicks = partialTicks;
-
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
 

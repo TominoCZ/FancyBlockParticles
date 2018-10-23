@@ -30,15 +30,9 @@ public class FBPParticleSnow extends EntityDiggingFX {
 	Minecraft mc;
 
 	double scaleAlpha, prevParticleScale, prevParticleAlpha;
-
-	FBPVector3d rotStep;
-
-	FBPVector3d prevRot;
-	FBPVector3d rot;
-
-	boolean modeDebounce = false;
-
 	double endMult = 1;
+
+	FBPVector3d rot, prevRot, rotStep;
 
 	Vector2f[] par;
 

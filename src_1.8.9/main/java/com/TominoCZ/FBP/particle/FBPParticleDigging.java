@@ -43,26 +43,22 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 	Minecraft mc;
 
-	double scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
 	float prevGravity;
 
-	boolean modeDebounce = false, wasFrozen = false, destroyed = false;
-
-	boolean dying = false, killToggle = false;
-
-	FBPVector3d rotStep;
-
-	FBPVector3d rot;
-	FBPVector3d prevRot;
-
+	double startY, scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
 	double endMult = 0.75;
 
-	Vector2f uvMin;
-	Vector2f uvMax;
+	boolean modeDebounce, wasFrozen, destroyed, killToggle;
+
+	EnumFacing facing;
+
+	FBPVector3d rot, prevRot, rotStep;
+
+	Vector2f uvMin, uvMax;
 
 	protected FBPParticleDigging(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
-			double ySpeedIn, double zSpeedIn, float R, float G, float B, IBlockState state, @Nullable EnumFacing facing,
-			float scale, @Nullable TextureAtlasSprite texture) {
+			double ySpeedIn, double zSpeedIn, float scale, float R, float G, float B, IBlockState state,
+			@Nullable EnumFacing facing, @Nullable TextureAtlasSprite texture) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, state);
 
 		this.particleRed = R;
@@ -73,6 +69,8 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 		rot = new FBPVector3d();
 		prevRot = new FBPVector3d();
+
+		this.facing = facing;
 
 		createRotationMatrix();
 
@@ -145,10 +143,6 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 						uvMin = new Vector2f(u1, v1);
 						uvMax = new Vector2f(u2, v2);
-
-						if (!state.getBlock().isNormalCube()
-								|| (b.equals(Blocks.grass) && facing.equals(EnumFacing.UP)))
-							multiplyColor(state.getBlock(), new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 					}
 				} catch (Exception e) {
 				}
@@ -165,15 +159,40 @@ public class FBPParticleDigging extends EntityDiggingFX {
 		} else
 			this.particleIcon = texture;
 
-		if (!state.getBlock().isNormalCube())
-			multiplyColor(state.getBlock(), new BlockPos(xCoordIn, yCoordIn, zCoordIn));
-
 		if (FBP.randomFadingSpeed)
 			endMult = MathHelper.clamp_double(FBP.random.nextDouble(0.5, 0.9), 0.55, 0.8);
 
 		prevGravity = particleGravity;
 
+		startY = posY;
+
 		multipleParticleScaleBy(1);
+	}
+
+	@Override
+	public FBPParticleDigging func_174846_a(BlockPos pos) {
+		if (sourceState.getBlock() == Blocks.grass && facing != EnumFacing.UP)
+			return this;
+
+		int i = sourceState.getBlock().colorMultiplier(this.worldObj, pos);
+		this.particleRed *= (float) (i >> 16 & 255) / 255.0F;
+		this.particleGreen *= (float) (i >> 8 & 255) / 255.0F;
+		this.particleBlue *= (float) (i & 255) / 255.0F;
+
+		return this;
+	}
+
+	@Override
+	public FBPParticleDigging func_174845_l() {
+		if (sourceState.getBlock() == Blocks.grass && facing != EnumFacing.UP)
+			return this;
+
+		int i = sourceState.getBlock().colorMultiplier(this.worldObj, new BlockPos(posX, posY, posZ));
+		this.particleRed *= (float) (i >> 16 & 255) / 255.0F;
+		this.particleGreen *= (float) (i >> 8 & 255) / 255.0F;
+		this.particleBlue *= (float) (i & 255) / 255.0F;
+
+		return this;
 	}
 
 	@Override
@@ -181,6 +200,9 @@ public class FBPParticleDigging extends EntityDiggingFX {
 		EntityFX p = super.multipleParticleScaleBy(scale);
 
 		float f = particleScale / 10;
+
+		if (FBP.restOnFloor && destroyed)
+			posY = prevPosY = startY - f;
 
 		this.setEntityBoundingBox(new AxisAlignedBB(posX - f, posY, posZ - f, posX + f, posY + 2 * f, posZ + f));
 
@@ -192,17 +214,6 @@ public class FBPParticleDigging extends EntityDiggingFX {
 		this.motionY = (this.motionY - 0.10000000149011612D) * (multiplier / 2) + 0.10000000149011612D;
 		this.motionZ *= multiplier;
 		return this;
-	}
-
-	protected void multiplyColor(Block b, @Nullable BlockPos pos) {
-		if (b == null || pos == null)
-			return;
-
-		int i = b.colorMultiplier(worldObj, pos, 0);
-
-		this.particleRed *= (i >> 16 & 255) / 255.0F;
-		this.particleGreen *= (i >> 8 & 255) / 255.0F;
-		this.particleBlue *= (i & 255) / 255.0F;
 	}
 
 	@Override
@@ -284,9 +295,6 @@ public class FBPParticleDigging extends EntityDiggingFX {
 				particleAge++;
 
 			if (this.particleAge >= this.particleMaxAge || killToggle) {
-				if (!dying)
-					dying = true;
-
 				particleScale *= 0.887654321F * endMult;
 
 				if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
@@ -475,7 +483,7 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 		float minX = 0, maxX = 0, minY = 0, maxY = 0;
 
-		float f4 = particleScale;
+		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
 
 		if (particleIcon != null) {
 			if (uvMin == null && uvMax == null) {
@@ -513,14 +521,7 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 		int i = this.getBrightnessForRender(partialTicks);
 
-		float alpha = particleAlpha;
-
-		// SMOOTH TRANSITION
-		if ((dying && !FBP.frozen) || (FBP.frozen && killToggle)) {
-			f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
-
-			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
-		}
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		if (FBP.restOnFloor)
 			f6 += f4 / 10;
@@ -572,7 +573,7 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 		if (this.worldObj.isBlockLoaded(new BlockPos(posX, 0, posZ))) {
 			double d0 = (box.maxY - box.minY) * 0.66D;
-			double k = this.posY + d0 - 0.01;
+			double k = this.posY + d0 + 0.01 - (FBP.restOnFloor ? particleScale / 10 : 0);
 			return this.worldObj.getCombinedLight(new BlockPos(posX, k, posZ), 0);
 		} else {
 			return 0;
@@ -584,8 +585,8 @@ public class FBPParticleDigging extends EntityDiggingFX {
 		@Override
 		public EntityFX getEntityFX(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn,
 				double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_) {
-			return (new FBPParticleDigging(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, 1, 1, 1,
-					Block.getStateById(p_178902_15_[0]), null, -1, null));
+			return (new FBPParticleDigging(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, -1, 1,
+					1, 1, Block.getStateById(p_178902_15_[0]), null, null));
 		}
 	}
 

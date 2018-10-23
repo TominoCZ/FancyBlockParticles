@@ -42,21 +42,18 @@ public class FBPParticleDigging extends ParticleDigging
 
 	Minecraft mc;
 
-	double scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
 	float prevGravity;
 
-	boolean modeDebounce = false, wasFrozen = false, destroyed = false;
+	double startY, scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
+	double endMult = 0.75;
 
-	boolean dying = false, killToggle = false;
+	boolean modeDebounce, wasFrozen, destroyed, killToggle;
 
-	FBPVector3d rotStep;
+	EnumFacing facing;
 
-	FBPVector3d rot;
-	FBPVector3d prevRot;
+	FBPVector3d rot, prevRot, rotStep;
 
 	Vec2f[] par;
-
-	double endMult = 0.75;
 
 	static Entity dummyEntity = new Entity(null) {
 
@@ -83,8 +80,8 @@ public class FBPParticleDigging extends ParticleDigging
 	};
 
 	protected FBPParticleDigging(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
-			double ySpeedIn, double zSpeedIn, float R, float G, float B, IBlockState state, @Nullable EnumFacing facing,
-			float scale, @Nullable TextureAtlasSprite texture)
+			double ySpeedIn, double zSpeedIn, float scale, float R, float G, float B, IBlockState state,
+			@Nullable EnumFacing facing, @Nullable TextureAtlasSprite texture)
 	{
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, state);
 
@@ -96,6 +93,8 @@ public class FBPParticleDigging extends ParticleDigging
 
 		rot = new FBPVector3d();
 		prevRot = new FBPVector3d();
+
+		this.facing = facing;
 
 		createRotationMatrix();
 
@@ -162,12 +161,7 @@ public class FBPParticleDigging extends ParticleDigging
 					List<BakedQuad> quads = blockModelShapes.getModelForState(state).getQuads(state, facing, 0);
 
 					if (quads != null && !quads.isEmpty())
-					{
 						this.particleTexture = quads.get(0).getSprite();
-
-						if (!state.isNormalCube() || (b.equals(Blocks.GRASS) && facing.equals(EnumFacing.UP)))
-							multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
-					}
 				} catch (Exception e)
 				{
 				}
@@ -178,13 +172,12 @@ public class FBPParticleDigging extends ParticleDigging
 		} else
 			this.particleTexture = texture;
 
-		if (!state.isNormalCube())
-			multiplyColor(new BlockPos(xCoordIn, yCoordIn, zCoordIn));
-
 		if (FBP.randomFadingSpeed)
 			endMult = MathHelper.clamp(FBP.random.nextDouble(0.5, 0.9), 0.55, 0.8);
 
 		prevGravity = particleGravity;
+
+		startY = posY;
 
 		multipleParticleScaleBy(1);
 	}
@@ -195,6 +188,9 @@ public class FBPParticleDigging extends ParticleDigging
 		Particle p = super.multipleParticleScaleBy(scale);
 
 		float f = particleScale / 10;
+
+		if (FBP.restOnFloor && destroyed)
+			posY = prevPosY = startY - f;
 
 		this.setBoundingBox(new AxisAlignedBB(posX - f, posY, posZ - f, posX + f, posY + 2 * f, posZ + f));
 
@@ -212,10 +208,27 @@ public class FBPParticleDigging extends ParticleDigging
 	@Override
 	protected void multiplyColor(@Nullable BlockPos p_187154_1_)
 	{
+		if (sourceState.getBlock() == Blocks.GRASS && facing != EnumFacing.UP)
+			return;
+
 		int i = mc.getBlockColors().colorMultiplier(this.sourceState, this.world, p_187154_1_, 0);
 		this.particleRed *= (i >> 16 & 255) / 255.0F;
 		this.particleGreen *= (i >> 8 & 255) / 255.0F;
 		this.particleBlue *= (i & 255) / 255.0F;
+	}
+
+	@Override
+	public FBPParticleDigging init()
+	{
+		this.multiplyColor(new BlockPos(posX, posY, posZ));
+		return this;
+	}
+
+	@Override
+	public FBPParticleDigging setBlockPos(BlockPos pos)
+	{
+		this.multiplyColor(pos);
+		return this;
 	}
 
 	@Override
@@ -312,9 +325,6 @@ public class FBPParticleDigging extends ParticleDigging
 
 			if (this.particleAge >= this.particleMaxAge || killToggle)
 			{
-				if (!dying)
-					dying = true;
-
 				particleScale *= 0.887654321F * endMult;
 
 				if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
@@ -541,7 +551,7 @@ public class FBPParticleDigging extends ParticleDigging
 
 		float f = 0, f1 = 0, f2 = 0, f3 = 0;
 
-		float f4 = particleScale;
+		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
 
 		if (particleTexture != null)
 		{
@@ -569,15 +579,7 @@ public class FBPParticleDigging extends ParticleDigging
 
 		par = new Vec2f[] { new Vec2f(f1, f3), new Vec2f(f1, f2), new Vec2f(f, f2), new Vec2f(f, f3) };
 
-		float alpha = particleAlpha;
-
-		// SMOOTH TRANSITION
-		if (dying && !FBP.frozen || FBP.frozen && killToggle)
-		{
-			f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
-
-			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
-		}
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		if (FBP.restOnFloor)
 			f6 += f4 / 10;
@@ -633,7 +635,7 @@ public class FBPParticleDigging extends ParticleDigging
 		if (this.world.isBlockLoaded(new BlockPos(posX, 0, posZ)))
 		{
 			double d0 = (box.maxY - box.minY) * 0.66D;
-			double k = this.posY + d0 - 0.01;
+			double k = this.posY + d0 + 0.01 - (FBP.restOnFloor ? particleScale / 10 : 0);
 			return this.world.getCombinedLight(new BlockPos(posX, k, posZ), 0);
 		} else
 		{
@@ -648,8 +650,8 @@ public class FBPParticleDigging extends ParticleDigging
 		public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn,
 				double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_)
 		{
-			return (new FBPParticleDigging(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, 1, 1, 1,
-					Block.getStateById(p_178902_15_[0]), null, -1, null)).init();
+			return (new FBPParticleDigging(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, -1, 1,
+					1, 1, Block.getStateById(p_178902_15_[0]), null, null)).init();
 		}
 	}
 

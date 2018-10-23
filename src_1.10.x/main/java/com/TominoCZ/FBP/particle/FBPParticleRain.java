@@ -30,21 +30,9 @@ public class FBPParticleRain extends ParticleDigging
 
 	Minecraft mc;
 
-	double particleHeight;
-
-	double prevParticleScale, prevParticleHeight, prevParticleAlpha;
-
-	boolean modeDebounce = false;
-
-	double scaleMult = 1.45;
-
+	double AngleY, particleHeight, prevParticleScale, prevParticleHeight, prevParticleAlpha;
 	double scalar = FBP.scaleMult;
-	
 	double endMult = 1;
-
-	double AngleY;
-
-	float brightness = 1;
 
 	Vec2f[] par;
 
@@ -73,7 +61,7 @@ public class FBPParticleRain extends ParticleDigging
 
 		mc = Minecraft.getMinecraft();
 
-		particleMaxAge = (int) FBP.random.nextDouble(95, 115);
+		particleMaxAge = (int) FBP.random.nextDouble(50, 70);
 
 		this.particleAlpha = 0f;
 		this.particleScale = 0f;
@@ -131,9 +119,9 @@ public class FBPParticleRain extends ParticleDigging
 			if (posY < mc.thePlayer.posY - (mc.gameSettings.renderDistanceChunks * 9))
 				setExpired();
 
-			if (this.particleAge < this.particleMaxAge)
+			if (!isCollided)
 			{
-				if (!onGround)
+				if (this.particleAge < this.particleMaxAge)
 				{
 					double max = scalar * 0.5;
 
@@ -160,11 +148,11 @@ public class FBPParticleRain extends ParticleDigging
 						if (particleAlpha > 0.65f)
 							particleAlpha = 0.65f;
 					}
-				}
-			} else
-				setExpired();
+				} else
+					setExpired();
+			}
 
-			if (world.getBlockState(new BlockPos(posX, posY, posZ)).getMaterial().isLiquid())
+			if (worldObj.getBlockState(new BlockPos(posX, posY, posZ)).getMaterial().isLiquid())
 				setExpired();
 
 			motionY -= 0.04D * this.particleGravity;
@@ -173,7 +161,7 @@ public class FBPParticleRain extends ParticleDigging
 
 			motionY *= 1.00025000190734863D;
 
-			if (onGround)
+			if (isCollided)
 			{
 				motionX = 0;
 				motionY = -0.25f;
@@ -187,7 +175,7 @@ public class FBPParticleRain extends ParticleDigging
 				if (particleScale < max)
 				{
 					particleScale += max / 10;
-					
+
 					if (particleScale > max)
 						particleScale = max;
 				}

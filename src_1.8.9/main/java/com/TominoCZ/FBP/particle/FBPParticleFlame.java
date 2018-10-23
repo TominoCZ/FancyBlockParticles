@@ -28,23 +28,16 @@ import net.minecraft.world.World;
 public class FBPParticleFlame extends EntityFlameFX {
 	Minecraft mc;
 
-	double startScale;
-
-	double scaleAlpha, prevParticleScale, prevParticleAlpha;
-
+	double startScale, scaleAlpha, prevParticleScale, prevParticleAlpha;
 	double endMult = 1;
 
-	float AngleY;
+	boolean spawnAnother = true;
 
-	float _brightnessForRender = 1;
+	Vec3 startPos;
 
 	Vec3[] cube;
 
 	Vector2f par;
-
-	Vec3 startPos;
-
-	boolean spawnAnother = true;
 
 	protected FBPParticleFlame(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double mX, double mY,
 			double mZ, boolean spawnAnother) {
@@ -76,13 +69,13 @@ public class FBPParticleFlame extends EntityFlameFX {
 		this.particleGreen = 1f;
 		this.particleBlue = 0f;
 
-		AngleY = rand.nextFloat() * 80;
+		float angleY = rand.nextFloat() * 80;
 
 		cube = new Vec3[FBP.CUBE.length];
 
 		for (int i = 0; i < FBP.CUBE.length; i++) {
 			Vec3 vec = FBP.CUBE[i];
-			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, AngleY, 0);
+			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, (float) angleY, 0);
 		}
 
 		particleAlpha = 1f;
@@ -124,36 +117,37 @@ public class FBPParticleFlame extends EntityFlameFX {
 		if (!FBP.fancyFlame)
 			this.isDead = true;
 
-		if (!mc.isGamePaused()) {
-			particleAge++;
+		if (++this.particleAge >= this.particleMaxAge) {
+			if (FBP.randomFadingSpeed)
+				particleScale *= 0.95F * endMult;
+			else
+				particleScale *= 0.95F;
 
-			if (this.particleAge >= this.particleMaxAge) {
+			if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
 				if (FBP.randomFadingSpeed)
-					particleScale *= 0.95F * endMult;
+					particleAlpha *= 0.9F * endMult;
 				else
-					particleScale *= 0.95F;
-
-				if (particleAlpha > 0.01 && particleScale <= scaleAlpha) {
-					if (FBP.randomFadingSpeed)
-						particleAlpha *= 0.9F * endMult;
-					else
-						particleAlpha *= 0.9F;
-				}
-
-				if (particleAlpha <= 0.01)
-					setDead();
-				else if (particleAlpha <= 0.325 && spawnAnother
-						&& worldObj.getBlockState(new BlockPos(posX, posY, posZ)).getBlock() == Blocks.torch) {
-					spawnAnother = false;
-
-					mc.effectRenderer.addEffect(new FBPParticleFlame(worldObj, startPos.xCoord, startPos.yCoord,
-							startPos.zCoord, 0, 0, 0, spawnAnother));
-				}
+					particleAlpha *= 0.9F;
 			}
 
-			motionY -= 0.02D * this.particleGravity;
-			moveEntity(0, motionY, 0);
-			motionY *= 0.95D;
+			if (particleAlpha <= 0.01)
+				setDead();
+			else if (particleAlpha <= 0.325 && spawnAnother
+					&& worldObj.getBlockState(new BlockPos(posX, posY, posZ)).getBlock() == Blocks.torch) {
+				spawnAnother = false;
+
+				mc.effectRenderer.addEffect(new FBPParticleFlame(worldObj, startPos.xCoord, startPos.yCoord,
+						startPos.zCoord, 0, 0, 0, spawnAnother));
+			}
+		}
+
+		motionY -= 0.02D * this.particleGravity;
+		moveEntity(0, motionY, 0);
+		motionY *= 0.95D;
+
+		if (this.onGround) {
+			this.motionX *= 0.899999988079071D;
+			this.motionZ *= 0.899999988079071D;
 		}
 	}
 
@@ -190,7 +184,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 		this.posY = (axisalignedbb.minY + axisalignedbb.maxY) / 2.0D;
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
-		this.isCollided = y != Y;
+		this.onGround = y != Y;
 	}
 
 	@Override
@@ -234,7 +228,7 @@ public class FBPParticleFlame extends EntityFlameFX {
 	}
 
 	public void putCube(WorldRenderer worldRendererIn, double scale, int j, int k, float r, float g, float b, float a) {
-		float brightnessForRender = _brightnessForRender;
+		float brightnessForRender = 1;
 
 		float R = 0;
 		float G = 0;

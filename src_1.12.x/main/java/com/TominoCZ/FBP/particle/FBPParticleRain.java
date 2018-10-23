@@ -30,22 +30,10 @@ public class FBPParticleRain extends ParticleDigging
 
 	Minecraft mc;
 
-	double particleHeight;
-
-	double prevParticleScale, prevParticleHeight, prevParticleAlpha;
-
-	boolean modeDebounce = false;
-
-	double scaleMult = 1.45;
-
+	double AngleY, particleHeight, prevParticleScale, prevParticleHeight, prevParticleAlpha;
 	double scalar = FBP.scaleMult;
-	
 	double endMult = 1;
 
-	double AngleY;
-
-	float brightness = 1;
-	
 	Vec2f[] par;
 
 	public FBPParticleRain(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
@@ -73,7 +61,7 @@ public class FBPParticleRain extends ParticleDigging
 
 		mc = Minecraft.getMinecraft();
 
-		particleMaxAge = (int) FBP.random.nextDouble(95, 115);
+		particleMaxAge = (int) FBP.random.nextDouble(50, 70);
 
 		this.particleAlpha = 0f;
 		this.particleScale = 0f;
@@ -131,9 +119,9 @@ public class FBPParticleRain extends ParticleDigging
 			if (posY < mc.player.posY - (mc.gameSettings.renderDistanceChunks * 9))
 				setExpired();
 
-			if (this.particleAge < this.particleMaxAge)
+			if (!onGround)
 			{
-				if (!onGround)
+				if (this.particleAge < this.particleMaxAge)
 				{
 					double max = scalar * 0.5;
 
@@ -160,16 +148,16 @@ public class FBPParticleRain extends ParticleDigging
 						if (particleAlpha > 0.65f)
 							particleAlpha = 0.65f;
 					}
-				}
-			} else
-				setExpired();
+				} else
+					setExpired();
+			}
 
 			if (world.getBlockState(new BlockPos(posX, posY, posZ)).getMaterial().isLiquid())
 				setExpired();
 
 			motionY -= 0.04D * this.particleGravity;
 
-			moveEntity(motionX, motionY, motionZ);
+			move(motionX, motionY, motionZ);
 
 			motionY *= 1.00025000190734863D;
 
@@ -187,7 +175,7 @@ public class FBPParticleRain extends ParticleDigging
 				if (particleScale < max)
 				{
 					particleScale += max / 10;
-					
+
 					if (particleScale > max)
 						particleScale = max;
 				}
@@ -216,9 +204,9 @@ public class FBPParticleRain extends ParticleDigging
 		if (this.particleBlue > 1)
 			particleBlue = 1;
 	}
-                              
+
 	@Override
-	public void moveEntity(double x, double y, double z)
+	public void move(double x, double y, double z)
 	{
 		double X = x;
 		double Y = y;

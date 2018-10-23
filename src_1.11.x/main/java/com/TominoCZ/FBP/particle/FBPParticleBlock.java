@@ -375,7 +375,7 @@ public class FBPParticleBlock extends Particle
 			mZ /= -0.5;
 
 			mc.effectRenderer.addEffect(new FBPParticleDigging(mc.world, corner.x, pos.getY() + 0.1f, corner.y, mX, 0,
-					mZ, 1, 1, 1, block.getActualState(blockState, mc.world, pos), null, 0.6f, this.particleTexture)
+					mZ, 0.6f, 1, 1, 1, block.getActualState(blockState, mc.world, pos), null, this.particleTexture)
 							.multipleParticleScaleBy(0.5f).multiplyVelocity(0.5f));
 		}
 
@@ -391,8 +391,8 @@ public class FBPParticleBlock extends Particle
 			mZ /= -0.45;
 
 			mc.effectRenderer.addEffect(
-					new FBPParticleDigging(mc.world, corner.x, pos.getY() + 0.1f, corner.y, mX / 3, 0, mZ / 3, 1, 1, 1,
-							block.getActualState(blockState, mc.world, pos), null, 0.6f, this.particleTexture)
+					new FBPParticleDigging(mc.world, corner.x, pos.getY() + 0.1f, corner.y, mX / 3, 0, mZ / 3, 0.6f, 1,
+							1, 1, block.getActualState(blockState, mc.world, pos), null, this.particleTexture)
 									.multipleParticleScaleBy(0.75f).multiplyVelocity(0.75f));
 		}
 	}

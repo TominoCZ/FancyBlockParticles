@@ -24,15 +24,8 @@ import net.minecraft.world.World;
 public class FBPParticleSmokeNormal extends EntitySmokeFX {
 	Minecraft mc;
 
-	double startScale;
-
-	double scaleAlpha, prevParticleScale, prevParticleAlpha;
-
+	double startScale, scaleAlpha, prevParticleScale, prevParticleAlpha;
 	double endMult = 0.75;
-
-	float AngleY;
-
-	float _brightnessForRender = 1;
 
 	Vec3[] cube;
 
@@ -97,13 +90,13 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 		startScale = particleScale;
 
-		AngleY = rand.nextFloat() * 80;
+		float angleY = rand.nextFloat() * 80;
 
 		cube = new Vec3[FBP.CUBE.length];
 
 		for (int i = 0; i < FBP.CUBE.length; i++) {
 			Vec3 vec = FBP.CUBE[i];
-			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, AngleY, 0);
+			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, (float) angleY, 0);
 		}
 
 		particleAlpha = 1f;
@@ -142,9 +135,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		if (!FBP.fancySmoke)
 			this.isDead = true;
 
-		particleAge++;
-
-		if (this.particleAge >= this.particleMaxAge) {
+		if (++this.particleAge >= this.particleMaxAge) {
 			if (FBP.randomFadingSpeed)
 				particleScale *= 0.887654321F * endMult;
 			else
@@ -174,8 +165,8 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		this.motionZ *= 0.9599999785423279D;
 
 		if (this.onGround) {
-			this.motionX *= 0.799999988079071D;
-			this.motionZ *= 0.799999988079071D;
+			this.motionX *= 0.899999988079071D;
+			this.motionZ *= 0.899999988079071D;
 		}
 	}
 
@@ -245,7 +236,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 	}
 
 	public void putCube(WorldRenderer worldRendererIn, double scale, int j, int k, float r, float g, float b, float a) {
-		float brightnessForRender = _brightnessForRender;
+		float brightnessForRender = 1;
 
 		float R = 0;
 		float G = 0;

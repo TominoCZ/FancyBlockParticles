@@ -24,15 +24,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 {
 	Minecraft mc;
 
-	double startScale;
-
-	double scaleAlpha, prevParticleScale, prevParticleAlpha;
-
+	double startScale, scaleAlpha, prevParticleScale, prevParticleAlpha;
 	double endMult = 0.75;
-
-	float AngleY;
-
-	float _brightnessForRender = 1;
 
 	Vec3d[] cube;
 
@@ -102,14 +95,14 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 
 		startScale = particleScale;
 
-		AngleY = rand.nextFloat() * 80;
+		float angleY = rand.nextFloat() * 80;
 
 		cube = new Vec3d[FBP.CUBE.length];
 
 		for (int i = 0; i < FBP.CUBE.length; i++)
 		{
 			Vec3d vec = FBP.CUBE[i];
-			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, AngleY, 0);
+			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, angleY, 0);
 		}
 
 		particleAlpha = 1f;
@@ -151,9 +144,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 		if (!FBP.fancySmoke)
 			this.isExpired = true;
 
-		particleAge++;
-
-		if (this.particleAge >= this.particleMaxAge)
+		if (++this.particleAge >= this.particleMaxAge)
 		{
 			if (FBP.randomFadingSpeed)
 				particleScale *= 0.887654321F * endMult;
@@ -187,8 +178,8 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 
 		if (this.isCollided)
 		{
-			this.motionX *= 0.799999988079071D;
-			this.motionZ *= 0.799999988079071D;
+			this.motionX *= 0.899999988079071D;
+			this.motionZ *= 0.899999988079071D;
 		}
 	}
 
@@ -268,7 +259,7 @@ public class FBPParticleSmokeNormal extends ParticleSmokeNormal
 
 	public void putCube(VertexBuffer worldRendererIn, double scale, int j, int k, float r, float g, float b, float a)
 	{
-		float brightnessForRender = _brightnessForRender;
+		float brightnessForRender = 1;
 
 		float R = 0;
 		float G = 0;

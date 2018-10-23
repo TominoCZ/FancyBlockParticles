@@ -30,13 +30,9 @@ public class FBPParticleSnow extends ParticleDigging
 	Minecraft mc;
 
 	double scaleAlpha, prevParticleScale, prevParticleAlpha;
-
-	FBPVector3d rotStep;
-
-	FBPVector3d prevRot;
-	FBPVector3d rot;
-
 	double endMult = 1;
+
+	FBPVector3d rot, prevRot, rotStep;
 
 	Vec2f[] par;
 

@@ -22,19 +22,12 @@ import net.minecraft.world.World;
 public class FBPParticleSmokeNormal extends EntitySmokeFX {
 	Minecraft mc;
 
-	double startScale;
-
-	double scaleAlpha, prevParticleScale, prevParticleAlpha;
-
+	double startScale, scaleAlpha, prevParticleScale, prevParticleAlpha;
 	double endMult = 0.75;
 
-	float AngleY;
-
-	float _brightnessForRender = 1;
+	FBPVector3d par;
 
 	FBPVector3d[] cube;
-
-	FBPVector3d par;
 
 	EntitySmokeFX original;
 
@@ -97,13 +90,13 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 
 		startScale = particleScale;
 
-		AngleY = rand.nextFloat() * 80;
+		float angleY = rand.nextFloat() * 80;
 
 		cube = new FBPVector3d[FBP.CUBE.length];
 
 		for (int i = 0; i < FBP.CUBE.length; i++) {
 			FBPVector3d vec = FBP.CUBE[i];
-			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, AngleY, 0);
+			cube[i] = FBPRenderUtil.rotatef_d(vec, 0, angleY, 0);
 		}
 
 		particleAlpha = 1f;
@@ -178,9 +171,9 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		this.motionY *= 0.9599999785423279D;
 		this.motionZ *= 0.9599999785423279D;
 
-		if (this.isCollided) {
-			this.motionX *= 0.799999988079071D;
-			this.motionZ *= 0.799999988079071D;
+		if (this.onGround) {
+			this.motionX *= 0.899999988079071D;
+			this.motionZ *= 0.899999988079071D;
 		}
 	}
 
@@ -215,7 +208,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 		this.posY = (axisalignedbb.minY + axisalignedbb.maxY) / 2.0D;
 		this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
 
-		this.isCollided = y != Y;
+		this.onGround = y != Y;
 	}
 
 	@Override
@@ -246,7 +239,7 @@ public class FBPParticleSmokeNormal extends EntitySmokeFX {
 	}
 
 	public void putCube(Tessellator tes, double scale, int brightness, float r, float g, float b, float a) {
-		float brightnessForRender = _brightnessForRender;
+		float brightnessForRender = 1;
 
 		float R = 0;
 		float G = 0;

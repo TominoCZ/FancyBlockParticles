@@ -33,24 +33,19 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 	int vecIndex;
 
-	double scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
 	float prevGravity;
 
-	boolean modeDebounce = false, wasFrozen = false, destroyed = false;
+	double startY, scaleAlpha, prevParticleScale, prevParticleAlpha, prevMotionX, prevMotionZ;
+	double endMult = 0.75;
 
-	boolean dying = false, killToggle = false;
+	boolean modeDebounce, wasFrozen, destroyed, killToggle;
 
-	FBPVector3d rotStep;
-
-	FBPVector3d rot;
-	FBPVector3d prevRot;
+	FBPVector3d rot, prevRot, rotStep;
 
 	FBPVector3d[] par;
 
-	double endMult = 0.75;
-
-	protected FBPParticleDigging(World w, double X, double Y, double Z, double mx, double my, double mz, float R,
-			float G, float B, float scale, Block b, int meta, int side) {
+	protected FBPParticleDigging(World w, double X, double Y, double Z, double mx, double my, double mz, float scale,
+			float R, float G, float B, Block b, int meta, int side) {
 		super(w, X, Y, Z, mx, my, mz, b, meta < 0 ? 0 : meta, 0);
 
 		this.particleRed = R;
@@ -109,12 +104,14 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 		prevGravity = particleGravity;
 
+		startY = posY;
+
 		multipleParticleScaleBy(1);
 	}
 
 	protected FBPParticleDigging(World w, double x, double y, double z, double mx, double my, double mz, float scale,
 			float r, float g, float b, Block bl, int meta) {
-		this(w, x, y, z, mx, my, mz, r, g, b, scale, bl, meta, -1);
+		this(w, x, y, z, mx, my, mz, scale, r, g, b, bl, meta, -1);
 	}
 
 	@Override
@@ -123,6 +120,9 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 		float f = particleScale / 10;
 
+		if (FBP.restOnFloor && destroyed)
+			posY = prevPosY = startY - f;
+
 		this.boundingBox
 				.setBB(AxisAlignedBB.getBoundingBox(posX - f, posY, posZ - f, posX + f, posY + 2 * f, posZ + f));
 
@@ -130,18 +130,53 @@ public class FBPParticleDigging extends EntityDiggingFX {
 	}
 
 	@Override
-	public FBPParticleDigging applyColourMultiplier(int p_70596_1_, int p_70596_2_, int p_70596_3_) {
+	public FBPParticleDigging applyColourMultiplier(int x, int y, int z) {
+		if (worldObj.getBlock(x, y, z) != this.sourceBlock) {
+			boolean found = false;
+
+			for (int i = -1; i < 2; i++) {
+				for (int j = -1; j < 2; j++) {
+					for (int k = -1; k < 2; k++) {
+						if (worldObj.getBlock(x + i, y + j, z + k) == this.sourceBlock) {
+							x += i;
+							y += j;
+							z += k;
+
+							found = true;
+							break;
+						}
+					}
+
+					if (found)
+						break;
+				}
+
+				if (found)
+					break;
+			}
+
+		}
+
+		if (this.sourceBlock == Blocks.grass && this.blockSide != 1)
+			return this;
+
+		int l = this.sourceBlock.colorMultiplier(this.worldObj, x, y, z);
+		this.particleRed *= (float) (l >> 16 & 255) / 255.0F;
+		this.particleGreen *= (float) (l >> 8 & 255) / 255.0F;
+		this.particleBlue *= (float) (l & 255) / 255.0F;
+
+		return this;
+	}
+
+	@Override
+	public FBPParticleDigging applyRenderColor(int p_90019_1_) {
 		if (this.sourceBlock == Blocks.grass && this.blockSide != 1) {
 			return this;
 		} else {
-			int l = this.sourceBlock.colorMultiplier(this.worldObj, p_70596_1_, p_70596_2_, p_70596_3_);
-
-			if (this.sourceBlock == Blocks.tallgrass)
-				l = -7226023;
-
-			this.particleRed *= (float) (l >> 16 & 255) / 255.0F;
-			this.particleGreen *= (float) (l >> 8 & 255) / 255.0F;
-			this.particleBlue *= (float) (l & 255) / 255.0F;
+			int j = this.sourceBlock.getRenderColor(p_90019_1_);
+			this.particleRed *= (float) (j >> 16 & 255) / 255.0F;
+			this.particleGreen *= (float) (j >> 8 & 255) / 255.0F;
+			this.particleBlue *= (float) (j & 255) / 255.0F;
 			return this;
 		}
 	}
@@ -233,9 +268,6 @@ public class FBPParticleDigging extends EntityDiggingFX {
 				particleAge++;
 
 			if (this.particleAge >= this.particleMaxAge || killToggle) {
-				if (!dying)
-					dying = true;
-
 				particleScale *= 0.887654321F * endMult;
 
 				if (particleAlpha > 0.01 && particleScale <= scaleAlpha)
@@ -467,12 +499,12 @@ public class FBPParticleDigging extends EntityDiggingFX {
 			float rotationXY, float rotationXZ) {
 		if (!FBP.isEnabled() && particleMaxAge != 0)
 			particleMaxAge = 0;
-		if (FBPKeyBindings.FBPSweep.isPressed() && !killToggle)
+		if (FBPKeyBindings.FBPSweep.getIsKeyPressed() && !killToggle)
 			killToggle = true;
 
 		float f = 0, f1 = 0, f2 = 0, f3 = 0;
 
-		float f4 = particleScale;
+		float f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
 
 		if (particleIcon != null) {
 			if (!FBP.cartoonMode) {
@@ -498,14 +530,7 @@ public class FBPParticleDigging extends EntityDiggingFX {
 		par = new FBPVector3d[] { new FBPVector3d(f1, f3, 0), new FBPVector3d(f1, f2, 0), new FBPVector3d(f, f2, 0),
 				new FBPVector3d(f, f3, 0) };
 
-		float alpha = particleAlpha;
-
-		// SMOOTH TRANSITION
-		if ((dying && !FBP.frozen) || (FBP.frozen && killToggle)) {
-			f4 = (float) (prevParticleScale + (particleScale - prevParticleScale) * partialTicks);
-
-			alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
-		}
+		float alpha = (float) (prevParticleAlpha + (particleAlpha - prevParticleAlpha) * partialTicks);
 
 		if (FBP.restOnFloor)
 			f6 += f4 / 10;
@@ -545,7 +570,7 @@ public class FBPParticleDigging extends EntityDiggingFX {
 
 		if (this.worldObj.blockExists(i, 0, j)) {
 			double d0 = (this.boundingBox.maxY - this.boundingBox.minY) * 0.66D;
-			int k = MathHelper.floor_double(this.posY + d0 - 0.01);
+			int k = MathHelper.floor_double(this.posY + d0 + 0.01 - (FBP.restOnFloor ? particleScale / 10 : 0));
 			return this.worldObj.getLightBrightnessForSkyBlocks(i, k, j, 0);
 		} else {
 			return 0;
